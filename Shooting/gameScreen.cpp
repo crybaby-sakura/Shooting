@@ -101,11 +101,20 @@ static void createSidePanelBG() {
         currentY += lineHeight;
     }
 
-    // BestTime（1行あける）
-    currentY += lineHeight;
+    // 説明文とプレイ回数の間（1行あける）
     currentY += lineHeight;
 
-    // Time は動的なのでここでは描かない（currentY だけ進めておく）
+    // プレイ回数行（動的描画で上書きするため、位置だけ進める）
+    // 静的には何も描かない
+    currentY += lineHeight;
+
+    // Plays と Best の間（半行の隙間）
+    currentY += halfLine;
+
+    // BestTime 行（動的描画で上書き）
+    currentY += lineHeight;
+
+    // Time は動的なのでここでは描かない
     currentY += lineHeight;
 
     // ---- BOSS 区切り線（上下に0.5行のスペース） ----
@@ -198,10 +207,13 @@ void drawSidePanel()
     int currentY = 40;                                  // stageId の始点
     currentY += lineHeight + halfLine;                  // stageId の高さ
     currentY += descLineCount * lineHeight;             // 説明文の行数分（WrapTextしない）
-    currentY += lineHeight;                             // BestTime の上の空行
-    int bestTimeY = currentY;                           // BestTime の行
-    currentY += lineHeight;                             // BestTime の行の高さ分
-    int timeY = currentY;                               // Time の行
+    currentY += lineHeight;             // 説明文とプレイ回数の間の空行
+    int playCountY = currentY;          // プレイ回数の行
+    currentY += lineHeight;             // プレイ回数の行の高さ分
+    currentY += lineHeight / 2;         // プレイ回数と BestTime の間の隙間（半行分）
+    int bestTimeY = currentY;
+    currentY += lineHeight;             // BestTime の行の高さ分
+    int timeY = currentY;               // Time の行
     currentY += lineHeight;
 
     // BOSS 区切り線の位置
@@ -221,13 +233,17 @@ void drawSidePanel()
     int replayY = currentY + lineHeight * 2 + lineHeight * 2;  // HP下1行空け + Q行 + 1行空け
 
     // ---- 動的描画 ----
+    // プレイ回数（BestTimeの上、隙間あり）
+    DrawBox(panelLeft, playCountY, 630, playCountY + lineHeight, INFO_BG_COLOR, TRUE);
+    DrawFormatString(panelLeft, playCountY, GetColor(255, 255, 255), "Play Count: %u", stageData[stageNum].playCount);
+
     // BestTime（更新される可能性があるため動的描画）
     DrawBox(panelLeft, bestTimeY, 630, bestTimeY + lineHeight, INFO_BG_COLOR, TRUE);
-    DrawFormatString(panelLeft, bestTimeY, GetColor(255, 255, 255), "Best: %6.2f", (double)stageData[stageNum].bestTime / 60);
+    DrawFormatString(panelLeft, bestTimeY, GetColor(255, 255, 255), "BestTime: %6.2f", (double)stageData[stageNum].bestTime / 60);
 
     // Time（背景を塗りつぶしてから描画）
     DrawBox(panelLeft, timeY, 630, timeY + lineHeight, INFO_BG_COLOR, TRUE);
-    DrawFormatString(panelLeft, timeY, GetColor(255, 255, 255), "Time: %6.2f", (double)count / 60);
+    DrawFormatString(panelLeft, timeY, GetColor(255, 255, 255), "    Time: %6.2f", (double)count / 60);
 
     // HP バー（塗りのみ、枠は静的）
     DrawBox(panelLeft, hpBarY, panelLeft + 140, hpBarY + 5, INFO_BG_COLOR, TRUE); // 前フレームの塗りを消す
@@ -258,7 +274,7 @@ void drawSidePanel()
             pSet = pSet->next;
         }
         // FPS表示の少し上 (y=436) に表示。FPSは通常 (565,460) 付近。
-        DrawFormatString(519, 416, GetColor(255, 255, 0), "無敵モード");
+        DrawFormatString(519, 416, GetColor(255, 255, 0), "<Invincible Mode>");
         DrawFormatString(519, 436, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
     }
 }

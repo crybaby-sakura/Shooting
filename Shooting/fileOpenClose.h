@@ -5,3 +5,5 @@ void loadCursorPos();
 void saveCursorPos();
 void loadWindowSettings();
 void saveWindowSettings();
+void loadPlayCount();
+void savePlayCount();

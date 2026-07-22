@@ -15,10 +15,6 @@ void playerControl() {
     if (key[KEY_INPUT_C] != 0) { playerSpeed = 1.5; isSlowMode = true; }
     else                      { playerSpeed = 4.5; isSlowMode = false; }
 
-    if (key[KEY_INPUT_M] == 1) {
-        isMuteki = !isMuteki;
-    }
-
     if (key[KEY_INPUT_NUMPAD6] != 0) {
         if      (key[KEY_INPUT_NUMPAD5] != 0) { player.x += playerSpeed / Sqrt2; player.y += playerSpeed / Sqrt2; }
         else if (key[KEY_INPUT_NUMPAD8] != 0) { player.x += playerSpeed / Sqrt2; player.y -= playerSpeed / Sqrt2; }

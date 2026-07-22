@@ -55,6 +55,8 @@ void fileOpen()
     {
         // パースエラー時もデフォルト値のまま
     }
+
+    loadPlayCount();
 }
 
 void fileClose()
@@ -71,6 +73,8 @@ void fileClose()
     {
         ofs << j.dump(4);   // インデント付きで出力
     }
+
+    savePlayCount();
 
     saveCursorPos();
 }
@@ -175,4 +179,43 @@ void saveWindowSettings()
     {
         ofs << j.dump(4);
     }
+}
+
+void loadPlayCount()
+{
+    // デフォルトは0
+    for (int i = 0; i < (int)stageData.size(); i++)
+        stageData[i].playCount = 0;
+
+    std::ifstream ifs("saveData/playCount.json");
+    if (!ifs.is_open()) return;
+
+    try {
+        json j;
+        ifs >> j;
+        if (j.is_object()) {
+            for (auto it = j.begin(); it != j.end(); ++it) {
+                std::string key = it.key();
+                unsigned int value = it.value();
+                for (int i = 0; i < (int)stageData.size(); i++) {
+                    if (key == stageData[i].stageId) {
+                        stageData[i].playCount = value;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    catch (...) {}
+}
+
+void savePlayCount()
+{
+    json j = json::object();
+    for (int i = 0; i < (int)stageData.size(); i++)
+        j[stageData[i].stageId] = stageData[i].playCount;
+
+    std::ofstream ofs("saveData/playCount.json");
+    if (ofs.is_open())
+        ofs << j.dump(4);
 }

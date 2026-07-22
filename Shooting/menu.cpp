@@ -178,16 +178,21 @@ void menuDraw()
             textY += lineHeight;
         }
 
-        // 最短クリアタイム（説明の最終行の下に表示）
+        // プレイ回数（BestTime と同じ行の左側）
         int bestY = descAreaBottom - bestTimeH;
+        int playCountWidth = GetDrawStringWidth("Play Count: 888888", -1); // 十分な幅を確保
+        DrawFormatString(descAreaRight - 150 - playCountWidth - 10, bestY,   // Bestの右端から20px左へ
+            GetColor(255, 200, 100), "Play Count: %u", stageData[stageNum].playCount);
+
+        // 最短クリアタイム（説明の最終行の下に表示）
         if (stageData[stageNum].bestTime > 0) {
-            DrawFormatString(descAreaRight - 180, bestY,
-                GetColor(255, 200, 100), "Best: %6.2f",
+            DrawFormatString(descAreaRight - 150, bestY,
+                GetColor(255, 200, 100), "BestTime: %6.2f",
                 (double)stageData[stageNum].bestTime / 60.0);
         }
         else {
-            DrawFormatString(descAreaRight - 180, bestY,
-                GetColor(100, 100, 100), "Best: ---.--");
+            DrawFormatString(descAreaRight - 150, bestY,
+                GetColor(100, 100, 100), "BestTime: ---.--");
         }
 
         // リプレイエラーメッセージ（説明エリアのすぐ下に表示）

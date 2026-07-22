@@ -6,6 +6,7 @@
 #include "replay.h"       // startReplay(), replayActive
 #include "stageData.h"    // stageData
 #include "gv.h"
+#include "fileOpenClose.h"
 
 // BGMオンオフ制御定数 (true:再生する, false:再生しない)
 static constexpr bool BGM_ENABLED = true;
@@ -62,6 +63,13 @@ bool StateManager::ChangeState(Joutai newState)
 			}
 		}
 		startNewGame(); // iniGame + 乱数シード（joutaiFlag 代入は削除済み）
+
+		// ここでプレイ回数を増やす（リプレイでない場合のみ）
+		if (!replayActive && stageNum >= 0 && stageNum < (int)stageData.size()) {
+			stageData[stageNum].playCount++;
+			savePlayCount();   // 異常終了に備えてすぐ保存
+		}
+
 		break;
 
 	case Joutai::Replay:

@@ -10,6 +10,7 @@ struct StageInfo {
     void (*patternFunc)();     // 敵パターン関数ポインタ
     int bgmHandle = -1;        // BGMハンドラ（後で代入）
     unsigned int bestTime = 59999;     // 最短クリアフレーム数（後で代入）
+    unsigned int playCount = 0;        // プレイ回数
 };
 
 // サイズは初期化リストから自動決定

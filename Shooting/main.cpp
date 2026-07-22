@@ -220,6 +220,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             }
         }
 
+        // M キーで無敵モードの ON/OFF 切り替え
+        if (key[KEY_INPUT_M] == 1) {
+            isMuteki = !isMuteki;
+        }
+
         // 状態に応じて処理を分岐
         if (StateManager::GetState() == Joutai::Menu) {
             moveCursor();
