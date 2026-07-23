@@ -153,7 +153,8 @@ void menuDraw()
         int sepHeight = 10;                 // 線の下マージン
         int descHeight = (int)descLines.size() * lineHeight;
         int bestTimeH = lineHeight + 5;     // ベストタイム行
-        int areaInnerH = titleHeight + sepHeight + descHeight + bestTimeH;
+        const int bottomPadding = lineHeight / 2;   // 半行分の追加余白
+        int areaInnerH = titleHeight + sepHeight + descHeight + bottomPadding + bestTimeH;
         int descAreaTop = DESC_Y;
         int descAreaBottom = descAreaTop + areaInnerH;
 
@@ -180,19 +181,19 @@ void menuDraw()
 
         // プレイ回数（BestTime と同じ行の左側）
         int bestY = descAreaBottom - bestTimeH;
-        int playCountWidth = GetDrawStringWidth("Play Count: 888888", -1); // 十分な幅を確保
+        int playCountWidth = GetDrawStringWidth("Play Count: 88888", -1); // 十分な幅を確保
         DrawFormatString(descAreaRight - 150 - playCountWidth - 10, bestY,   // Bestの右端から20px左へ
             GetColor(255, 200, 100), "Play Count: %u", stageData[stageNum].playCount);
 
         // 最短クリアタイム（説明の最終行の下に表示）
-        if (stageData[stageNum].bestTime > 0) {
+        if (stageData[stageNum].bestTime < 59999) {
             DrawFormatString(descAreaRight - 150, bestY,
-                GetColor(255, 200, 100), "BestTime: %6.2f",
+                GetColor(255, 200, 100), "BestTime: %5.2f",
                 (double)stageData[stageNum].bestTime / 60.0);
         }
         else {
             DrawFormatString(descAreaRight - 150, bestY,
-                GetColor(100, 100, 100), "BestTime: ---.--");
+                GetColor(100, 100, 100), "BestTime: --.--");
         }
 
         // リプレイエラーメッセージ（説明エリアのすぐ下に表示）

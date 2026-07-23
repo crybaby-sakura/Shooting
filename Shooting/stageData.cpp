@@ -442,5 +442,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen53", "大文字をモチーフにした弾幕", "Taiko Skyline Run", EnemyPat_Daimonji_Qwen },
     { "Kimi53", "大文字をモチーフにした弾幕", "Taiko Skyline Run", EnemyPat_Daimonji_Kimi },
     { "Zai53", "大文字をモチーフにした弾幕", "Taiko Skyline Run", EnemyPat_Daimonji_Zai },
+    { "DeepSeek54", "ビールかけをモチーフにした弾幕", "Tipsy Brass Parade", EnemyPat_BeerSpray_DeepSeek },
+    { "ChatGPT54", "ビールかけをモチーフにした弾幕", "Tipsy Brass Parade", EnemyPat_BeerSpray_ChatGPT },
+    { "Gemini54", "ビールかけをモチーフにした弾幕", "Tipsy Brass Parade", EnemyPat_BeerSpray_Gemini },
+    { "Grok54", "ビールかけをモチーフにした弾幕", "Tipsy Brass Parade", EnemyPat_BeerSpray_Grok },
+    { "Claude54", "ビールかけをモチーフにした弾幕", "Tipsy Brass Parade", EnemyPat_BeerSpray_Claude },
+    { "Qwen54", "ビールかけをモチーフにした弾幕", "Tipsy Brass Parade", EnemyPat_BeerSpray_Qwen },
+    { "Kimi54", "ビールかけをモチーフにした弾幕", "Tipsy Brass Parade", EnemyPat_BeerSpray_Kimi },
+    { "Zai54", "ビールかけをモチーフにした弾幕", "Tipsy Brass Parade", EnemyPat_BeerSpray_Zai },
     { "tmp", "ここに貼ってお試し", "Torpedo_Hymn", EnemyPat_Tmp },
 };

@@ -29,9 +29,11 @@ static void ShotUnavoidable(sEnemyShotSet* pEnemyShotSet)
 
     if (pEnemyShotSet->count == 0) {
         // 効果音：中弾発射音を使用
-        if (CheckSoundMem(sound_enemyShot_medium) == 1)
-            StopSoundMem(sound_enemyShot_medium);
-        PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
+        if (count % 10 == 0) {
+            if (CheckSoundMem(sound_enemyShot_medium) == 1)
+                StopSoundMem(sound_enemyShot_medium);
+            PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
+        }
 
         // 自機の予測位置を計算（弾が届くまでの時間を考慮）
         double dist = hypot(player.x - pEnemyShotSet->x, player.y - pEnemyShotSet->y);

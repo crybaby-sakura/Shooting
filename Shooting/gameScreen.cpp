@@ -108,8 +108,8 @@ static void createSidePanelBG() {
     // 静的には何も描かない
     currentY += lineHeight;
 
-    // Plays と Best の間（半行の隙間）
-    currentY += halfLine;
+    // Play Count と Best の間
+    currentY += lineHeight;
 
     // BestTime 行（動的描画で上書き）
     currentY += lineHeight;
@@ -210,7 +210,7 @@ void drawSidePanel()
     currentY += lineHeight;             // 説明文とプレイ回数の間の空行
     int playCountY = currentY;          // プレイ回数の行
     currentY += lineHeight;             // プレイ回数の行の高さ分
-    currentY += lineHeight / 2;         // プレイ回数と BestTime の間の隙間（半行分）
+    currentY += lineHeight;             // プレイ回数と BestTime の間の隙間
     int bestTimeY = currentY;
     currentY += lineHeight;             // BestTime の行の高さ分
     int timeY = currentY;               // Time の行
@@ -239,11 +239,16 @@ void drawSidePanel()
 
     // BestTime（更新される可能性があるため動的描画）
     DrawBox(panelLeft, bestTimeY, 630, bestTimeY + lineHeight, INFO_BG_COLOR, TRUE);
-    DrawFormatString(panelLeft, bestTimeY, GetColor(255, 255, 255), "BestTime: %6.2f", (double)stageData[stageNum].bestTime / 60);
+    if (stageData[stageNum].bestTime >= 59999) {
+        DrawFormatString(panelLeft, bestTimeY, GetColor(255, 255, 255), "BestTime: --.--");
+    }
+    else {
+        DrawFormatString(panelLeft, bestTimeY, GetColor(255, 255, 255), "BestTime: %5.2f", (double)stageData[stageNum].bestTime / 60);
+    }
 
     // Time（背景を塗りつぶしてから描画）
     DrawBox(panelLeft, timeY, 630, timeY + lineHeight, INFO_BG_COLOR, TRUE);
-    DrawFormatString(panelLeft, timeY, GetColor(255, 255, 255), "    Time: %6.2f", (double)count / 60);
+    DrawFormatString(panelLeft, timeY, GetColor(255, 255, 255), "    Time: %5.2f", (double)count / 60);
 
     // HP バー（塗りのみ、枠は静的）
     DrawBox(panelLeft, hpBarY, panelLeft + 140, hpBarY + 5, INFO_BG_COLOR, TRUE); // 前フレームの塗りを消す
@@ -274,7 +279,7 @@ void drawSidePanel()
             pSet = pSet->next;
         }
         // FPS表示の少し上 (y=436) に表示。FPSは通常 (565,460) 付近。
-        DrawFormatString(519, 416, GetColor(255, 255, 0), "<Invincible Mode>");
+        DrawFormatString(485, 416, GetColor(255, 255, 0), "<Invincible Mode>");
         DrawFormatString(519, 436, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
     }
 }
