@@ -100,7 +100,7 @@ static void ShotKaleidoscope(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_ThumbnailFriendly_Zai()
 {
     static int muki;
     static int shot_count;

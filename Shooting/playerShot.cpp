@@ -4,6 +4,7 @@
 #include "stageData.h"
 #include "imgSoundLoad.h"
 #include "stateManager.h"
+#include "enemy.h"
 
 void playerShotControl()
 {
@@ -70,6 +71,9 @@ void playerShotHit()
 		double y = pPlayerShot->y - enemy.y;
 		double r = imageData[img_playerShot].radiusX + imageData[img_enemy[0]].radiusX;
 		if (x * x + y * y < r * r) {
+			// 敵機被弾エフェクト発生
+			addExplosion(pPlayerShot->x, pPlayerShot->y);
+
 			if (enemy.hp < 30) {
 				PlaySoundMem(sound_playerShotHit_bossLowHP, DX_PLAYTYPE_BACK);
 			}

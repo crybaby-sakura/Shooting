@@ -259,7 +259,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
         else if (StateManager::GetState() == Joutai::Win || StateManager::GetState() == Joutai::Lose) {
             // ベストタイム更新とリプレイ保存（Win時のみ）
-            if (StateManager::GetState() == Joutai::Win && !replayActive) {
+            if (StateManager::GetState() == Joutai::Win && !replayActive && !isMuteki) {
                 unsigned int clearTime = count;
                 if (clearTime < stageData[stageNum].bestTime) {
                     stageData[stageNum].bestTime = clearTime;
