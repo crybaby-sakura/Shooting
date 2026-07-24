@@ -38,12 +38,12 @@ static void ShotEbbinghaus(sEnemyShotSet* pEnemyShotSet)
 
             // 中心角度から ±3度の範囲を、0.5度間隔で計13発ずつ発射
             // これにより、プレイヤー目の前では中玉同士が完全に重なり合い「物理的に絶対に通れない白い壁」になります
-            for (int j = -6; j <= 6; j++) {
+            for (int j = -9; j <= 9; j++) {
                 pEnemyShot = new sEnemyShot;
                 pEnemyShot->x = pEnemyShotSet->x;
                 pEnemyShot->y = pEnemyShotSet->y;
                 pEnemyShot->muki = centerAngle + j * 0.5 / 180.0 * DX_PI;
-                pEnemyShot->speed = 2.0; // 大玉より少し速く、先に迫ってくる恐怖を演出
+                pEnemyShot->speed = 1.95; // 大玉より少し速く、先に迫ってくる恐怖を演出
                 pEnemyShot->kind = img_enemyShotMediumBall[6]; // 白の中玉
 
                 pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
@@ -66,7 +66,7 @@ static void ShotEbbinghaus(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_Ebbinghaus_Zai()
 {
     static int muki;
 
@@ -88,7 +88,7 @@ void EnemyPat_Tmp()
     //}
 
     // 90フレームごとに弾幕を生成
-    if (count % 40 == 1) {
+    if (count % 60 == 1) {
         if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
         PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
 

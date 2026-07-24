@@ -459,5 +459,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen55", "サムネ映えする弾幕", "Astral Blade Run", EnemyPat_ThumbnailFriendly_Qwen },
     { "Kimi55", "サムネ映えする弾幕", "Astral Blade Run", EnemyPat_ThumbnailFriendly_Kimi },
     { "Zai55", "サムネ映えする弾幕", "Astral Blade Run", EnemyPat_ThumbnailFriendly_Zai },
+    { "DeepSeek56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_DeepSeek },
+    { "ChatGPT56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_ChatGPT },
+    { "Gemini56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_Gemini },
+    { "Grok56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_Grok },
+    { "Claude56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_Claude },
+    { "Qwen56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_Qwen },
+    { "Kimi56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_Kimi },
+    { "Zai56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_Zai },
     { "tmp", "ここに貼ってお試し", "Torpedo_Hymn", EnemyPat_Tmp },
 };
