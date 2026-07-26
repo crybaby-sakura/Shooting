@@ -6,10 +6,10 @@
 #include "imgSoundLoad.h"
 
 // ---------- 定数 ----------
-static constexpr int    CA_WIDTH        = 49;          // セル数（奇数推奨、画面横幅480）
-static constexpr double CELL_SIZE       = 480.0 / CA_WIDTH;
-static constexpr double BULLET_SPEED    = 2.8;          // 弾の落下速度（ピクセル/フレーム）
-static constexpr int    SPAWN_INTERVAL  = 4;            // 新世代の弾を何フレームごとに生成するか
+static constexpr int    CA_WIDTH = 49;          // セル数（奇数推奨、画面横幅480）
+static constexpr double CELL_SIZE = 480.0 / CA_WIDTH;
+static constexpr double BULLET_SPEED = 2.8;          // 弾の落下速度（ピクセル/フレーム）
+static constexpr int    SPAWN_INTERVAL = 4;            // 新世代の弾を何フレームごとに生成するか
 
 // ---------- ルール30 弾幕パターン ----------
 static void Rule30Wave(sEnemyShotSet* pEnemyShotSet)
@@ -39,26 +39,26 @@ static void Rule30Wave(sEnemyShotSet* pEnemyShotSet)
 
     // ---- SPAWN_INTERVAL フレームごとに新世代の弾を生成 ----
     if (pEnemyShotSet->count % SPAWN_INTERVAL == 0 && pEnemyShotSet->count <= 360) {
-        int next_gen[CA_WIDTH] = {0};
+        int next_gen[CA_WIDTH] = { 0 };
 
         for (int i = 0; i < CA_WIDTH; ++i) {
             // 近傍3セルを取得（端は0固定）
-            int left   = (i > 0)            ? ca_gen[i-1] : 0;
+            int left = (i > 0) ? ca_gen[i - 1] : 0;
             int center = ca_gen[i];
-            int right  = (i < CA_WIDTH - 1) ? ca_gen[i+1] : 0;
+            int right = (i < CA_WIDTH - 1) ? ca_gen[i + 1] : 0;
             int pattern = (left << 2) | (center << 1) | right;   // 3bitパターン
 
             // ルール30の遷移を適用
             int result;
             switch (pattern) {
-                case 7: result = 0; break;  // 111 -> 0
-                case 6: result = 0; break;  // 110 -> 0
-                case 5: result = 0; break;  // 101 -> 0
-                case 4: result = 1; break;  // 100 -> 1
-                case 3: result = 1; break;  // 011 -> 1
-                case 2: result = 1; break;  // 010 -> 1  ★警告パターン
-                case 1: result = 1; break;  // 001 -> 1
-                case 0: result = 0; break;  // 000 -> 0
+            case 7: result = 0; break;  // 111 -> 0
+            case 6: result = 0; break;  // 110 -> 0
+            case 5: result = 0; break;  // 101 -> 0
+            case 4: result = 1; break;  // 100 -> 1
+            case 3: result = 1; break;  // 011 -> 1
+            case 2: result = 1; break;  // 010 -> 1  ★警告パターン
+            case 1: result = 1; break;  // 001 -> 1
+            case 0: result = 0; break;  // 000 -> 0
             }
             next_gen[i] = result;
 
@@ -69,9 +69,9 @@ static void Rule30Wave(sEnemyShotSet* pEnemyShotSet)
                 double spawn_y = 0.0;
 
                 sEnemyShot* pEnemyShot = new sEnemyShot;
-                pEnemyShot->x     = spawn_x;
-                pEnemyShot->y     = spawn_y;
-                pEnemyShot->muki  = DX_PI / 2;       // 直進落下のため未使用
+                pEnemyShot->x = spawn_x;
+                pEnemyShot->y = spawn_y;
+                pEnemyShot->muki = DX_PI / 2;       // 直進落下のため未使用
                 pEnemyShot->speed = 0.0;       // 同上
 
                 // ★色分け警告★
@@ -82,7 +82,8 @@ static void Rule30Wave(sEnemyShotSet* pEnemyShotSet)
                 // プレイヤーに注意を促す。
                 if (pattern == 2) {                     // 010 パターン → 警告
                     pEnemyShot->kind = img_enemyShotDiamond[0];   // 赤 (色番号0)
-                } else {
+                }
+                else {
                     pEnemyShot->kind = img_enemyShotSmallBall[1]; // 黄 (色番号1)
                 }
 
@@ -100,17 +101,18 @@ static void Rule30Wave(sEnemyShotSet* pEnemyShotSet)
 }
 
 // ---------- 敵本体パターン ----------
-void EnemyPat_Tmp()
+void EnemyPat_Rule30_DeepSeek()
 {
     static int muki; // 横移動の向き
 
     if (count == 1) {
         // 初期化
-        enemy.x    = 240.0;
-        enemy.y    = 40.0;
+        enemy.x = 240.0;
+        enemy.y = 40.0;
         enemy.maxHp = enemy.hp = 200;
-        muki       = 1;
-    } else {
+        muki = 1;
+    }
+    else {
         // 簡単な水平往復移動
         enemy.x += 0.98 * (double)muki;
         if (count % 120 == 60) muki *= -1;

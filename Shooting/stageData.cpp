@@ -467,5 +467,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_Qwen },
     { "Kimi56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_Kimi },
     { "Zai56", "エビングハウス錯視をモチーフにした弾幕", "Locrian Barrage", EnemyPat_Ebbinghaus_Zai },
+    { "DeepSeek57", "ルール30をモチーフにした弾幕", "Bullet Hell Cascade", EnemyPat_Rule30_DeepSeek },
+    { "ChatGPT57", "ルール30をモチーフにした弾幕", "Bullet Hell Cascade", EnemyPat_Rule30_ChatGPT },
+    { "Gemini57", "ルール30をモチーフにした弾幕", "Bullet Hell Cascade", EnemyPat_Rule30_Gemini },
+    { "Grok57", "ルール30をモチーフにした弾幕", "Bullet Hell Cascade", EnemyPat_Rule30_Grok },
+    { "Claude57", "ルール30をモチーフにした弾幕", "Bullet Hell Cascade", EnemyPat_Rule30_Claude },
+    { "Qwen57", "ルール30をモチーフにした弾幕", "Bullet Hell Cascade", EnemyPat_Rule30_Qwen },
+    { "Kimi57", "ルール30をモチーフにした弾幕", "Bullet Hell Cascade", EnemyPat_Rule30_Kimi },
+    { "Zai57", "ルール30をモチーフにした弾幕", "Bullet Hell Cascade", EnemyPat_Rule30_Zai },
     { "tmp", "ここに貼ってお試し", "Torpedo_Hymn", EnemyPat_Tmp },
 };
