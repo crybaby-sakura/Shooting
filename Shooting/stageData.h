@@ -6,6 +6,7 @@
 struct StageInfo {
     const char* stageId;       // ステージID（半角英数）
     const char* description;   // ステージ説明
+    const char* stageTitle;    // ステージタイトル
     const char* bgmFileName;   // BGMファイル名
     void (*patternFunc)();     // 敵パターン関数ポインタ
     int bgmHandle = -1;        // BGMハンドラ（後で代入）

@@ -236,6 +236,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         }
         else if (StateManager::GetState() == Joutai::Game || StateManager::GetState() == Joutai::Replay) {
             stageData[stageNum].patternFunc();
+            enemyControl();
             enemyShotControl();
             enemyShotCalc();
             playerControl();
@@ -250,6 +251,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             playerShotDisp();
             enemyDisp();
             enemyShotDisp();
+            foreGround();
             drawSidePanel();
 
             // Qキーで即メニューに戻る
@@ -273,6 +275,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             playerShotDisp();
             enemyDisp();
             enemyShotDisp();
+            foreGround();
             drawSidePanel();
             drawGameOverlay();
             count--;

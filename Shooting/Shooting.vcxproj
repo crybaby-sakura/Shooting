@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="effectRand.cpp" />
     <ClCompile Include="enemyPat_ChatGPTEx1.cpp" />
     <ClCompile Include="enemyPat_ClaudeEx3.cpp" />
     <ClCompile Include="enemyPat_ClaudeEx4.cpp" />
@@ -643,6 +644,7 @@
     <ClCompile Include="stateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="effectRand.h" />
     <ClInclude Include="gameScreen.h" />
     <ClInclude Include="enemy.h" />
     <ClInclude Include="enemyShot.h" />

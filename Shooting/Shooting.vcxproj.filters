@@ -1491,6 +1491,9 @@
     <ClCompile Include="enemyPat_geminiEx3.cpp">
       <Filter>ソース ファイル\enemyPat</Filter>
     </ClCompile>
+    <ClCompile Include="effectRand.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stageData.h">
@@ -1536,6 +1539,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="stateManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="effectRand.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

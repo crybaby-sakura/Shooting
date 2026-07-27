@@ -272,7 +272,8 @@ void imgSoundLoad()
 
     LoadSingleImage("assets/images/playerShot.png", &img_playerShot, 1.0, false, 22.3, 22.3);
 
-    LoadDivImages("assets/images/enemy.png", 2, 2, 1, 207, 194, img_enemy, 1.0, false, 37.7, 37.7);
+    LoadSingleImage("assets/images/enemy.png", &img_enemy[0], 1.0, false, 37.7, 37.7);
+    LoadSingleImage("assets/images/enemyDestroyed.png", &img_enemy[1], 1.0, false, 37.7, 37.7);
 
     LoadColoredShotsEx("assets/images/enemyShotSmallBall.png", 30, 30, img_enemyShotSmallBall, 0.3, false, 2.5, 2.5);
     LoadColoredShotsEx("assets/images/enemyShotMediumBall.png", 32, 32, img_enemyShotMediumBall, 0.65, false, 7.0, 7.0);

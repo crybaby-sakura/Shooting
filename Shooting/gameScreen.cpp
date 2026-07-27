@@ -1,4 +1,4 @@
-﻿// backGround.cpp
+﻿// gameScreen.cpp
 
 #include "DxLib.h"
 #include "stateManager.h"
@@ -189,6 +189,65 @@ void backGround()
         DrawLine(cx, cy - half, cx, cy + half, stars[i].color);
     }
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+}
+
+void foreGround() {
+    // 距離の閾値（自機のY座標）
+    const double NEAR_Y = 40.0;    // このY座標以下で完全透明
+    const double FAR_Y = 100.0;    // このY座標以上で完全不透明
+
+    int titleAlpha = 255;
+    if (player.y <= FAR_Y) {
+        if (player.y <= NEAR_Y) {
+            titleAlpha = 0;
+        }
+        else {
+            double t = (player.y - NEAR_Y) / (FAR_Y - NEAR_Y);
+            titleAlpha = (int)(255 * t);
+        }
+    }
+
+    if (titleAlpha <= 0) return;
+
+    // 文字サイズを設定
+    const int FONT_SIZE = 16;               // 好みのサイズに変更
+    int BORDER_WIDTH = FONT_SIZE / 10;      // 縁取り太さをフォントサイズから自動計算（ここでは2px相当）
+    if (BORDER_WIDTH < 1) BORDER_WIDTH = 1;
+
+    // 縁取り文字の描画設定
+    const int TITLE_X = 10;
+    const int TITLE_Y = 10;
+    const int BORDER_COLOR = GetColor(0, 0, 0);             // 縁取り色（黒）
+    const int TEXT_COLOR = GetColor(255, 255, 255);         // 文字色（白）
+    const char* titleText = stageData[stageNum].stageTitle; // 実際のステージタイトル
+
+    // デフォルトのフォントサイズを保存してから設定
+    int defaultFontSize = GetFontSize();   // DxLib 3.20以降で使用可。なければ無視してOK
+    SetFontSize(FONT_SIZE);
+
+    if (titleAlpha < 255) {
+        SetDrawBlendMode(DX_BLENDMODE_ALPHA, titleAlpha / 6);
+    }
+
+    // 縁取り（BORDER_WIDTHだけずらす）
+    DrawFormatString(TITLE_X - BORDER_WIDTH, TITLE_Y, BORDER_COLOR, "%s", titleText);
+    DrawFormatString(TITLE_X + BORDER_WIDTH, TITLE_Y, BORDER_COLOR, "%s", titleText);
+    DrawFormatString(TITLE_X, TITLE_Y - BORDER_WIDTH, BORDER_COLOR, "%s", titleText);
+    DrawFormatString(TITLE_X, TITLE_Y + BORDER_WIDTH, BORDER_COLOR, "%s", titleText);
+
+    if (titleAlpha < 255) {
+        SetDrawBlendMode(DX_BLENDMODE_ALPHA, titleAlpha);
+    }
+
+    // 本体の文字を描画
+    DrawFormatString(TITLE_X, TITLE_Y, TEXT_COLOR, "%s", titleText);
+
+    if (titleAlpha < 255) {
+        SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+    }
+
+    // フォントサイズを元に戻す（必要に応じて）
+    SetFontSize(defaultFontSize);
 }
 
 void drawSidePanel()
