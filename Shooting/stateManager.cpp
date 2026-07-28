@@ -8,6 +8,7 @@
 #include "gv.h"
 #include "fileOpenClose.h"
 
+
 // BGMƒIƒ“ƒIƒt§Œä’è” (true:Ä¶‚·‚é, false:Ä¶‚µ‚È‚¢)
 static constexpr bool BGM_ENABLED = true;
 

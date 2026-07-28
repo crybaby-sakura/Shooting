@@ -108,6 +108,14 @@ void drawExplosion() {
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
+// 火花パーティクルを全消去
+void clearAllSparks() {
+    for (int i = 0; i < MAX_SPARKS; ++i) {
+        sparkPool[i].active = false;
+    }
+    sparkCount = 0;
+}
+
 
 
 #define MAX_ENEMY_ENGINE_FLAMES 600   // 5エンジン分、余裕を持って
@@ -205,6 +213,13 @@ void drawEnemyEngineFlame(int blendAlpha) {
         DrawCircleAA((float)p->x, (float)p->y, (float)p->drawRadius, 8, GetColor(r, g, b), TRUE);
     }
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+}
+
+// 敵のエンジン炎パーティクルを全消去
+void clearAllEnemyEngineFlames() {
+    for (int i = 0; i < MAX_ENEMY_ENGINE_FLAMES; ++i) {
+        enemyFlamePool[i].active = false;
+    }
 }
 
 

@@ -6,9 +6,11 @@ void playerDisp();
 void spawnForceParticles(double x, double y, double forceX, double forceY, double radius = 30.0);
 void updateForceParticles();
 void drawForceParticles();
+void clearAllForceParticles();
 
 void spawnPlayerEngineFlame(double x, double y, double vx, double vy);
 void updatePlayerEngineFlame();
 void drawPlayerEngineFlame();
+void clearAllPlayerEngineFlames();
 
 extern bool isMuteki;

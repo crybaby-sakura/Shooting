@@ -127,6 +127,13 @@ void drawForceParticles()
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
+// 力場パーティクルを全消去
+void clearAllForceParticles() {
+    for (int i = 0; i < MAX_FORCE_PARTICLES; ++i) {
+        forceParts[i].active = false;
+    }
+}
+
 
 
 #define MAX_PLAYER_ENGINE_FLAMES 400
@@ -233,6 +240,13 @@ void drawPlayerEngineFlame() {
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
+// プレイヤーのエンジン炎パーティクルを全消去
+void clearAllPlayerEngineFlames() {
+    for (int i = 0; i < MAX_PLAYER_ENGINE_FLAMES; ++i) {
+        playerFlamePool[i].active = false;
+    }
+}
+
 
 
 void playerControl() {
@@ -274,8 +288,8 @@ void playerControl() {
 void playerDisp() {
     DrawGraph((int)(player.x - 18.0 + 0.5), (int)(player.y - 26.0 + 0.5), imageData[img_player].handle, TRUE);
     if (isSlowMode) {
-        DrawCircle((int)player.x, (int)player.y, 4, GetColor(255,0,0), TRUE);
-        DrawCircle((int)player.x, (int)player.y, 2, GetColor(255,255,255), TRUE);
+        DrawCircle((int)(player.x + 0.5), (int)(player.y + 0.5), 4, GetColor(255,0,0), TRUE);
+        DrawCircle((int)(player.x + 0.5), (int)(player.y + 0.5), 2, GetColor(255,255,255), TRUE);
     }
 
     drawPlayerEngineFlame();

@@ -5,6 +5,8 @@
 #include "replay.h"
 #include "gameScreen.h"
 #include "stateManager.h"
+#include "enemy.h"
+#include "player.h"
 
 void iniGame()
 {
@@ -54,6 +56,11 @@ void iniGame()
 		
 		pEnemyShotSet = pNextEnemyShotSet;
 	}
+
+	clearAllSparks();
+	clearAllEnemyEngineFlames();
+	clearAllForceParticles();
+	clearAllPlayerEngineFlames();
 }
 
 void startNewGame()

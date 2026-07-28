@@ -18,7 +18,7 @@ static void ShotSpiralWall(sEnemyShotSet* pEnemyShotSet)
         PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
 
         const int num = 48;
-        const double radius = 260.0;
+        const double radius = 300.0;
         const double cx = 240.0;
         const double cy = 240.0;
 
@@ -38,6 +38,8 @@ static void ShotSpiralWall(sEnemyShotSet* pEnemyShotSet)
             pEnemyShot->param_d[0] = cx;      // 中心X
             pEnemyShot->param_d[1] = cy;      // 中心Y
             pEnemyShot->param_d[2] = 0.6;     // 螺旋強度（接線速度）
+
+            pEnemyShot->margin = 240;
 
             pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
             pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
@@ -78,10 +80,13 @@ static void ShotSandstorm(sEnemyShotSet* pEnemyShotSet)
         if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
         PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 150; i++) {
             pEnemyShot = new sEnemyShot;
-            pEnemyShot->x = GetRand(520) - 20;
-            pEnemyShot->y = GetRand(520) - 20;
+            while (true) {
+                pEnemyShot->x = GetRand(520) - 20;
+                pEnemyShot->y = GetRand(520) - 20;
+                if (hypot(pEnemyShot->x - player.x, pEnemyShot->y - player.y) > 20) break;
+            }
             // 下方向中心に±30度のばらつき
             pEnemyShot->muki = DX_PI / 2.0 + (GetRand(60) - 30) / 180.0 * DX_PI;
             pEnemyShot->speed = (30 + GetRand(100)) / 100.0; // 0.3〜1.3
@@ -116,7 +121,7 @@ static void ShotSpiralWallFast(sEnemyShotSet* pEnemyShotSet)
         PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
 
         const int num = 40;
-        const double radius = 260.0;
+        const double radius = 300.0;
         const double cx = 240.0;
         const double cy = 240.0;
         // 出口：上方向（-PI/2）に±20度の隙間
@@ -144,6 +149,8 @@ static void ShotSpiralWallFast(sEnemyShotSet* pEnemyShotSet)
             pEnemyShot->param_d[0] = cx;
             pEnemyShot->param_d[1] = cy;
             pEnemyShot->param_d[2] = 1.2;
+
+            pEnemyShot->margin = 240;
 
             pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
             pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
@@ -183,29 +190,31 @@ static void ShotJaw(sEnemyShotSet* pEnemyShotSet)
         if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
         PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
 
-        // 左顎
-        pEnemyShot = new sEnemyShot;
-        pEnemyShot->x = -20.0;
-        pEnemyShot->y = player.y;
-        pEnemyShot->muki = atan2(player.y - pEnemyShot->y, player.x - pEnemyShot->x);
-        pEnemyShot->speed = 4.0;
-        pEnemyShot->kind = img_enemyShotLargeBall[0]; // 赤
-        pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-        pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-        pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-        pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+        for (int i = -1; i <= 1; i++) {
+            // 左顎
+            pEnemyShot = new sEnemyShot;
+            pEnemyShot->x = -20.0;
+            pEnemyShot->y = player.y + i * 40;
+            pEnemyShot->muki = atan2(player.y - pEnemyShot->y, player.x - pEnemyShot->x);
+            pEnemyShot->speed = 4.0;
+            pEnemyShot->kind = img_enemyShotLargeBall[0]; // 赤
+            pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+            pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+            pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+            pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
 
-        // 右顎
-        pEnemyShot = new sEnemyShot;
-        pEnemyShot->x = 500.0;
-        pEnemyShot->y = player.y;
-        pEnemyShot->muki = atan2(player.y - pEnemyShot->y, player.x - pEnemyShot->x);
-        pEnemyShot->speed = 4.0;
-        pEnemyShot->kind = img_enemyShotLargeBall[7]; // 黒
-        pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-        pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-        pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-        pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+            // 右顎
+            pEnemyShot = new sEnemyShot;
+            pEnemyShot->x = 500.0;
+            pEnemyShot->y = player.y + i * 40;
+            pEnemyShot->muki = atan2(player.y - pEnemyShot->y, player.x - pEnemyShot->x);
+            pEnemyShot->speed = 4.0;
+            pEnemyShot->kind = img_enemyShotLargeBall[7]; // 黒
+            pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+            pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+            pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+            pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+        }
     }
 
     sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
@@ -227,7 +236,7 @@ static void ShotSandBurst(sEnemyShotSet* pEnemyShotSet)
         if (CheckSoundMem(sound_enemyShot_extreme)) StopSoundMem(sound_enemyShot_extreme);
         PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
 
-        const int num = 32;
+        const int num = 128;
         const double cx = 240.0;
         const double cy = 240.0;
 
@@ -264,7 +273,7 @@ static void ShotSandBurst(sEnemyShotSet* pEnemyShotSet)
 // ------------------------------------------------------------
 // 敵本体：アリジゴクモチーフ「漏斗陥穽」
 // ------------------------------------------------------------
-void EnemyPat_Tmp()
+void EnemyPat_Antlion_Kimi()
 {
     static int phase;
     static int phase_count;
@@ -273,7 +282,7 @@ void EnemyPat_Tmp()
     if (count == 1) {
         enemy.x = 240.0;
         enemy.y = 80.0;
-        enemy.maxHp = enemy.hp = 200;
+        enemy.maxHp = enemy.hp = 250;
         phase = 0;
         phase_count = 0;
         shot_count = 0;
