@@ -499,5 +499,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen60", "ボスが撃ち返してくる弾幕", "砕け散る紅硝子（クリムゾン・フラグメント）", "Fractal Gamelan Rush", EnemyPat_Counter_Qwen },
     { "Kimi60", "ボスが撃ち返してくる弾幕", "血の代償（Blood Tithe）", "Fractal Gamelan Rush", EnemyPat_Counter_Kimi },
     { "Zai60", "ボスが撃ち返してくる弾幕", "瞬停分裂弾", "Fractal Gamelan Rush", EnemyPat_Counter_Zai },
+    { "DeepSeek61", "正十二面体をモチーフにした弾幕", "ドデカヘドラル・ケージ", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_DeepSeek },
+    { "ChatGPT61", "正十二面体をモチーフにした弾幕", "十二面体結界", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_ChatGPT },
+    { "Gemini61", "正十二面体をモチーフにした弾幕", "黄金正多面体陣 -Dodecahedron-", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_Gemini },
+    { "Grok61", "正十二面体をモチーフにした弾幕", "黄金立体の檻", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_Grok },
+    { "Claude61", "正十二面体をモチーフにした弾幕", "正十二面体・展開陣", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_Claude },
+    { "Qwen61", "正十二面体をモチーフにした弾幕", "幾何『正十二面体の鏡像』", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_Qwen },
+    { "Kimi61", "正十二面体をモチーフにした弾幕", "五重奏の十二審判", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_Kimi },
+    { "Zai61", "正十二面体をモチーフにした弾幕", "正十二面陣・虚数結界", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };
