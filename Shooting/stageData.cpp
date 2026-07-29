@@ -483,5 +483,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen58", "アリジゴクをモチーフにした弾幕", "砂漠の落とし穴 アントライオンの罠", "Desert Mirage Run", EnemyPat_Antlion_Qwen },
     { "Kimi58", "アリジゴクをモチーフにした弾幕", "漏斗陥穽（ろうとかんせい）－ Antlion Funnel", "Desert Mirage Run", EnemyPat_Antlion_Kimi },
     { "Zai58", "アリジゴクをモチーフにした弾幕", "帰路なき砂蟲の捕食円", "Desert Mirage Run", EnemyPat_Antlion_Zai },
+    { "DeepSeek59", "三三七拍子のリズムで弾を撃つ弾幕", "祝砲乱舞「三三七拍子」", "Matsuri Bullet Run", EnemyPat_337Beat_DeepSeek },
+    { "ChatGPT59", "三三七拍子のリズムで弾を撃つ弾幕", "三三七拍子連射", "Matsuri Bullet Run", EnemyPat_337Beat_ChatGPT },
+    { "Gemini59", "三三七拍子のリズムで弾を撃つ弾幕", "祝砲・演舞三三七拍子", "Matsuri Bullet Run", EnemyPat_337Beat_Gemini },
+    { "Grok59", "三三七拍子のリズムで弾を撃つ弾幕", "祝い撃ち", "Matsuri Bullet Run", EnemyPat_337Beat_Grok },
+    { "Claude59", "三三七拍子のリズムで弾を撃つ弾幕", "三三七拍子 ―― 応援団風連続撃ち", "Matsuri Bullet Run", EnemyPat_337Beat_Claude },
+    { "Qwen59", "三三七拍子のリズムで弾を撃つ弾幕", "神輿乱舞・三三七拍子", "Matsuri Bullet Run", EnemyPat_337Beat_Qwen },
+    { "Kimi59", "三三七拍子のリズムで弾を撃つ弾幕", "三三七の舞（さんさんななのまい）", "Matsuri Bullet Run", EnemyPat_337Beat_Kimi },
+    { "Zai59", "三三七拍子のリズムで弾を撃つ弾幕", "祭囃子・三三七の陣", "Matsuri Bullet Run", EnemyPat_337Beat_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

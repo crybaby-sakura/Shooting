@@ -251,8 +251,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             playerShotDisp();
             enemyDisp();
             enemyShotDisp();
-            foreGround();
             drawSidePanel();
+            foreGround();
 
             // Qキーで即メニューに戻る
             if (key[KEY_INPUT_Q] == 1) {
@@ -275,8 +275,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             playerShotDisp();
             enemyDisp();
             enemyShotDisp();
-            foreGround();
             drawSidePanel();
+            foreGround();
             drawGameOverlay();
             count--;
 

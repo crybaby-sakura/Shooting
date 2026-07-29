@@ -32,9 +32,9 @@ static void ShotPattern337Beat(sEnemyShotSet* pEnemyShotSet)
 
     // ----- パートA：3拍（濃密な自機狙い扇弾） -----
     if (phase == PHASE_A1 || phase == PHASE_A2 || phase == PHASE_A3) {
-        if (CheckSoundMem(sound_enemyShot_light))
-            StopSoundMem(sound_enemyShot_light);
-        PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
+        if (CheckSoundMem(sound_enemyShot_medium))
+            StopSoundMem(sound_enemyShot_medium);
+        PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
 
         double baseAngle = atan2(player.y - pEnemyShotSet->y,
             player.x - pEnemyShotSet->x);
@@ -182,7 +182,7 @@ static void ShotPattern337Beat(sEnemyShotSet* pEnemyShotSet)
 // ------------------------------------------------------------
 // 敵本体のパターン
 // ------------------------------------------------------------
-void EnemyPat_Tmp()
+void EnemyPat_337Beat_DeepSeek()
 {
     static int moveDir;
 

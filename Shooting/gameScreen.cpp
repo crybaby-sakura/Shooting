@@ -191,6 +191,140 @@ void backGround()
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
+// 特殊演出
+void special_performance() {
+    static int img_ChatGPT33 = -1;
+    static int img_Zai48 = -1;
+    static int img_Kimi59_1 = -1;
+    static int img_Kimi59_2 = -1;
+    static int img_Kimi59_3 = -1;
+    static int drawX = 0, drawY = 0;
+
+    if (stageData[stageNum].stageId == "ChatGPT33") {
+        if (count == 120) {
+            if (img_ChatGPT33 == -1) {
+                img_ChatGPT33 = LoadGraph("assets/images/ChatGPT33.png");
+                if (img_ChatGPT33 != -1) {
+                    int imgW, imgH;
+                    GetGraphSize(img_ChatGPT33, &imgW, &imgH);
+                    int scrW, scrH;
+                    GetScreenState(&scrW, &scrH, NULL);
+                    drawX = (scrW - imgW) / 2;
+                    drawY = (scrH - imgH) / 2;
+                }
+            }
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+        }
+
+        if (count >= 120 && img_ChatGPT33 != -1) {
+            DrawGraph(drawX, drawY, img_ChatGPT33, TRUE);
+        }
+    }
+    else if (stageData[stageNum].stageId == "Zai48") {
+        if (count == 120) {
+            if (img_Zai48 == -1) {
+                img_Zai48 = LoadGraph("assets/images/Zai48.png");
+                if (img_Zai48 != -1) {
+                    int imgW, imgH;
+                    GetGraphSize(img_Zai48, &imgW, &imgH);
+                    int scrW, scrH;
+                    GetScreenState(&scrW, &scrH, NULL);
+                    drawX = (scrW - imgW) / 2;
+                    drawY = (scrH - imgH) / 2;
+                }
+            }
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+        }
+
+        if (count >= 120 && img_Zai48 != -1) {
+            DrawGraph(drawX, drawY, img_Zai48, TRUE);
+        }
+    }
+    else if (stageData[stageNum].stageId == "Kimi59") {
+        const int T1 = 120;
+        if (count == T1) {
+            if (img_Kimi59_1 == -1) {
+                img_Kimi59_1 = LoadGraph("assets/images/Kimi59_1.png");
+                if (img_Kimi59_1 != -1) {
+                    int imgW, imgH;
+                    GetGraphSize(img_Kimi59_1, &imgW, &imgH);
+                    int scrW, scrH;
+                    GetScreenState(&scrW, &scrH, NULL);
+                    drawX = (scrW - imgW) / 2;
+                    drawY = (scrH - imgH) / 2;
+                }
+            }
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+        }
+
+        const int T2 = 240;
+        if (count >= T1 && count < T1 + T2 && img_Kimi59_1 != -1) {
+            DrawGraph(drawX, drawY, img_Kimi59_1, TRUE);
+        }
+
+        if (count == T1 + T2) {
+            if (img_Kimi59_2 == -1) {
+                img_Kimi59_2 = LoadGraph("assets/images/Kimi59_2.png");
+                if (img_Kimi59_2 != -1) {
+                    int imgW, imgH;
+                    GetGraphSize(img_Kimi59_2, &imgW, &imgH);
+                    int scrW, scrH;
+                    GetScreenState(&scrW, &scrH, NULL);
+                    drawX = (scrW - imgW) / 2;
+                    drawY = (scrH - imgH) / 2;
+                }
+            }
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+        }
+
+        const int T3 = 240;
+        if (count >= T1 + T2 && count < T1 + T2 + T3 && img_Kimi59_2 != -1) {
+            DrawGraph(drawX, drawY, img_Kimi59_2, TRUE);
+        }
+
+        if (count == T1 + T2 + T3) {
+            if (img_Kimi59_3 == -1) {
+                img_Kimi59_3 = LoadGraph("assets/images/Kimi59_3.png");
+                if (img_Kimi59_3 != -1) {
+                    int imgW, imgH;
+                    GetGraphSize(img_Kimi59_3, &imgW, &imgH);
+                    int scrW, scrH;
+                    GetScreenState(&scrW, &scrH, NULL);
+                    drawX = (scrW - imgW) / 2;
+                    drawY = (scrH - imgH) / 2;
+                }
+            }            
+        }
+
+        if (count >= T1 + T2 + T3 && img_Kimi59_3 != -1) {
+            static int centerX = 0, centerY = 0;
+            if (count == T1 + T2 + T3) {
+                int w, h;
+                GetGraphSize(img_Kimi59_3, &w, &h);
+                centerX = drawX + w / 2;
+                centerY = drawY + h / 2 - 30;
+            }
+
+            for (int t = T1 + T2 + T3; t <= count; t += 20) {
+                // 1. 拡大率：t に比例して線形に増加
+                double scale = 1.0 + (t - (T1 + T2 + T3)) * 0.002;   // 1フレームあたり0.01ずつ拡大
+
+                // 2. 回転角度：t に応じた疑似乱数（毎回同じ値になる決定論的なハッシュ）
+                //    例: 大きめの素数を使って疑似的にランダムな角度を生成
+                unsigned int hash = (unsigned int)(t * 2654435761u); // Knuth's multiplicative hash
+                double angle = hash % 360 * (DX_PI / 180.0);      // 0～360°をラジアンに
+
+                // 描画
+                DrawRotaGraph(centerX, centerY, scale, angle, img_Kimi59_3, TRUE);
+            }
+
+            if ((count - (T1 + T2 + T3)) % 20 == 0) {
+                PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+            }
+        }
+    }
+}
+
 void foreGround() {
     // 距離の閾値（自機のY座標）
     const double NEAR_Y = 40.0;    // このY座標以下で完全透明
@@ -248,6 +382,9 @@ void foreGround() {
 
     // フォントサイズを元に戻す（必要に応じて）
     SetFontSize(defaultFontSize);
+
+    // 特殊演出
+    special_performance();
 }
 
 void drawSidePanel()
@@ -343,7 +480,7 @@ void drawSidePanel()
     }
 }
 
-// ポーズ・勝利・敗北時の半透明オーバーレイとメッセージ（変更なし）
+// 勝利・敗北時の半透明オーバーレイとメッセージ（変更なし）
 void drawGameOverlay()
 {
     int overlayColor;
