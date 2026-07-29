@@ -491,5 +491,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen59", "三三七拍子のリズムで弾を撃つ弾幕", "神輿乱舞・三三七拍子", "Matsuri Bullet Run", EnemyPat_337Beat_Qwen },
     { "Kimi59", "三三七拍子のリズムで弾を撃つ弾幕", "三三七の舞（さんさんななのまい）", "Matsuri Bullet Run", EnemyPat_337Beat_Kimi },
     { "Zai59", "三三七拍子のリズムで弾を撃つ弾幕", "祭囃子・三三七の陣", "Matsuri Bullet Run", EnemyPat_337Beat_Zai },
+    { "DeepSeek60", "ボスが撃ち返してくる弾幕", "散華の呪詛針（さんげのじゅそばり）", "Fractal Gamelan Rush", EnemyPat_Counter_DeepSeek },
+    { "ChatGPT60", "ボスが撃ち返してくる弾幕", "報復の反響波", "Fractal Gamelan Rush", EnemyPat_Counter_ChatGPT },
+    { "Gemini60", "ボスが撃ち返してくる弾幕", "波紋共鳴（リップル・カウンター）", "Fractal Gamelan Rush", EnemyPat_Counter_Gemini },
+    { "Grok60", "ボスが撃ち返してくる弾幕", "傷の残響", "Fractal Gamelan Rush", EnemyPat_Counter_Grok },
+    { "Claude60", "ボスが撃ち返してくる弾幕", "鏡面反撃「破鏡乱反射」", "Fractal Gamelan Rush", EnemyPat_Counter_Claude },
+    { "Qwen60", "ボスが撃ち返してくる弾幕", "砕け散る紅硝子（クリムゾン・フラグメント）", "Fractal Gamelan Rush", EnemyPat_Counter_Qwen },
+    { "Kimi60", "ボスが撃ち返してくる弾幕", "血の代償（Blood Tithe）", "Fractal Gamelan Rush", EnemyPat_Counter_Kimi },
+    { "Zai60", "ボスが撃ち返してくる弾幕", "瞬停分裂弾", "Fractal Gamelan Rush", EnemyPat_Counter_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

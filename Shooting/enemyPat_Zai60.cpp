@@ -112,7 +112,7 @@ static void ShotStopSplit(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_Counter_Zai()
 {
     static int muki;
     static int prev_hp;               // 前フレームのHPを保持用
