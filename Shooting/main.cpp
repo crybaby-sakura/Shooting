@@ -16,6 +16,8 @@
 #include "getHitKeyStateAll2.h"
 #include "replay.h"
 #include "stateManager.h"   // StateManager, Joutai
+#include "recordController.h"
+
 
 constexpr int GAME_W = 640;
 constexpr int GAME_H = 480;
@@ -99,104 +101,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     playerShotHead.prev = &playerShotHead;
     playerShotHead.next = &playerShotHead;
     enemyShotSetHead.prev = &enemyShotSetHead;
-    enemyShotSetHead.next = &enemyShotSetHead;
-    
+    enemyShotSetHead.next = &enemyShotSetHead;    
 
-    // 録画モード自動化ステートマシン（PRを押すＮステップを廃止し、直接遷移）
-    enum class RecordStep {
-        INIT_MENU,
-        WAIT_BEFORE_R,      // メニューで2秒待機
-        PRESS_R,            // Rキー押下
-        WAIT_AFTER_R,       // リプレイ開始後の2秒待機
-        WAIT_REPLAY_END,    // リプレイ終了待ち
-        PRESS_Q,            // Qキー押下（メニューに戻る）
-        DONE
-    };
-    RecordStep recordStep = RecordStep::INIT_MENU;
-    int recordWaitTimer = 0;
-    int currentReplayCount = 0;
-    bool replayEnded = false;   // リプレイデータ終了フラグ
-
+    // 録画モード自動化ステートマシン
+    RecordController recorder;
 
     while (!ProcessMessage() && !ClearDrawScreen()) {
         int frameStart = GetNowCount();
 
         // ---- 録画モード時のキー入力 ----
         if (recordingMode) {
-            // 1. 全キーをゼロクリア
-            if (StateManager::GetState() != Joutai::Replay) {
-                memset(key, 0, sizeof(key));
-            }
-
-            // 2. ステートマシン（必要なキーを注入）
-            switch (recordStep)
-            {
-            case RecordStep::INIT_MENU:
-                recordStep = RecordStep::WAIT_BEFORE_R;
-                recordWaitTimer = 120; // 2秒
-                break;
-
-            case RecordStep::WAIT_BEFORE_R:
-                if (--recordWaitTimer <= 0) {
-                    if (StateManager::GetState() == Joutai::Menu) {
-                        key[KEY_INPUT_R] = 1;
-                        recordStep = RecordStep::PRESS_R;
-                    }
-                    else {
-                        if (currentReplayCount >= replayLoopCount) {
-                            key[KEY_INPUT_Q] = 1;
-                            recordStep = RecordStep::PRESS_Q;
-                        }
-                        else {
-                            key[KEY_INPUT_N] = 1;
-                            recordStep = RecordStep::PRESS_R;
-                        }
-                    }                   
-                }
-                break;
-
-            case RecordStep::PRESS_R:
-                if (StateManager::GetState() == Joutai::Replay) {
-                    recordStep = RecordStep::WAIT_REPLAY_END;
-                    recordWaitTimer = 150;
-                }
-                else if (StateManager::GetState() == Joutai::Menu) {
-                    key[KEY_INPUT_Q] = 1;
-                    recordStep = RecordStep::PRESS_Q;
-                }
-                break;
-
-            case RecordStep::WAIT_REPLAY_END:
-            {
-                Joutai st = StateManager::GetState();
-                if (st == Joutai::Win || st == Joutai::Lose || replayEnded) {
-                    currentReplayCount++;
-                    replayEnded = false;
-                    recordStep = RecordStep::WAIT_BEFORE_R;
-                    recordWaitTimer = 150; // 2秒
-                }
-                else if (st == Joutai::Menu) {
-                    key[KEY_INPUT_Q] = 1;
-                    recordStep = RecordStep::PRESS_Q;
-                }
-            }
-            break;
-
-            case RecordStep::PRESS_Q:
-                recordStep = RecordStep::DONE;
-                break;
-
-            case RecordStep::DONE:
-                break;
-            }
-
-            // 3. リプレイ中ならリプレイデータで上書き
-            if (StateManager::GetState() == Joutai::Replay) {
-                if (!updateReplayInput()) {
-                    replayEnded = true;
-                }
-            }
-            // リプレイ中以外はステートマシンが設定したキーだけが有効（他のキーは0のまま）
+            recorder.Update(key);
         }
         // ---- 通常モード時のキー入力 ----
         else {

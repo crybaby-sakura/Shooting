@@ -679,6 +679,7 @@
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="playerShot.cpp" />
+    <ClCompile Include="recordController.cpp" />
     <ClCompile Include="replay.cpp" />
     <ClCompile Include="stageData.cpp" />
     <ClCompile Include="stateManager.cpp" />
@@ -697,6 +698,7 @@
     <ClInclude Include="menu.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="playerShot.h" />
+    <ClInclude Include="recordController.h" />
     <ClInclude Include="replay.h" />
     <ClInclude Include="stageData.h" />
     <ClInclude Include="stateManager.h" />

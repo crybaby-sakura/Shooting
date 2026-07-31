@@ -33,7 +33,3 @@ private:
 
 extern int     stageNum;
 extern sCursor cursor;
-
-// 録画モード用フラグ
-extern bool recordingMode;
-extern int  replayLoopCount;
