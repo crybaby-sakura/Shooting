@@ -507,5 +507,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen61", "正十二面体をモチーフにした弾幕", "幾何『正十二面体の鏡像』", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_Qwen },
     { "Kimi61", "正十二面体をモチーフにした弾幕", "五重奏の十二審判", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_Kimi },
     { "Zai61", "正十二面体をモチーフにした弾幕", "正十二面陣・虚数結界", "Crystalline Rain Circuit", EnemyPat_Dodecahedron_Zai },
+    { "DeepSeek62", "カオスすぎる弾幕", "超次元崩壊輪廻（ハイパーカオス・サムサーラ）", "Bullet Hell Finale", EnemyPat_TooChaotic_DeepSeek },
+    { "ChatGPT62", "カオスすぎる弾幕", "乱流回廊「スパイラル・スクランブル」", "Bullet Hell Finale", EnemyPat_TooChaotic_ChatGPT },
+    { "Gemini62", "カオスすぎる弾幕", "確定性混沌（デターミニスティック・カオス）", "Bullet Hell Finale", EnemyPat_TooChaotic_Gemini },
+    { "Grok62", "カオスすぎる弾幕", "虚数螺旋崩壊", "Bullet Hell Finale", EnemyPat_TooChaotic_Grok },
+    { "Claude62", "カオスすぎる弾幕", "狂乱万華鏡", "Bullet Hell Finale", EnemyPat_TooChaotic_Claude },
+    { "Qwen62", "カオスすぎる弾幕", "次元崩壊の万華鏡", "Bullet Hell Finale", EnemyPat_TooChaotic_Qwen },
+    { "Kimi62", "カオスすぎる弾幕", "侵食多重螺旋「アポカリプティック・ネスト」", "Bullet Hell Finale", EnemyPat_TooChaotic_Kimi },
+    { "Zai62", "カオスすぎる弾幕", "過負荷グリッチ・カスケード", "Bullet Hell Finale", EnemyPat_TooChaotic_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

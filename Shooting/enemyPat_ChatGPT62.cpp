@@ -104,7 +104,7 @@ static void ShotSpiralScramble(sEnemyShotSet* pEnemyShotSet)
 // ------------------------------------------------------------
 // 敵本体
 // ------------------------------------------------------------
-void EnemyPat_Tmp()
+void EnemyPat_TooChaotic_ChatGPT()
 {
     static double baseAngle;
     static int rotateDir;
@@ -131,7 +131,7 @@ void EnemyPat_Tmp()
     // 約2秒ごとに回転方向反転
     // --------------------------------------------------------
     phaseCount++;
-    if (phaseCount >= 120) {
+    if (phaseCount >= 180) {
         phaseCount = 0;
         rotateDir *= -1;
     }
