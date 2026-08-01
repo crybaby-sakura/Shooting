@@ -85,6 +85,7 @@ struct sEnemyShotSet : PoolAllocator<sEnemyShotSet, 1024> {
     PatternFunc    patternFunc = nullptr;
     int            count = 0;        // 毎フレーム自動で+1
     int            kind = 0;
+    int            alive = 60;       // 生存保証フレーム
     int            param_i[8]{};     // 自由な目的に使えるパラメータ
     double         param_d[8]{};     // 自由な目的に使えるパラメータ
     sEnemyShot*    pEnemyShotHead = nullptr;

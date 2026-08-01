@@ -515,5 +515,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen62", "カオスすぎる弾幕", "次元崩壊の万華鏡", "Bullet Hell Finale", EnemyPat_TooChaotic_Qwen },
     { "Kimi62", "カオスすぎる弾幕", "侵食多重螺旋「アポカリプティック・ネスト」", "Bullet Hell Finale", EnemyPat_TooChaotic_Kimi },
     { "Zai62", "カオスすぎる弾幕", "過負荷グリッチ・カスケード", "Bullet Hell Finale", EnemyPat_TooChaotic_Zai },
+    { "DeepSeek63", "サインポールをモチーフにした弾幕", "バーバーズ・ポール", "Lochfire Arpeggio", EnemyPat_SignPole_DeepSeek },
+    { "ChatGPT63", "サインポールをモチーフにした弾幕", "サインポール・スパイラル", "Lochfire Arpeggio", EnemyPat_SignPole_ChatGPT },
+    { "Gemini63", "サインポールをモチーフにした弾幕", "トリコロール・ヘリックス", "Lochfire Arpeggio", EnemyPat_SignPole_Gemini },
+    { "Grok63", "サインポールをモチーフにした弾幕", "サインポール螺旋", "Lochfire Arpeggio", EnemyPat_SignPole_Grok },
+    { "Claude63", "サインポールをモチーフにした弾幕", "三色回転塔", "Lochfire Arpeggio", EnemyPat_SignPole_Claude },
+    { "Qwen63", "サインポールをモチーフにした弾幕", "錯覚のサインポール・ラビリンス", "Lochfire Arpeggio", EnemyPat_SignPole_Qwen },
+    { "Kimi63", "サインポールをモチーフにした弾幕", "交差点標識 － Crossroad Signpost", "Lochfire Arpeggio", EnemyPat_SignPole_Kimi },
+    { "Zai63", "サインポールをモチーフにした弾幕", "カントリーサイン・フォール", "Lochfire Arpeggio", EnemyPat_SignPole_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

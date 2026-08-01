@@ -45,7 +45,7 @@ void enemyShotCalc()
 		
 		pNextEnemyShotSet = pEnemyShotSet->next;
 		
-		if(pEnemyShotSet->pEnemyShotHead->next==pEnemyShotSet->pEnemyShotHead && pEnemyShotSet->count>60){ //空のセットは削除
+		if(pEnemyShotSet->pEnemyShotHead->next==pEnemyShotSet->pEnemyShotHead && pEnemyShotSet->count > pEnemyShotSet->alive){ //空のセットは削除
 			delete pEnemyShotSet->pEnemyShotHead;
 			
 			pEnemyShotSet->prev->next = pEnemyShotSet->next;

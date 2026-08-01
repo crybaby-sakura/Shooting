@@ -279,7 +279,7 @@ void enemyDisp() {
     double distance = sqrt(dx * dx + dy * dy);
 
     // 透明度のパラメータ（お好みで調整）
-    const double FAR_DIST = 80.0;     // この距離以遠は完全不透明
+    const double FAR_DIST = 120.0;     // この距離以遠は完全不透明
     const double NEAR_DIST = 40.0;    // この距離以内は最も透明
     const int    MIN_ALPHA = 64;      // 最も近いときのアルファ値（0～255）
     const int    MAX_ALPHA = 255;     // 遠いときのアルファ値（完全不透明）

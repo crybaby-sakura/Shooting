@@ -57,7 +57,7 @@ static void ShotTricolorHelix(sEnemyShotSet* pEnemyShotSet)
         if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
         PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
 
-        int way = 48;
+        int way = 36;
         for (int i = 0; i < way; i++) {
             sEnemyShot* pEnemyShot = new sEnemyShot;
             pEnemyShot->x = pEnemyShotSet->x;
@@ -87,7 +87,7 @@ static void ShotTricolorHelix(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_SignPole_Gemini()
 {
     static int muki;
 
@@ -105,7 +105,7 @@ void EnemyPat_Tmp()
     }
 
     // カウント60で、弾を生成し続ける「エミッター」としての弾セットを1つだけ登録
-    if (count == 60) {
+    if (count == 30) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
         pEnemyShotSet->count = 0;
         pEnemyShotSet->patternFunc = ShotTricolorHelix;
