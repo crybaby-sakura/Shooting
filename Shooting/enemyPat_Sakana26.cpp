@@ -125,7 +125,7 @@ static std::vector<std::pair<double, double>> SampleTextOutline(
 // ============================================================
 //  文字「弾」の弾オフセットリスト（初回アクセス時に自動生成）
 // ============================================================
-static std::vector<std::pair<double, double>>& GetOffsets()
+std::vector<std::pair<double, double>>& GetOffsets()
 {
     static std::vector<std::pair<double, double>> offsets;
     static bool initialized = false;

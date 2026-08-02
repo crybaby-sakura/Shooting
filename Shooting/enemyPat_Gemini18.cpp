@@ -12,6 +12,7 @@ static void ShotSpiderWeb(sEnemyShotSet* pEnemyShotSet)
 
     // 【放射状の骨組み（Spokes）】を生成
     if (pEnemyShotSet->count == 0) {
+        if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
         PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
 
         // 80フレーム後に特定の距離（240, 195, 150, 105, 60）でピタリと停止するように速度を計算してあります
@@ -38,6 +39,7 @@ static void ShotSpiderWeb(sEnemyShotSet* pEnemyShotSet)
     // 【同心円状の糸（Rings）】を生成
     // 15フレームごとに時間差で射出することで、80フレーム目でちょうど骨組みと交差します
     if (pEnemyShotSet->count % 15 == 0 && pEnemyShotSet->count <= 60) {
+        if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
         PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
 
         for (int i = 0; i < 32; i++) {

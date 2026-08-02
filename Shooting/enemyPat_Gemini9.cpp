@@ -116,7 +116,7 @@ void EnemyPat_Blizzard_Gemini()
         // ゲーム画面の中央上部付近に配置
         enemy.x = 240.0;
         enemy.y = 80.0;
-        enemy.maxHp = enemy.hp = 200;
+        enemy.maxHp = enemy.hp = 150;
     }
     else {
         // 吹雪を画面全体に広げるため、サイン波を利用してゆっくりと「8の字」を描く軌道

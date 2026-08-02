@@ -17,10 +17,8 @@
 #include "replay.h"
 #include "stateManager.h"   // StateManager, Joutai
 #include "recordController.h"
+#include "masterpieceViewer.h"
 
-
-constexpr int GAME_W = 640;
-constexpr int GAME_H = 480;
 
 _Use_decl_annotations_
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
@@ -42,7 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         DrawGraph(0, 0, splashHandle, TRUE);
         ScreenFlip();
     }
-    if (!recordingMode) {
+    if (!recordingMode && !masterpieceMode) {
         loadWindowSettings();            // ウィンドウ位置・サイズを復元
     }
 
@@ -90,6 +88,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     // スプラッシュ画像を破棄
     if (splashHandle != -1) DeleteGraph(splashHandle);
+
+    if (masterpieceMode) {
+        masterpieceMain();
+        return 0;
+    }
 
     // ---------- ゲーム画面の準備 ----------
     int gameScreen = MakeScreen(GAME_W, GAME_H, TRUE);

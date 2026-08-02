@@ -4,6 +4,7 @@
 #include "gv.h"
 #include "imgSoundLoad.h"
 #include "stageData.h"
+#include "masterpieceViewer.h"
 #include <unordered_map>
 #include <string>
 
@@ -38,6 +39,7 @@ int sound_playerDestroyed;
 
 int bgm_menu;
 int currentBGMHandle;
+int bgm_masterpiece;
 
 // ファイル名（例："Torpedo_Hymn2"）→ BGMハンドル のキャッシュ
 static std::unordered_map<std::string, int> bgmCache;
@@ -299,6 +301,10 @@ void imgSoundLoad()
 
     // BGM 読み込み
     bgm_menu = LoadSoundMem("assets/bgm/Neon Static.ogg");
+
+    if (masterpieceMode) {
+        bgm_masterpiece = LoadSoundMem("assets/bgm/Shuffled Fanfare Rise.ogg");
+    }
 }
 
 // 遅延ロード用の関数

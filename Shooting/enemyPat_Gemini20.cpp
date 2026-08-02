@@ -45,6 +45,7 @@ static void ShotHourglass(sEnemyShotSet* pEnemyShotSet)
                 pShot->muki = atan2(focalY - startY, focalX - startX);
                 pShot->speed = 2.0;
                 pShot->kind = img_enemyShotDiamond[3]; // 3:シアン（ガラスの表現）
+                pShot->margin = 240;
 
                 // リストへの追加（末尾）
                 pShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
@@ -75,6 +76,7 @@ static void ShotHourglass(sEnemyShotSet* pEnemyShotSet)
             // 色は 1:黄 をベースに、時折 6:白（光る砂）を混ぜる
             int colors[] = { 1, 6 };
             pShot->kind = img_enemyShotSmallBall[colors[GetRand(1)]];
+            pShot->margin = 240;
 
             // リストへの追加（末尾）
             pShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
@@ -87,6 +89,10 @@ static void ShotHourglass(sEnemyShotSet* pEnemyShotSet)
     // --------------------------------------------------------
     // 【フェーズ切り替え】 時間逆行の瞬間 (250)
     // --------------------------------------------------------
+    if (phase == 250 - 60) {
+        if (CheckSoundMem(sound_enemyCharge) == 1) StopSoundMem(sound_enemyCharge);
+        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
+    }
     if (phase == 250) {
         // 時が止まり逆行する合図として重い音を鳴らす
         if (CheckSoundMem(sound_enemyShot_heavy) == 1) StopSoundMem(sound_enemyShot_heavy);
@@ -100,7 +106,7 @@ static void ShotHourglass(sEnemyShotSet* pEnemyShotSet)
     while (pEnemyShot != pEnemyShotSet->pEnemyShotHead) {
 
         // 逆行の瞬間に、画面内にある全弾のベクトルを180度反転させる
-        if (phase == 250) {
+        if (phase == 250 && pEnemyShot->kind != img_enemyShotSmallBall[5]) {
             pEnemyShot->muki += DX_PI; // 角度を180度（πラジアン）回す
 
             // 砂の弾（黄・白）を、時間が戻っていることを示すマゼンタに変化させる

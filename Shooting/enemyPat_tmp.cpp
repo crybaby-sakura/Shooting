@@ -1,127 +1,64 @@
-﻿// enemyPat_Tmp.cpp
-
+﻿// enemyPat_claude.cpp
+// パターン9：フィボナッチ螺旋（ひまわり）
 #include "DxLib.h"
 #include "gv.h"
 #include "imgSoundLoad.h"
 #include <math.h>
 
-// 弾幕：トリコロール・ヘリックス（サインポール錯視）
-static void ShotTricolorHelix(sEnemyShotSet* pEnemyShotSet)
+constexpr double PI = 3.14159265358979323846;
+
+static void ShotSunflower(sEnemyShotSet* p)
 {
-    // ボス本体の移動に合わせてエミッターの座標を追従させる
-    pEnemyShotSet->x = enemy.x;
-    pEnemyShotSet->y = enemy.y;
-
-    // --- 弾の生成 ---
-    // 錯視ギミック（ポール錯視）：回転方向（角速度）の反転と弾速を連動させる
-    // 周期的に sin / cos で揺らすことで、ヌルヌルと流れ落ちるような錯覚を生み出す
-    double omega = 0.07 * sin(pEnemyShotSet->count * DX_PI / 300.0);
-    pEnemyShotSet->param_d[0] += omega; // 発射ベース角度の更新
-
-    double speed = 2.0 + 0.5 * cos(pEnemyShotSet->count * DX_PI / 300.0);
-
-    // 主弾：トリコロール・スパイラル (3フレームに1回発射)
-    if (pEnemyShotSet->count % 2 == 0) {
-        // 軽い発射音
-        if (pEnemyShotSet->count % 6 == 0) {
-            if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
-            PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
-        }
-
-        for (int i = 0; i < 3; i++) {
-            sEnemyShot* pEnemyShot = new sEnemyShot;
-            pEnemyShot->x = pEnemyShotSet->x;
-            pEnemyShot->y = pEnemyShotSet->y;
-
-            // 3方向(120度ずつ)にずらして発射
-            double angle = pEnemyShotSet->param_d[0] + (DX_PI * 2.0 / 3.0) * i;
-            pEnemyShot->muki = angle;
-            pEnemyShot->speed = speed;
-
-            // 弾の種類と色を設定 (赤:0, 白:6, 青:4)
-            if (i == 0) pEnemyShot->kind = img_enemyShotMediumBall[0];
-            else if (i == 1) pEnemyShot->kind = img_enemyShotMediumBall[6];
-            else if (i == 2) pEnemyShot->kind = img_enemyShotMediumBall[4];
-
-            // 循環リストの末尾に追加
-            pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+    const int colorTable[] = { 0, 1, 2, 4 };
+    sEnemyShot* shot, * next;
+    p->count++;
+    if (p->count == 1) {
+        PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
+        const int N = 960; const double PHI = PI * (3 - sqrt(5.0)), SCALE = 5.5;
+        for (int i = 0; i < N; i++) {
+            double angle = p->muki + i * PHI, r = SCALE * sqrt(i + 1.0);
+            shot = new sEnemyShot;
+            shot->x = p->x + r * cos(angle); shot->y = p->y + r * sin(angle);
+            shot->muki = angle; shot->speed = 0; shot->kind = img_enemyShotSmallBall[colorTable[i % 4]];
+            shot->prev = p->pEnemyShotHead->prev; shot->next = p->pEnemyShotHead;
+            p->pEnemyShotHead->prev->next = shot; p->pEnemyShotHead->prev = shot;
         }
     }
-
-    // アクセント弾：キャップ・リング (150フレーム周期で全方位発射)
-    if (pEnemyShotSet->count > 0 && pEnemyShotSet->count % 150 == 0) {
-        // 重い発射音
-        if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
-        PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
-
-        int way = 48;
-        for (int i = 0; i < way; i++) {
-            sEnemyShot* pEnemyShot = new sEnemyShot;
-            pEnemyShot->x = pEnemyShotSet->x;
-            pEnemyShot->y = pEnemyShotSet->y;
-
-            // 24方位へリング状に展開
-            pEnemyShot->muki = (DX_PI * 2.0 / way) * i;
-            pEnemyShot->speed = 1.8;
-            pEnemyShot->kind = img_enemyShotLargeBall[1]; // 黄色の大玉（金属キャップ風）
-
-            // 循環リストの末尾に追加
-            pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
-        }
+    if (p->count == 35) {
+        if (CheckSoundMem(sound_enemyShot_light) == 1) StopSoundMem(sound_enemyShot_light);
+        PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
     }
-
-    // --- 既存弾の移動処理 ---
-    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-    while (pShot != pEnemyShotSet->pEnemyShotHead) {
-        pShot->x += pShot->speed * cos(pShot->muki);
-        pShot->y += pShot->speed * sin(pShot->muki);
-
-        pShot = pShot->next;
+    shot = p->pEnemyShotHead->next;
+    while (shot != p->pEnemyShotHead) {
+        next = shot->next;
+        if (p->count >= 35) {
+            double target = (shot->kind == img_enemyShotSmallBall[0] || shot->kind == img_enemyShotSmallBall[2]) ? 3.6 : 2.4;
+            if (shot->speed < target) shot->speed += 0.11;
+            shot->x += shot->speed * cos(shot->muki); shot->y += shot->speed * sin(shot->muki);
+        }
+        if (shot->x < -50 || shot->x>530 || shot->y < -50 || shot->y>530) {
+            shot->prev->next = shot->next; shot->next->prev = shot->prev; delete shot;
+        }
+        shot = next;
+    }
+    if (p->count > 350) {
+        shot = p->pEnemyShotHead->next;
+        while (shot != p->pEnemyShotHead) { next = shot->next; delete shot; shot = next; }
+        p->prev->next = p->next; p->next->prev = p->prev; delete p->pEnemyShotHead; delete p; return;
     }
 }
 
-// 敵本体のパターン
 void EnemyPat_Tmp()
 {
-    static int muki;
+    sEnemyShotSet* p;
+    if (count == 1) { enemy.maxHp = enemy.hp = 200; enemy.x = 240; enemy.y = 240; }
 
-    if (count == 1) {
-        // ゲーム画面は 480x480
-        enemy.x = 240.0;
-        enemy.y = 100.0; // 弾幕が綺麗に見えるよう少し高めに配置
-        enemy.maxHp = enemy.hp = 200;
-        muki = 1;
-    }
-    else {
-        // ボスはゆっくりと左右に往復移動する
-        enemy.x += 0.4 * (double)muki;
-        if (count % 240 == 120) muki *= -1;
-    }
+    enemy.x = 240; enemy.y = 240;
 
-    // カウント60で、弾を生成し続ける「エミッター」としての弾セットを1つだけ登録
-    if (count == 60) {
-        sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
-        pEnemyShotSet->count = 0;
-        pEnemyShotSet->patternFunc = ShotTricolorHelix;
-        pEnemyShotSet->x = enemy.x;
-        pEnemyShotSet->y = enemy.y;
-        pEnemyShotSet->param_d[0] = 0.0; // 発射角度のベース値を初期化
-
-        // 弾リストのダミーヘッドを作成
-        pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
-        pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
-        pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
-
-        // セットリストへ登録
-        pEnemyShotSet->prev = enemyShotSetHead.prev;
-        pEnemyShotSet->next = &enemyShotSetHead;
-        enemyShotSetHead.prev->next = pEnemyShotSet;
-        enemyShotSetHead.prev = pEnemyShotSet;
+    if (count % 180 == 60) {
+        p = new sEnemyShotSet; p->count = 0; p->patternFunc = ShotSunflower;
+        p->x = enemy.x; p->y = enemy.y; p->muki = count * 0.04; p->kind = 0;
+        p->pEnemyShotHead = new sEnemyShot; p->pEnemyShotHead->prev = p->pEnemyShotHead->next = p->pEnemyShotHead;
+        p->prev = enemyShotSetHead.prev; p->next = &enemyShotSetHead; enemyShotSetHead.prev->next = p; enemyShotSetHead.prev = p;
     }
 }

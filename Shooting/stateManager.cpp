@@ -7,6 +7,7 @@
 #include "stageData.h"    // stageData
 #include "gv.h"
 #include "fileOpenClose.h"
+#include "masterpieceViewer.h"
 
 
 // BGMオンオフ制御定数 (true:再生する, false:再生しない)
@@ -82,7 +83,7 @@ bool StateManager::ChangeState(Joutai newState)
 		// 遅延ロード
 		loadStageBGM(stageNum);
 		if constexpr (BGM_ENABLED) {
-			int bgmHandle = stageData[stageNum].bgmHandle;
+			int bgmHandle = masterpieceMode ? bgm_masterpiece : stageData[stageNum].bgmHandle;
 			if (currentBGMHandle != bgmHandle) {
 				if (currentBGMHandle != -1) {
 					StopSoundMem(currentBGMHandle);

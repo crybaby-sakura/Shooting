@@ -41,6 +41,7 @@ extern int sound_playerDestroyed;
 
 extern int bgm_menu;
 extern int currentBGMHandle; 
+extern int bgm_masterpiece;
 
 
 void imgSoundLoad();

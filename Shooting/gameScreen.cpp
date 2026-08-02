@@ -9,9 +9,13 @@
 #include "menu.h"
 #include "replay.h"
 #include "player.h"
+#include "masterpieceViewer.h"
 #include <math.h>
 #include <string> 
 #include <vector> 
+
+int GAME_W = 640;
+int GAME_H = 480;
 
 #define NUM_STARS 30
 
@@ -134,8 +138,24 @@ static void createSidePanelBG() {
     currentY += lineHeight * 2;   // HP表示の下のスペース
 
     // Q: Quit（常に表示）
-    DrawString(panelLeft + 5, currentY, "Q: Quit", GetColor(255, 255, 255));
-    // リプレイモード表示は動的なのでここでは描かない
+    if (!masterpieceMode) {
+        DrawString(panelLeft + 5, currentY, "Q: Quit", GetColor(255, 255, 255));
+        currentY += lineHeight;
+    }
+
+    // リプレイモード表示用の予約行（動的描画に任せる）
+    currentY += lineHeight;
+
+    // 傑作選コメント（静的描画）
+    if (masterpieceMode && g_masterpieceComment) {
+        currentY += lineHeight;
+        const int commentAreaWidth = 140;
+        std::vector<std::string> commentLines = WrapText(g_masterpieceComment, commentAreaWidth);
+        for (const auto& line : commentLines) {
+            DrawString(panelLeft + 2, currentY, line.c_str(), GetColor(255, 255, 200));
+            currentY += lineHeight + 2;
+        }
+    }
 
     SetDrawScreen(oldScreen);
     lastStageForSidePanel = stageNum;
@@ -426,12 +446,17 @@ void drawSidePanel()
     int hpTextY = currentY;
 
     // リプレイモード表示位置は Q: Quit の下
-    int replayY = currentY + lineHeight * 2 + lineHeight * 2;  // HP下1行空け + Q行 + 1行空け
+    int replayY = currentY + (masterpieceMode ? 0 : lineHeight * 2) + lineHeight * 2;  // HP下1行空け + Q行 + 1行空け
 
     // ---- 動的描画 ----
     // プレイ回数（BestTimeの上、隙間あり）
     DrawBox(panelLeft, playCountY, 630, playCountY + lineHeight, INFO_BG_COLOR, TRUE);
-    DrawFormatString(panelLeft, playCountY, GetColor(255, 255, 255), "Play Count: %u", stageData[stageNum].playCount);
+    if (masterpieceMode) {
+        DrawFormatString(panelLeft, playCountY, GetColor(255, 255, 255), "Play Count: --");
+    }
+    else {
+        DrawFormatString(panelLeft, playCountY, GetColor(255, 255, 255), "Play Count: %u", stageData[stageNum].playCount);
+    }
 
     // BestTime（更新される可能性があるため動的描画）
     DrawBox(panelLeft, bestTimeY, 630, bestTimeY + lineHeight, INFO_BG_COLOR, TRUE);

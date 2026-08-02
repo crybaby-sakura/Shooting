@@ -28,7 +28,7 @@ void RecordController::Update(int key[256]) {
 
     switch (m_step) {
     case RecordStep::InitMenu:
-        changeStep(RecordStep::WaitBeforeR, 120);
+        changeStep(RecordStep::WaitBeforeR, 120); // メニュー画面で 2 秒待機
         break;
 
     case RecordStep::WaitBeforeR:
@@ -52,7 +52,7 @@ void RecordController::Update(int key[256]) {
 
     case RecordStep::PressR:
         if (StateManager::GetState() == Joutai::Replay) {
-            changeStep(RecordStep::WaitReplayEnd, 150);
+            changeStep(RecordStep::WaitReplayEnd, 150); // リプレイ終了後 2.5 秒待機
         }
         else if (StateManager::GetState() == Joutai::Menu) {
             key[KEY_INPUT_Q] = 1;
@@ -65,7 +65,7 @@ void RecordController::Update(int key[256]) {
         if (st == Joutai::Win || st == Joutai::Lose || m_replayEnded) {
             m_replayCount++;
             m_replayEnded = false;
-            changeStep(RecordStep::WaitBeforeR, 150);
+            changeStep(RecordStep::WaitBeforeR, 150); // リプレイ終了後 2.5 秒待機
         }
         else if (st == Joutai::Menu) {
             key[KEY_INPUT_Q] = 1;
