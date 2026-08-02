@@ -5,7 +5,7 @@
 #include "imgSoundLoad.h"
 #include <math.h>
 
-// 弾幕：彩り三色・団子の逆転螺旋（串装備版）
+// 弾幕：彩り三色・団子の逆転螺旋（複雑ギミック版）
 static void ShotDangoSpiral(sEnemyShotSet* pEnemyShotSet)
 {
     sEnemyShot* pEnemyShot;
@@ -18,14 +18,15 @@ static void ShotDangoSpiral(sEnemyShotSet* pEnemyShotSet)
 
     // カウントが0になってから発射開始
     if (pEnemyShotSet->count >= 0) {
-        // 5フレームごとに発射（プール枯渇を考慮して間隔を調整）
-        if (pEnemyShotSet->count % 5 == 0) {
-            if (pEnemyShotSet->count == 0) {
+        // 3フレームごとに発射
+        if (pEnemyShotSet->count % 6 == 0) {
+            if (pEnemyShotSet->count % 12 == 0) {
                 if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
                 PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
             }
 
             // 回転速度のうねり（正弦波で自動的に加減速・反転を繰り返す）
+            // 周期は 2*PI / 0.005 ≒ 1256フレームで1周
             double rot_speed = 0.045 * cos(pEnemyShotSet->count * 0.005);
 
             // 微小な高周波の揺らぎを追加し、プレイヤーの視線と回避を攪乱する
@@ -36,23 +37,6 @@ static void ShotDangoSpiral(sEnemyShotSet* pEnemyShotSet)
             double base_x = pEnemyShotSet->x;
             double base_y = pEnemyShotSet->y;
 
-            // ==========================================
-            // 串と団子の構成データ
-            // 串は小玉(橙色)で表現し、団子の中玉を貫くように配置する
-            // 速度を「串は一律」「団子は色ごとに変化」させることで、
-            // 「串の上を団子が滑り抜けて逆転する」ビジュアルを実現
-            // ==========================================
-            double offsets[] = { -16.0, -8.0, 0.0, 8.0, 16.0, 24.0, 32.0, 40.0 };
-            int    kinds[] = {
-                img_enemyShotSmallBall[8], img_enemyShotSmallBall[8], // 串(奥)
-                img_enemyShotMediumBall[2],                           // 緑の団子
-                img_enemyShotMediumBall[6],                           // 白の団子
-                img_enemyShotMediumBall[5],                           // ピンクの団子
-                img_enemyShotSmallBall[8], img_enemyShotSmallBall[8], img_enemyShotSmallBall[8] // 串(手前)
-            };
-            double speeds[] = { 2.5, 2.5, 2.7, 2.5, 2.3, 2.5, 2.5, 2.5 };
-            int    dataCount = 8;
-
             // 2つのグループで位相をずらす（合計10方向の放射）
             for (int group = 0; group < 2; group++) {
                 double group_offset = group * (DX_PI / 5.0);
@@ -61,20 +45,50 @@ static void ShotDangoSpiral(sEnemyShotSet* pEnemyShotSet)
                 for (int i = 0; i < 5; i++) {
                     double m = base_angle + group_offset + i * (DX_PI * 2.0 / 5.0);
 
-                    // 串と団子の構成要素を順番に生成
-                    for (int j = 0; j < dataCount; j++) {
-                        pEnemyShot = new sEnemyShot;
-                        pEnemyShot->x = base_x + offsets[j] * cos(m);
-                        pEnemyShot->y = base_y + offsets[j] * sin(m);
-                        pEnemyShot->muki = m;
-                        pEnemyShot->speed = speeds[j];
-                        pEnemyShot->kind = kinds[j];
+                    // ==========================================
+                    // ピンク弾（一番手前、遅い）
+                    // 初速2.3で前方に配置。白と緑に徐々に抜かれ、最後尾へ逆転する。
+                    // ==========================================
+                    pEnemyShot = new sEnemyShot;
+                    pEnemyShot->x = base_x + 8.0 * cos(m);
+                    pEnemyShot->y = base_y + 8.0 * sin(m);
+                    pEnemyShot->muki = m;
+                    pEnemyShot->speed = 2.3;
+                    pEnemyShot->kind = img_enemyShotMediumBall[5]; // 5:マゼンタ(ピンク)
+                    pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+                    pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+                    pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+                    pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
 
-                        pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-                        pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-                        pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-                        pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
-                    }
+                    // ==========================================
+                    // 白弾（真ん中、中速度）
+                    // 初速2.5で中央に配置。発射直後は綺麗な団子の中心。
+                    // ==========================================
+                    pEnemyShot = new sEnemyShot;
+                    pEnemyShot->x = base_x;
+                    pEnemyShot->y = base_y;
+                    pEnemyShot->muki = m;
+                    pEnemyShot->speed = 2.5;
+                    pEnemyShot->kind = img_enemyShotMediumBall[6]; // 6:白
+                    pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+                    pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+                    pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+                    pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+
+                    // ==========================================
+                    // 緑弾（一番奥、早い）
+                    // 初速2.7で後方に配置。前方のピンクと白を追い抜き、先頭へ逆転する。
+                    // ==========================================
+                    pEnemyShot = new sEnemyShot;
+                    pEnemyShot->x = base_x - 8.0 * cos(m);
+                    pEnemyShot->y = base_y - 8.0 * sin(m);
+                    pEnemyShot->muki = m;
+                    pEnemyShot->speed = 2.7;
+                    pEnemyShot->kind = img_enemyShotMediumBall[2]; // 2:緑
+                    pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+                    pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+                    pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+                    pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
                 }
             }
         }
@@ -90,7 +104,7 @@ static void ShotDangoSpiral(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_TricolorDango_Zai()
 {
     static int muki;
 

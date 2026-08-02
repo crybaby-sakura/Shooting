@@ -523,5 +523,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen63", "サインポールをモチーフにした弾幕", "錯覚のサインポール・ラビリンス", "Lochfire Arpeggio", EnemyPat_SignPole_Qwen },
     { "Kimi63", "サインポールをモチーフにした弾幕", "交差点標識 － Crossroad Signpost", "Lochfire Arpeggio", EnemyPat_SignPole_Kimi },
     { "Zai63", "サインポールをモチーフにした弾幕", "カントリーサイン・フォール", "Lochfire Arpeggio", EnemyPat_SignPole_Zai },
+    { "DeepSeek64", "三色団子をモチーフにした弾幕", "三色団子・串輪舞", "Moonlit Danmaku Run", EnemyPat_TricolorDango_DeepSeek },
+    { "ChatGPT64", "三色団子をモチーフにした弾幕", "三色団子スパイラル", "Moonlit Danmaku Run", EnemyPat_TricolorDango_ChatGPT },
+    { "Gemini64", "三色団子をモチーフにした弾幕", "春風・三色串崩し", "Moonlit Danmaku Run", EnemyPat_TricolorDango_Gemini },
+    { "Grok64", "三色団子をモチーフにした弾幕", "三色串刺し弾幕", "Moonlit Danmaku Run", EnemyPat_TricolorDango_Grok },
+    { "Claude64", "三色団子をモチーフにした弾幕", "三色串舞", "Moonlit Danmaku Run", EnemyPat_TricolorDango_Claude },
+    { "Qwen64", "三色団子をモチーフにした弾幕", "花見の宴・三色だんごの串刺し", "Moonlit Danmaku Run", EnemyPat_TricolorDango_Qwen },
+    { "Kimi64", "三色団子をモチーフにした弾幕", "花見団子の輪舞曲", "Moonlit Danmaku Run", EnemyPat_TricolorDango_Kimi },
+    { "Zai64", "三色団子をモチーフにした弾幕", "彩り三色・団子の逆転螺旋", "Moonlit Danmaku Run", EnemyPat_TricolorDango_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };
