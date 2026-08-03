@@ -136,7 +136,7 @@ struct sNeckSpawn {
 // 敵本体のパターン：「双首再生」
 // ヒュドラの首を1本→2本→4本と再生・分岐させながら増殖させる。
 // ------------------------------------------------------------
-void EnemyPat_Tmp()
+void EnemyPat_Hydra_Claude()
 {
     static sNeckSpawn schedule[7];
     static int scheduleNum;

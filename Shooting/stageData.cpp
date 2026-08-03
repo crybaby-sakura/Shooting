@@ -531,5 +531,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen64", "三色団子をモチーフにした弾幕", "花見の宴・三色だんごの串刺し", "Moonlit Danmaku Run", EnemyPat_TricolorDango_Qwen },
     { "Kimi64", "三色団子をモチーフにした弾幕", "花見団子の輪舞曲", "Moonlit Danmaku Run", EnemyPat_TricolorDango_Kimi },
     { "Zai64", "三色団子をモチーフにした弾幕", "彩り三色・団子の逆転螺旋", "Moonlit Danmaku Run", EnemyPat_TricolorDango_Zai },
+    { "DeepSeek65", "ヒュドラをモチーフにした弾幕", "不死結界「生首の庭」", "Nine Heads Rebirth", EnemyPat_Hydra_DeepSeek },
+    { "ChatGPT65", "ヒュドラをモチーフにした弾幕", "", "Nine Heads Rebirth", EnemyPat_Hydra_ChatGPT },
+    { "Gemini65", "ヒュドラをモチーフにした弾幕", "不滅の九頭連鎖（ハイドラ・リジェネシス）", "Nine Heads Rebirth", EnemyPat_Hydra_Gemini },
+    { "Grok65", "ヒュドラをモチーフにした弾幕", "多頭再生弾幕", "Nine Heads Rebirth", EnemyPat_Hydra_Grok },
+    { "Claude65", "ヒュドラをモチーフにした弾幕", "双首再生", "Nine Heads Rebirth", EnemyPat_Hydra_Claude },
+    { "Qwen65", "ヒュドラをモチーフにした弾幕", "蛇再生「ヒュドラ・リジェネレイト」", "Nine Heads Rebirth", EnemyPat_Hydra_Qwen },
+    { "Kimi65", "ヒュドラをモチーフにした弾幕", "断罪の輪廻 ― proliferating heads", "Nine Heads Rebirth", EnemyPat_Hydra_Kimi },
+    { "Zai65", "ヒュドラをモチーフにした弾幕", "毒蛇の徘徊する吐息", "Nine Heads Rebirth", EnemyPat_Hydra_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };
