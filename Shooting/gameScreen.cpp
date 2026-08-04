@@ -9,6 +9,7 @@
 #include "menu.h"
 #include "replay.h"
 #include "player.h"
+#include "recordController.h"
 #include "masterpieceViewer.h"
 #include <math.h>
 #include <string> 
@@ -370,7 +371,7 @@ void foreGround() {
 
     // 縁取り文字の描画設定
     const int TITLE_X = 10;
-    const int TITLE_Y = 10;
+    int TITLE_Y = is_tate ? 20 : 10;
     const int BORDER_COLOR = GetColor(0, 0, 0);             // 縁取り色（黒）
     const int TEXT_COLOR = GetColor(255, 255, 255);         // 文字色（白）
     const char* titleText = stageData[stageNum].stageTitle; // 実際のステージタイトル
@@ -405,6 +406,34 @@ void foreGround() {
 
     // 特殊演出
     special_performance();
+
+    // ボスのHPバー表示（ボスが存在するときだけ描画）
+    if (is_tate) {
+        int barX = 5;
+        int barY = 2;
+        int barWidth = 470;
+        int barHeight = 14;
+
+        // 背景（半透明の黒でバー部分を塗りつぶし）
+        SetDrawBlendMode(DX_BLENDMODE_ALPHA, 120);
+        DrawBox(barX, barY, barX + barWidth, barY + barHeight, GetColor(0, 0, 0), TRUE);
+        SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+        // 枠（暗めの赤）
+        DrawBox(barX, barY, barX + barWidth, barY + barHeight, GetColor(180, 40, 40), FALSE);
+
+        // 内部のHPゲージ（明るい赤）
+        int hpWidth = (int)(barWidth * (double)enemy.hp / enemy.maxHp);
+        if (hpWidth > 0) {
+            DrawBox(barX + 1, barY + 1, barX + hpWidth - 1, barY + barHeight - 1, GetColor(255, 60, 60), TRUE);
+        }
+
+        // HP数値（白文字で中央付近に）
+        SetFontSize(14);
+        DrawFormatString(barX + 140, barY - 1, GetColor(255, 255, 255),
+            "BOSS HP: %d / %d", enemy.hp, enemy.maxHp);
+        SetFontSize(defaultFontSize);  // foreGround内で定義済みのデフォルトサイズに戻す
+    }
 }
 
 void drawSidePanel()

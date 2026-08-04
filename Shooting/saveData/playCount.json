@@ -10,7 +10,7 @@
     "ChatGPT17": 1,
     "ChatGPT18": 1,
     "ChatGPT19": 1,
-    "ChatGPT2": 1,
+    "ChatGPT2": 4,
     "ChatGPT20": 2,
     "ChatGPT21": 1,
     "ChatGPT22": 1,
@@ -534,6 +534,6 @@
     "handmade4": 0,
     "handmade5": 0,
     "handmade6": 0,
-    "sample": 1,
+    "sample": 7,
     "tmp": 1369
 }
