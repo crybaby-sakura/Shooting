@@ -523,6 +523,36 @@ void drawSidePanel()
     if (replayActive) {
         DrawBox(panelLeft, replayY, 630, replayY + lineHeight, INFO_BG_COLOR, TRUE);
         DrawString(panelLeft + 5, replayY, "<Replay Mode>", GetColor(255, 255, 128));
+
+        int y = replayY + lineHeight + lineHeight;
+        if (stageData[stageNum].stageId == "Grok67") {
+            DrawBox(panelLeft, y, 630, y + lineHeight, INFO_BG_COLOR, TRUE);
+            DrawString(panelLeft + 5, y, "TAS でも無理！", GetColor(255, 255, 128));
+            y += lineHeight;
+            DrawBox(panelLeft, y, 630, y + lineHeight, INFO_BG_COLOR, TRUE);
+            DrawString(panelLeft + 5, y, "無敵モード ON", GetColor(255, 255, 128));
+            isMuteki = true;
+        }
+        if (stageData[stageNum].stageId == "DeepSeek67"
+            || stageData[stageNum].stageId == "ChatGPT67"
+            || stageData[stageNum].stageId == "Gemini67"
+            || stageData[stageNum].stageId == "Zai67")
+        {
+            DrawBox(panelLeft, y, 630, y + lineHeight, INFO_BG_COLOR, TRUE);
+            DrawString(panelLeft + 5, y, "人力では無理！", GetColor(255, 255, 128));
+            y += lineHeight;
+            DrawBox(panelLeft, y, 630, y + lineHeight, INFO_BG_COLOR, TRUE);
+            DrawString(panelLeft + 5, y, "TAS プレイです", GetColor(255, 255, 128));
+            isMuteki = false;
+        }
+        if (stageData[stageNum].stageId == "Claude67"
+            || stageData[stageNum].stageId == "Qwen67"
+            || stageData[stageNum].stageId == "Kimi67")
+        {
+            DrawBox(panelLeft, y, 630, y + lineHeight, INFO_BG_COLOR, TRUE);
+            DrawString(panelLeft + 5, y, "人力プレイです", GetColor(255, 255, 128));
+            isMuteki = false;
+        }
     }
 
     // デバッグ用：無敵モード中、存在する敵弾数を画面右下に表示

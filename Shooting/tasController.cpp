@@ -10,10 +10,11 @@
 #include "enemyShot.h"
 #include "player.h"
 #include "playerShot.h"
+#include "imgSoundLoad.h"
 
 
 // TASƒ‚[ƒh‚Ì—LŒø/–³Œø‚ğØ‚è‘Ö‚¦‚é
-bool g_isTasMode = true;
+bool g_isTasMode = false;
 
 
 void iniGameForTas()
@@ -109,6 +110,17 @@ namespace {
             //enemyShotHit();
             //enemyHit();
         }
+
+        // ‚¤‚é‚³‚¢‚Ì‚Å‰¹‚ğ~‚ß‚é
+        StopSoundMem(sound_enemyShot_noize);
+        StopSoundMem(sound_enemyShot_light);
+        StopSoundMem(sound_enemyShot_medium);
+        StopSoundMem(sound_enemyShot_heavy);
+        StopSoundMem(sound_enemyShot_extreme);
+        StopSoundMem(sound_enemyCharge);
+        StopSoundMem(sound_playerDestroyed);
+        StopSoundMem(sound_playerShotHit_default);
+        StopSoundMem(sound_playerShotHit_bossLowHP);
     }
 
 } // namespace

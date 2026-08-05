@@ -143,7 +143,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         if (key[KEY_INPUT_M] == 1) {
             isMuteki = !isMuteki;
         }
-
+        
         // ó‘Ô‚É‰‚¶‚Äˆ—‚ğ•ªŠò
         if (StateManager::GetState() == Joutai::Menu) {
             moveCursor();

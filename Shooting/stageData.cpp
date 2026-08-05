@@ -547,5 +547,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen66", "超巨大弾を使った弾幕", "超巨大弾「ムーンフォール・カーテン」", "Leviathan Shell", EnemyPat_HugeBullet_Qwen },
     { "Kimi66", "超巨大弾を使った弾幕", "重力の瞳（グラヴィティ・アイズ）", "Leviathan Shell", EnemyPat_HugeBullet_Kimi },
     { "Zai66", "超巨大弾を使った弾幕", "崩星の重核", "Leviathan Shell", EnemyPat_HugeBullet_Zai },
+    { "DeepSeek67", "世界一難しい弾幕", "因果遡行『不可逆の残影』", "Cyber Doom Circuit", EnemyPat_TheHardest_DeepSeek },
+    { "ChatGPT67", "世界一難しい弾幕", "カオス・イベントホライズン", "Cyber Doom Circuit", EnemyPat_TheHardest_ChatGPT },
+    { "Gemini67", "世界一難しい弾幕", "量子位相干渉：事象の地平線", "Cyber Doom Circuit", EnemyPat_TheHardest_Gemini },
+    { "Grok67", "世界一難しい弾幕", "無限螺旋・時間歪曲弾幕", "Cyber Doom Circuit", EnemyPat_TheHardest_Grok },
+    { "Claude67", "世界一難しい弾幕", "終末刻鐘", "Cyber Doom Circuit", EnemyPat_TheHardest_Claude },
+    { "Qwen67", "世界一難しい弾幕", "未来確定弾幕「ラプラスの最終定理」", "Cyber Doom Circuit", EnemyPat_TheHardest_Qwen },
+    { "Kimi67", "世界一難しい弾幕", "無限分岐のカオス・フラクタル", "Cyber Doom Circuit", EnemyPat_TheHardest_Kimi },
+    { "Zai67", "世界一難しい弾幕", "虚数迷宮・因果律の崩壊", "Cyber Doom Circuit", EnemyPat_TheHardest_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };
