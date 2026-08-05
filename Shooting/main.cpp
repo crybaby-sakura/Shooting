@@ -257,8 +257,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         SetDrawScreen(gameScreen);
 
         // FPS Т▓Ро
+        int MS = 17;
         int elapsed = GetNowCount() - frameStart;
-        if (elapsed < 17) WaitTimer(17 - elapsed);
+        if (elapsed < MS) WaitTimer(MS - elapsed);
     }
 
     iniGame();
