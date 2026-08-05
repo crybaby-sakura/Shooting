@@ -133,7 +133,7 @@
     "Claude9": 1,
     "ClaudeEX1": 0,
     "ClaudeEX2": 0,
-    "ClaudeEx3": 5,
+    "ClaudeEx3": 6,
     "ClaudeEx4": 1,
     "DeepSeek": 2,
     "DeepSeek10": 1,
@@ -542,6 +542,6 @@
     "handmade4": 0,
     "handmade5": 0,
     "handmade6": 2,
-    "sample": 7,
-    "tmp": 1594
+    "sample": 754,
+    "tmp": 1600
 }

@@ -85,7 +85,7 @@ bool startReplay(int stageNum) {
     replayKeyHistory.clear();
 
     replayActive = true;
-    // BGM§Œä‚Æ joutaiFlag ‘ã“ü‚Ííœ
+    
     return true;
 }
 

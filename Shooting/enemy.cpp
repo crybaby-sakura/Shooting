@@ -5,7 +5,7 @@
 #include "stateManager.h"
 #include "player.h"
 #include "effectRand.h"
-
+#include "tasController.h"
 
 
 #define MAX_SPARKS 500   // 同時表示最大数
@@ -25,6 +25,8 @@ static int sparkCount = 0;            // 現在のアクティブ数
 
 // 火花を発生させる
 void addExplosion(double x, double y) {
+    if (g_isTasMode) return;
+    
     const int NUM_SPARKS = 12 + effectRandInt(8);
     for (int i = 0; i < NUM_SPARKS; ++i) {
         // 満杯なら最も古いものを探して上書き（または単にスキップ）
@@ -225,6 +227,8 @@ void clearAllEnemyEngineFlames() {
 
 
 void enemyControl() {
+    if (g_isTasMode) return;
+
     static double prevX = enemy.x;
     static double prevY = enemy.y;
 

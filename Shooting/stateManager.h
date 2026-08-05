@@ -26,9 +26,10 @@ public:
     // 戻り値: 遷移が成功したら true、Replay 開始失敗時などは false
     static bool ChangeState(Joutai newState);
 
-private:
-    StateManager() = default; // インスタンス化禁止
     static Joutai currentState;
+
+private:
+    StateManager() = default; // インスタンス化禁止    
 };
 
 extern int     stageNum;

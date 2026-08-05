@@ -11,6 +11,7 @@
 #include "player.h"
 #include "recordController.h"
 #include "masterpieceViewer.h"
+#include "effectRand.h"
 #include <math.h>
 #include <string> 
 #include <vector> 
@@ -169,36 +170,44 @@ void resetStars() {
 void initStars() {
     if (starsInitialized) return;
     for (int i = 0; i < NUM_STARS; i++) {
-        stars[i].x = GetRand(478);
-        stars[i].y = GetRand(478);
-        stars[i].speedY = 0.3 + (double)GetRand(120) / 100.0;
-        stars[i].brightness = GetRand(255);
-        stars[i].twinklePhase = GetRand(360);
-        stars[i].size = GetRand(3) + 1;
-        int r = 200 + GetRand(55);
-        int g = 200 + GetRand(55);
-        int b = 200 + GetRand(55);
+        stars[i].x = effectRandInt(478);
+        stars[i].y = effectRandInt(478);
+        stars[i].speedY = 0.3 + (double)effectRandInt(120) / 100.0;
+        stars[i].brightness = effectRandInt(255);
+        stars[i].twinklePhase = effectRandInt(360);
+        stars[i].size = effectRandInt(3) + 1;
+        int r = 200 + effectRandInt(55);
+        int g = 200 + effectRandInt(55);
+        int b = 200 + effectRandInt(55);
         stars[i].color = GetColor(r, g, b);
     }
     starsInitialized = 1;
 }
 
+void updateStars()
+{
+    initStars();
+    // 現在の状態に応じて星を移動（Game/Replay中のみ）
+    if (StateManager::GetState() == Joutai::Game || StateManager::GetState() == Joutai::Replay) {
+        for (int i = 0; i < NUM_STARS; i++) {
+            stars[i].y += stars[i].speedY;
+            if (stars[i].y > 480.0) {
+                stars[i].y -= 480.0;
+                stars[i].x = effectRandInt(478);
+            }
+        }
+    }
+}
+
 void backGround()
 {
     initStars();
+    updateStars();
 
     if (fieldBG == -1) createFieldBG();
     DrawGraph(0, 0, fieldBG, FALSE);
 
     for (int i = 0; i < NUM_STARS; i++) {
-        if (StateManager::GetState() == Joutai::Game || StateManager::GetState() == Joutai::Replay) {
-            stars[i].y += stars[i].speedY;
-            if (stars[i].y > 480.0) {
-                stars[i].y -= 480.0;
-                stars[i].x = GetRand(478);
-            }
-        }
-
         double twinkle = 0.5 + 0.5 * sin((double)(count * 2 + stars[i].twinklePhase) / 60.0);
         int alpha = (int)(stars[i].brightness * (0.5 + 0.5 * twinkle));
         SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);

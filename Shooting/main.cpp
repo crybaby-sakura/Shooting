@@ -18,6 +18,7 @@
 #include "stateManager.h"   // StateManager, Joutai
 #include "recordController.h"
 #include "masterpieceViewer.h"
+#include "tasController.h"
 
 
 _Use_decl_annotations_
@@ -176,56 +177,63 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             if (key[KEY_INPUT_Q] == 1) {
                 StateManager::ChangeState(Joutai::Menu);
             }
+
+            // TAS用に最大countを更新
+            if (g_isTasMode) {
+                TAS_UpdateMaxCount(count);
+            }
         }
         else if (StateManager::GetState() == Joutai::Win || StateManager::GetState() == Joutai::Lose) {
-            // ベストタイム更新とリプレイ保存（Win時のみ）
-            if (StateManager::GetState() == Joutai::Win && !replayActive && !isMuteki) {
-                unsigned int clearTime = count;
-                if (clearTime < stageData[stageNum].bestTime) {
-                    stageData[stageNum].bestTime = clearTime;
-                    saveReplay(stageNum);
-                    fileClose();  // bestTime.json 更新
-                }
-            }
-
-            backGround();
-            playerDisp();
-            playerShotDisp();
-            enemyDisp();
-            enemyShotDisp();
-            drawSidePanel();
-            foreGround();
-            drawGameOverlay();
-            count--;
-
-            if (key[KEY_INPUT_Q] == 1) {
-                StateManager::ChangeState(Joutai::Menu);
-            }
-            else if (key[KEY_INPUT_V] == 1) {
-                if (!replayActive) {
-                    StateManager::ChangeState(Joutai::Game);   // リトライ（通常ゲーム）
-                }
-            }
-            else if (key[KEY_INPUT_R] == 1) {
-                if (replayActive) {
-                    StateManager::ChangeState(Joutai::Replay); // リプレイ再開
-                }
-            }
-            else if (key[KEY_INPUT_N] == 1) {
-                int nextStage = stageNum + 1;
-                if (nextStage < (int)stageData.size()) {
-                    stageNum = nextStage;
-                    cursor.page = stageNum / 100;
-                    cursor.y = (stageNum % 100) / 10;
-                    cursor.x = stageNum % 10;
-
-                    if (!replayActive) {
-                        StateManager::ChangeState(Joutai::Game);   // 次のステージへ（通常）
+            if (replayActive || StateManager::GetState() == Joutai::Win || !TAS_OnLoseState()) {
+                // ベストタイム更新とリプレイ保存（Win時のみ）
+                if (StateManager::GetState() == Joutai::Win && !replayActive && !isMuteki) {
+                    unsigned int clearTime = count;
+                    if (clearTime < stageData[stageNum].bestTime) {
+                        stageData[stageNum].bestTime = clearTime;
+                        saveReplay(stageNum);
+                        fileClose();  // bestTime.json 更新
                     }
-                    else {
-                        if (!StateManager::ChangeState(Joutai::Replay)) {
-                            // リプレイファイルがない場合はメニューへ
-                            StateManager::ChangeState(Joutai::Menu);
+                }
+
+                backGround();
+                playerDisp();
+                playerShotDisp();
+                enemyDisp();
+                enemyShotDisp();
+                drawSidePanel();
+                foreGround();
+                drawGameOverlay();
+                count--;
+
+                if (key[KEY_INPUT_Q] == 1) {
+                    StateManager::ChangeState(Joutai::Menu);
+                }
+                else if (key[KEY_INPUT_V] == 1) {
+                    if (!replayActive) {
+                        StateManager::ChangeState(Joutai::Game);   // リトライ（通常ゲーム）
+                    }
+                }
+                else if (key[KEY_INPUT_R] == 1) {
+                    if (replayActive) {
+                        StateManager::ChangeState(Joutai::Replay); // リプレイ再開
+                    }
+                }
+                else if (key[KEY_INPUT_N] == 1) {
+                    int nextStage = stageNum + 1;
+                    if (nextStage < (int)stageData.size()) {
+                        stageNum = nextStage;
+                        cursor.page = stageNum / 100;
+                        cursor.y = (stageNum % 100) / 10;
+                        cursor.x = stageNum % 10;
+
+                        if (!replayActive) {
+                            StateManager::ChangeState(Joutai::Game);   // 次のステージへ（通常）
+                        }
+                        else {
+                            if (!StateManager::ChangeState(Joutai::Replay)) {
+                                // リプレイファイルがない場合はメニューへ
+                                StateManager::ChangeState(Joutai::Menu);
+                            }
                         }
                     }
                 }
