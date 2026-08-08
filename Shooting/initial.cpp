@@ -7,6 +7,8 @@
 #include "stateManager.h"
 #include "enemy.h"
 #include "player.h"
+#include "tasController.h"
+
 
 void iniGame()
 {
@@ -61,12 +63,14 @@ void iniGame()
 	clearAllEnemyEngineFlames();
 	clearAllForceParticles();
 	clearAllPlayerEngineFlames();
+
+	TAS_ResetMaxCount();
 }
 
 void startNewGame()
 {
 	// 現在時刻をシードとして使用
-	gameSeed = GetNowCount();	
+	gameSeed = GetNowCount();
 	SRand((int)gameSeed);
 
 	iniGame();

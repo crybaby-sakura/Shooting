@@ -274,7 +274,7 @@ static void Phase3_RandomBarrage(sEnemyShotSet* pEnemyShotSet)
 // =========================================================
 // 敵本体のパターン
 // =========================================================
-void EnemyPat_Tmp()
+void EnemyPat_TheHardest_Zai()
 {
     static int muki;
 

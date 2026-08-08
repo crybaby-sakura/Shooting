@@ -3,6 +3,7 @@
 #include "player.h"
 #include "imgSoundLoad.h"
 #include "effectRand.h"
+#include "tasController.h"
 #include <math.h>
 
 
@@ -29,6 +30,8 @@ static ForceParticle forceParts[MAX_FORCE_PARTICLES];
 // パーティクル生成（力の方向へ飛ばす）
 void spawnForceParticles(double x, double y, double forceX, double forceY, double radius)
 {
+    if (g_isTasMode) return;
+    
     double magnitude = sqrt(forceX * forceX + forceY * forceY);
     int count = 1 + (int)(magnitude * 2.0);
     if (count > 6) count = 6;
@@ -87,6 +90,8 @@ void spawnForceParticles(double x, double y, double forceX, double forceY, doubl
 // 毎フレームの更新（playerControl の最後で呼ぶ想定）
 void updateForceParticles()
 {
+    if (g_isTasMode) return;
+
     for (int i = 0; i < MAX_FORCE_PARTICLES; ++i) {
         if (!forceParts[i].active) continue;
 
@@ -161,6 +166,8 @@ static const double BASE_SPEED = 3.0;   // 噴射速度（速め）
 
 void spawnPlayerEngineFlame(double x, double y, double vx, double vy)
 {
+    if (g_isTasMode) return;
+
     const int count = 12;   // 密集させるために数を増やす
 
     // 推力方向 = 基本下向き + 移動の反動（0.3倍で傾ける）
@@ -214,6 +221,8 @@ void spawnPlayerEngineFlame(double x, double y, double vx, double vy)
 }
 
 void updatePlayerEngineFlame() {
+    if (g_isTasMode) return; 
+    
     for (int i = 0; i < MAX_PLAYER_ENGINE_FLAMES; ++i) {
         if (!playerFlamePool[i].active) continue;
         PlayerEngineFlame* p = &playerFlamePool[i];
@@ -287,7 +296,7 @@ void playerControl() {
 
 void playerDisp() {
     DrawGraph((int)(player.x - 18.0 + 0.5), (int)(player.y - 26.0 + 0.5), imageData[img_player].handle, TRUE);
-    if (isSlowMode) {
+    if (isSlowMode || g_isTasMode) {
         DrawCircle((int)(player.x + 0.5), (int)(player.y + 0.5), 4, GetColor(255,0,0), TRUE);
         DrawCircle((int)(player.x + 0.5), (int)(player.y + 0.5), 2, GetColor(255,255,255), TRUE);
     }
