@@ -571,5 +571,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen69", "スイカゲームをモチーフにした弾幕", "果実合成のスイカ割り", "Watermelon Sky Run", EnemyPat_SuikaGame_Qwen },
     { "Kimi69", "スイカゲームをモチーフにした弾幕", "進化の果実列", "Watermelon Sky Run", EnemyPat_SuikaGame_Kimi },
     { "Zai69", "スイカゲームをモチーフにした弾幕", "重力合成弾幕・果実のカスケード", "Watermelon Sky Run", EnemyPat_SuikaGame_Zai },
+    { "DeepSeek70", "クラドニ図形をモチーフにした弾幕", "響板「クラドニの砂紋（さもん）」", "Chladni Pulse", EnemyPat_Chladni_DeepSeek },
+    { "ChatGPT70", "クラドニ図形をモチーフにした弾幕", "響界クラドニ", "Chladni Pulse", EnemyPat_Chladni_ChatGPT },
+    { "Gemini70", "クラドニ図形をモチーフにした弾幕", "共鳴幾何：音叉の檻（Resonant Chladni Cell）", "Chladni Pulse", EnemyPat_Chladni_Gemini },
+    { "Grok70", "クラドニ図形をモチーフにした弾幕", "振動節線", "Chladni Pulse", EnemyPat_Chladni_Grok },
+    { "Claude70", "クラドニ図形をモチーフにした弾幕", "共振砂紋", "Chladni Pulse", EnemyPat_Chladni_Claude },
+    { "Qwen70", "クラドニ図形をモチーフにした弾幕", "共振板『クラドニ・ノードライン』", "Chladni Pulse", EnemyPat_Chladni_Qwen },
+    { "Kimi70", "クラドニ図形をモチーフにした弾幕", "砂紋の律動（Chladni Resonance）", "Chladni Pulse", EnemyPat_Chladni_Kimi },
+    { "Zai70", "クラドニ図形をモチーフにした弾幕", "交差振動・クラドニの魔方陣", "Chladni Pulse", EnemyPat_Chladni_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

@@ -274,8 +274,8 @@ static void ShotChladni(sEnemyShotSet* pEnemyShotSet)
     }
 }
 
-// 敵本体のパターン（呼び出し名は EnemyPat_Tmp に固定）
-void EnemyPat_Tmp()
+// 敵本体のパターン（呼び出し名は EnemyPat_Chladni_DeepSeek に固定）
+void EnemyPat_Chladni_DeepSeek()
 {
     // 1フレーム目のみ初期化
     if (count == 1) {
