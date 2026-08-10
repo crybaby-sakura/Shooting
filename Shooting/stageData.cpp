@@ -587,5 +587,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen71", "切れかけの電球をモチーフにした弾幕", "フィラメント・フリッカー", "Filament Blackout", EnemyPat_FlickeringLight_Qwen },
     { "Kimi71", "切れかけの電球をモチーフにした弾幕", "明滅回廊（フリッカー・コリドー）", "Filament Blackout", EnemyPat_FlickeringLight_Kimi },
     { "Zai71", "切れかけの電球をモチーフにした弾幕", "切れかけの白熱灯「断末魔のチカチカ」", "Filament Blackout", EnemyPat_FlickeringLight_Zai },
+    { "DeepSeek72", "エターナルフォースブリザードをモチーフにした弾幕", "絶対零度の墓碑銘（フローズン・エピタフ）", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_DeepSeek },
+    { "ChatGPT72", "エターナルフォースブリザードをモチーフにした弾幕", "永遠凍結「エターナルフォースブリザード」", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_ChatGPT },
+    { "Gemini72", "エターナルフォースブリザードをモチーフにした弾幕", "氷符「絶対零度世界（エターナルフォースブリザード）」", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_Gemini },
+    { "Grok72", "エターナルフォースブリザードをモチーフにした弾幕", "氷符「エターナル・フォース・ブリザード」", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_Grok },
+    { "Claude72", "エターナルフォースブリザードをモチーフにした弾幕", "絶対氷結宣言 ～エターナルフォースブリザード～", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_Claude },
+    { "Qwen72", "エターナルフォースブリザードをモチーフにした弾幕", "氷獄嵐「エターナルフォースブリザード」", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_Qwen },
+    { "Kimi72", "エターナルフォースブリザードをモチーフにした弾幕", "絶対零度の螺旋牢獄（Absolute Zero Spiral Prison）", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_Kimi },
+    { "Zai72", "エターナルフォースブリザードをモチーフにした弾幕", "永劫吹雪・無限結晶陣", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

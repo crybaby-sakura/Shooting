@@ -8,7 +8,7 @@
 #include <math.h>
 
 // ---------- 定数 ----------
-static const int PHASE_DURATION = 300;          // 1フェーズの長さ（フレーム）
+static const int PHASE_DURATION = 200;          // 1フェーズの長さ（フレーム）
 static const double ENEMY_BASE_X = 240.0;
 static const double ENEMY_BASE_Y = 40.0;
 
@@ -26,7 +26,7 @@ static void ShotIceSeeding(sEnemyShotSet* pEnemyShotSet)
 
     // 定期的に新しい針氷弾を画面端から追加
     if (pEnemyShotSet->count % SPAWN_INTERVAL == 0 && pEnemyShotSet->count < PHASE_DURATION) {
-        int spawnNum = 3 + GetRand(2) + 15;  // 3～5個
+        int spawnNum = 3 + GetRand(2) + 25;  // 3～5個
         for (int i = 0; i < spawnNum; ++i) {
             sEnemyShot* p = new sEnemyShot;
 
@@ -139,7 +139,7 @@ static void ShotFreezingWave(sEnemyShotSet* pEnemyShotSet)
                 pShot->muki = GetRand(360) / 180.0 * DX_PI;
 
                 // 追加の7個の破片
-                for (int i = 0; i < 7*3; ++i) {
+                for (int i = 0; i < 7*2; ++i) {
                     sEnemyShot* pFrag = new sEnemyShot;
                     pFrag->x = pShot->x;
                     pFrag->y = pShot->y;
@@ -246,7 +246,7 @@ static void ShotEternalFreeze(sEnemyShotSet* pEnemyShotSet)
 }
 
 // ---------- 敵本体 ----------
-void EnemyPat_Tmp()
+void EnemyPat_EternalForceBlizzard_DeepSeek()
 {
     static int moveDir = 1; // 横移動方向
 
