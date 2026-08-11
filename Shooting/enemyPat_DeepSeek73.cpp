@@ -185,7 +185,7 @@ static void WarpAttackPattern(sEnemyShotSet* pSet)
 }
 
 // 敵本体パターン
-void EnemyPat_Tmp()
+void EnemyPat_Warp_DeepSeek()
 {
     // 状態保持用の静的変数
     static double warpTargetX, warpTargetY;

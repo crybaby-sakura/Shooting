@@ -596,5 +596,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen72", "エターナルフォースブリザードをモチーフにした弾幕", "氷獄嵐「エターナルフォースブリザード」", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_Qwen },
     { "Kimi72", "エターナルフォースブリザードをモチーフにした弾幕", "絶対零度の螺旋牢獄（Absolute Zero Spiral Prison）", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_Kimi },
     { "Zai72", "エターナルフォースブリザードをモチーフにした弾幕", "永劫吹雪・無限結晶陣", "Absolute Zero Blizzard", EnemyPat_EternalForceBlizzard_Zai },
+    { "DeepSeek73", "ボスが瞬間移動する弾幕", "瞬間移動連鎖弾幕「虚空乱舞（こくうらんぶ）」", "Quantum Warp Dash", EnemyPat_Warp_DeepSeek },
+    { "ChatGPT73", "ボスが瞬間移動する弾幕", "残像転位", "Quantum Warp Dash", EnemyPat_Warp_ChatGPT },
+    { "Gemini73", "ボスが瞬間移動する弾幕", "残影収束陣（アフターイメージ・コンバージェンス）", "Quantum Warp Dash", EnemyPat_Warp_Gemini },
+    { "Grok73", "ボスが瞬間移動する弾幕", "影渡り・裂空の輪", "Quantum Warp Dash", EnemyPat_Warp_Grok },
+    { "Claude73", "ボスが瞬間移動する弾幕", "残光跳躍陣", "Quantum Warp Dash", EnemyPat_Warp_Claude },
+    { "Qwen73", "ボスが瞬間移動する弾幕", "残像ワープ・クロスファイア", "Quantum Warp Dash", EnemyPat_Warp_Qwen },
+    { "Kimi73", "ボスが瞬間移動する弾幕", "残響の鏡陣", "Quantum Warp Dash", EnemyPat_Warp_Kimi },
+    { "Zai73", "ボスが瞬間移動する弾幕", "座標接続弾幕「シャドウ・リンク」", "Quantum Warp Dash", EnemyPat_Warp_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };
