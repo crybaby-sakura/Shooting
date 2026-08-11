@@ -26,6 +26,7 @@ extern void EnemyPat_Burst();
 extern void EnemyPat_Namitsubu();
 extern void EnemyPat_Smeargle();
 extern void EnemyPat_Nabeatsu();
+extern void EnemyPat_TurkishMarch();
 extern void EnemyPat_Difficulty_Claude();
 extern void EnemyPat_Geometry_Claude2();
 extern void EnemyPat_Comet_Grok2();

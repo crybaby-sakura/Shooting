@@ -143,7 +143,7 @@
     "Claude72": 29,
     "Claude8": 1,
     "Claude9": 1,
-    "ClaudeEX1": 0,
+    "ClaudeEX1": 1,
     "ClaudeEX2": 0,
     "ClaudeEx3": 6,
     "ClaudeEx4": 1,
@@ -583,13 +583,14 @@
     "Zai69": 10,
     "Zai70": 12,
     "Zai71": 31,
-    "Zai72": 73,
+    "Zai72": 74,
     "handmade1": 0,
     "handmade2": 0,
     "handmade3": 0,
     "handmade4": 0,
     "handmade5": 0,
-    "handmade6": 2,
+    "handmade6": 0,
+    "handmade7": 19,
     "sample": 754,
-    "tmp": 1975
+    "tmp": 2037
 }
