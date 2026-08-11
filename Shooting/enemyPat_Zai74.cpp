@@ -103,7 +103,7 @@ static void ShotNoodle(sEnemyShotSet* pSet)
 
         // 左から右へ向かう麺（黄色い銃弾）
         for (int i = 0; i < 5; i++) {
-            double baseY = 80.0 + i * 80.0 + 40;
+            double baseY = 80.0 + i * 80.0 + 30;
             AddShot(pSet, -20.0, baseY, 0.0, 3.0, img_enemyShotBullet[1]);
             // 追加した直後の弾(pEnemyShotHead->prev)に、波打つ際の基準Y座標を記録
             pSet->pEnemyShotHead->prev->param_d[0] = baseY;
@@ -112,7 +112,7 @@ static void ShotNoodle(sEnemyShotSet* pSet)
 
         // 右から左へ向かう麺（少しYをずらして交差させる）
         for (int i = 0; i < 5; i++) {
-            double baseY = 120.0 + i * 80.0 + 40;
+            double baseY = 120.0 + i * 80.0 + 30;
             AddShot(pSet, 500.0, baseY, DX_PI, 3.0, img_enemyShotBullet[1]);
             pSet->pEnemyShotHead->prev->param_d[0] = baseY;
             pSet->pEnemyShotHead->prev->margin = 200;
@@ -165,7 +165,7 @@ static void ShotTopping(sEnemyShotSet* pSet)
 // ---------------------------------------------------------
 // 敵本体のパターン
 // ---------------------------------------------------------
-void EnemyPat_Tmp()
+void EnemyPat_TarakoSpaghetti_Zai()
 {
     if (count == 1) {
         // ゲーム画面は 480x480

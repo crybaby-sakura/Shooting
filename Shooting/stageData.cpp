@@ -604,5 +604,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen73", "ボスが瞬間移動する弾幕", "残像ワープ・クロスファイア", "Quantum Warp Dash", EnemyPat_Warp_Qwen },
     { "Kimi73", "ボスが瞬間移動する弾幕", "残響の鏡陣", "Quantum Warp Dash", EnemyPat_Warp_Kimi },
     { "Zai73", "ボスが瞬間移動する弾幕", "座標接続弾幕「シャドウ・リンク」", "Quantum Warp Dash", EnemyPat_Warp_Zai },
+    { "DeepSeek74", "たらこスパゲッティをモチーフにした弾幕", "明太子の大渦巻き ～お皿の上のタラコスパゲッティ～", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_DeepSeek },
+    { "ChatGPT74", "たらこスパゲッティをモチーフにした弾幕", "たらこスパゲッティ", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_ChatGPT },
+    { "Gemini74", "たらこスパゲッティをモチーフにした弾幕", "プルチーノ・アルデンテ（明太子スパゲッティの狂気）", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_Gemini },
+    { "Grok74", "たらこスパゲッティをモチーフにした弾幕", "たらこ絡みスパゲッティ", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_Grok },
+    { "Claude74", "たらこスパゲッティをモチーフにした弾幕", "明太絡繰り", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_Claude },
+    { "Qwen74", "たらこスパゲッティをモチーフにした弾幕", "たらこスパゲッティ・アルデンテ", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_Qwen },
+    { "Kimi74", "たらこスパゲッティをモチーフにした弾幕", "たらこクリームの大盛りスパゲッティ", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_Kimi },
+    { "Zai74", "たらこスパゲッティをモチーフにした弾幕", "タラコの爆裂と絡み合う極細麺", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };
