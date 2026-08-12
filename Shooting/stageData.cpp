@@ -613,5 +613,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen74", "たらこスパゲッティをモチーフにした弾幕", "たらこスパゲッティ・アルデンテ", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_Qwen },
     { "Kimi74", "たらこスパゲッティをモチーフにした弾幕", "たらこクリームの大盛りスパゲッティ", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_Kimi },
     { "Zai74", "たらこスパゲッティをモチーフにした弾幕", "タラコの爆裂と絡み合う極細麺", "Tarako Fork Panic", EnemyPat_TarakoSpaghetti_Zai },
+    { "DeepSeek75", "五芒星をモチーフにした弾幕", "星鎖円舞（せいさえんぶ）", "Pentagram Burst", EnemyPat_Pentagram_DeepSeek },
+    { "ChatGPT75", "五芒星をモチーフにした弾幕", "星喰む五芒星", "Pentagram Burst", EnemyPat_Pentagram_ChatGPT },
+    { "Gemini75", "五芒星をモチーフにした弾幕", "ペンタグラム・レゾナンス（五芒の共鳴）", "Pentagram Burst", EnemyPat_Pentagram_Gemini },
+    { "Grok75", "五芒星をモチーフにした弾幕", "星辰の呪縛", "Pentagram Burst", EnemyPat_Pentagram_Grok },
+    { "Claude75", "五芒星をモチーフにした弾幕", "五芒星顕現", "Pentagram Burst", EnemyPat_Pentagram_Claude },
+    { "Qwen75", "五芒星をモチーフにした弾幕", "星符「五芒星牢（ペンタグラム・プリズン）」", "Pentagram Burst", EnemyPat_Pentagram_Qwen },
+    { "Kimi75", "五芒星をモチーフにした弾幕", "星降りの儀式（Pentagram Invocation）", "Pentagram Burst", EnemyPat_Pentagram_Kimi },
+    { "Zai75", "五芒星をモチーフにした弾幕", "五芒星の刻印", "Pentagram Burst", EnemyPat_Pentagram_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

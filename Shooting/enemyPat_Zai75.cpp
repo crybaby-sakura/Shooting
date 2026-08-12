@@ -106,7 +106,7 @@ static void ShotPentagram(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_Pentagram_Zai()
 {
     static int muki;
     static int shot_count;
