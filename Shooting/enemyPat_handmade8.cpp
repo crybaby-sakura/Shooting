@@ -121,7 +121,7 @@ static void ShotMoveKeyFlash(sEnemyShotSet* pSet)
         pFlash->next = pSet->pEnemyShotHead;
         pSet->pEnemyShotHead->prev->next = pFlash;
         pSet->pEnemyShotHead->prev = pFlash;
-        
+
         if (!isBlackKey) {
             sEnemyShot* pFlash = new sEnemyShot;
             pFlash->x = pSet->x;
@@ -159,7 +159,7 @@ static void TriggerHitEffect(double x, double y, int note)
     PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
 
     int pitchClass = note % 12;
-   
+
     // 2. 鍵盤が光る演出（短い寿命の静止弾を生成）
     //    白鍵／黒鍵に対応した enemyShotBullet を使用
     {
@@ -201,11 +201,11 @@ static void TriggerHitEffect(double x, double y, int note)
 
             // 真上(-90度)を中心に、左右にランダムに散らす（ただし1発なので適度なバリエーションを出す）
             // 必要に応じて完全に真上に固定してもよい
-            double angleOfs = (GetRand(100) - 50) / 50.0 * (DX_PI / 3.0);
+            double angleOfs = (GetRand(100) - 50) / 50.0 * (DX_PI / 2.0);
             pShot->muki = -DX_PI / 2.0 + angleOfs;
 
             // 速度を遅めに設定（0.5 ～ 1.5）
-            pShot->speed = 0.5 + (GetRand(100) / 100.0);
+            pShot->speed = 0.5 + (GetRand(50) / 100.0);
 
             // 色付きの小玉（従来通り）
             int colorIdx = noteToColor[pitchClass];
@@ -326,7 +326,7 @@ static void LoadMidiEvents()
     g_eventIndex = 0;
 
     smf::MidiFile midifile;
-    if (!midifile.read("AI_work/oldBGM/サーカスギャロップ.mid")) {
+    if (!midifile.read("AI_work/oldBGM/Circus Galop.mid")) {
         g_midiLoaded = false;
         return;
     }
@@ -373,14 +373,14 @@ static double GetCurrentBgmTimeInSeconds()
 // ----------------------------------------------------------------
 // 敵本体のメイン制御関数 (関数名を変更)
 // ----------------------------------------------------------------
-void EnemyPat_Tmp()
+void EnemyPat_CircusGalop()
 {
     static int muki;
 
     if (count == 1) {
         enemy.x = 240.0;
         enemy.y = 80.0;
-        enemy.maxHp = enemy.hp = 10 * 60;
+        enemy.maxHp = enemy.hp = 9999;
         muki = 1;
 
         // BGMハンドルの初期化
@@ -396,6 +396,7 @@ void EnemyPat_Tmp()
         if (enemy.x > 380.0) { enemy.x = 380.0; muki = -1; }
         else if (enemy.x < 100.0) { enemy.x = 100.0; muki = 1; }
     }
+    enemy.hp--;
 
     // ------------------------------------------------------------
     // 17ms精度同期・ピアノロール弾幕処理

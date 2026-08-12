@@ -1914,6 +1914,9 @@
     <ClCompile Include="enemyPat_handmade7.cpp">
       <Filter>ソース ファイル\enemyPat</Filter>
     </ClCompile>
+    <ClCompile Include="enemyPat_handmade8.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stageData.h">

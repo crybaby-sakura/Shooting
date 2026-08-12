@@ -442,6 +442,23 @@ void foreGround() {
         DrawFormatString(barX + 140, barY - 1, GetColor(255, 255, 255),
             "BOSS HP: %d / %d", enemy.hp, enemy.maxHp);
         SetFontSize(defaultFontSize);  // foreGround内で定義済みのデフォルトサイズに戻す
+
+        if (stageData[stageNum].stageId == "handmade8") {
+			int bulletCount = 0;
+			int setCount = 0;
+			sEnemyShotSet* pSet = enemyShotSetHead.next;
+			while (pSet != &enemyShotSetHead) {
+				++setCount;
+				sEnemyShot* pShot = pSet->pEnemyShotHead->next;
+				while (pShot != pSet->pEnemyShotHead) {
+					++bulletCount;
+					pShot = pShot->next;
+				}
+				pSet = pSet->next;
+			}
+			// FPS表示の少し上 (y=436) に表示。FPSは通常 (565,460) 付近。
+			DrawFormatString(360, 460, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
+        }
     }
 }
 
@@ -555,11 +572,13 @@ void drawSidePanel()
         }
     }
 
-    // デバッグ用：無敵モード中、存在する敵弾数を画面右下に表示
+    // デバッグ用：無敵モード中、存在する敵弾数とセット数を画面右下に表示
     if (isMuteki) {
         int bulletCount = 0;
+        int setCount = 0;                       // ★追加
         sEnemyShotSet* pSet = enemyShotSetHead.next;
         while (pSet != &enemyShotSetHead) {
+            ++setCount;                         // ★セットをカウント
             sEnemyShot* pShot = pSet->pEnemyShotHead->next;
             while (pShot != pSet->pEnemyShotHead) {
                 ++bulletCount;
@@ -568,8 +587,9 @@ void drawSidePanel()
             pSet = pSet->next;
         }
         // FPS表示の少し上 (y=436) に表示。FPSは通常 (565,460) 付近。
-        DrawFormatString(485, 416, GetColor(255, 255, 0), "<Invincible Mode>");
-        DrawFormatString(519, 436, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
+        DrawFormatString(485, 396, GetColor(255, 255, 0), "<Invincible Mode>");
+        DrawFormatString(519, 416, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
+        DrawFormatString(519, 436, GetColor(255, 255, 255), "   Sets: %d", setCount);  // ★追加
     }
 }
 

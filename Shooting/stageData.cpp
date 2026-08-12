@@ -11,6 +11,7 @@ std::vector<StageInfo> stageData = {
     { "handmade5", "ドーブルをモチーフにした弾幕。くろいまなざし→キノコのほうし→ロックオン→つのドリル", "画符「スケッチ・オブ・デス」", "Torpedo_Hymn2", EnemyPat_Smeargle },
     { "handmade6", "世界のナベアツをモチーフにした弾幕", "数符「デジタル・アホリズム」", "Flying Futon Frenzy 2", EnemyPat_Nabeatsu },
     { "handmade7", "トルコ行進曲を演奏する弾幕", "鍵符「七彩のレーザーキーボード」", "Turkish March", EnemyPat_TurkishMarch },
+    { "handmade8", "サーカス・ギャロップを演奏する弾幕", "奏符「フォーリング・スケール」", "Circus Galop", EnemyPat_CircusGalop },
     { "ClaudeEX1", "高難易度の弾幕", "", "Torpedo_Hymn", EnemyPat_Difficulty_Claude },
     { "ClaudeEX2", "幾何学的に美しい弾幕 アナザー", "", "Torpedo_Hymn", EnemyPat_Geometry_Claude2 },
     { "GrokEX1", "彗星をモチーフにした弾幕 アナザー", "", "Torpedo_Hymn", EnemyPat_Comet_Grok2 },
