@@ -183,7 +183,7 @@ static void ShotVerticalLaser(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_TwoBoss_Grok()
 {
     static int phase = 0;
     static int phaseTimer = 0;

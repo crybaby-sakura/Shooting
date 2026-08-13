@@ -23,7 +23,9 @@ void iniGame()
 
 	player.x = 240.0;
 	player.y = 400.0;
-	
+	enemy.x2 = -999.0;
+	enemy.y2 = -999.0;
+
 	pPlayerShot = playerShotHead.next;
 	playerShotHead.next = &playerShotHead;
 	playerShotHead.prev = &playerShotHead;

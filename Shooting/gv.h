@@ -61,20 +61,20 @@ public:
 //  共有構造体
 // ============================================================
 struct sPlayer {
-    double x = 0.0, y = 0.0;       // 中心位置
+    double x = 0.0, y = 0.0; // 位置
 };
 
 // プール管理付き弾構造体: PoolAllocator を継承するだけで
 // new/delete が自動的にプールを使うようになる
 struct sPlayerShot : PoolAllocator<sPlayerShot, 64> {
-    double       x = 0.0, y = 0.0; // 中心位置
-    sPlayerShot* prev = nullptr;
-    sPlayerShot* next = nullptr;
+	double       x = 0.0, y = 0.0; // 中心位置
+	sPlayerShot* prev = nullptr, * next = nullptr;
 };
 
 struct sEnemy {
-    double x = 0.0, y = 0.0;       // 中心位置
-    int    hp = 0, maxHp = 0;
+    double x = 0.0, y = 0.0;   // 位置
+    double x2 = 0.0, y2 = 0.0; // 位置（2体目）
+    int    hp = 0, maxHp = 0;  // HP（2体で共用）
 };
 
 struct sEnemyShot : PoolAllocator<sEnemyShot, 4096> {
@@ -84,27 +84,25 @@ struct sEnemyShot : PoolAllocator<sEnemyShot, 4096> {
     int         count = 0;        // 毎フレーム自動で+1
     int         kind = 0;         // 種類と色
     double      margin = 20.0;    // 画面外へどれだけ出たら弾を自動で消すか（不用意に変更しないこと）
-    int         param_i[8]{};     // 自由な目的に使えるパラメータ
-    double      param_d[8]{};     // 自由な目的に使えるパラメータ
-    sEnemyShot* prev = nullptr;
-    sEnemyShot* next = nullptr;
+    int         param_i[16]{};    // 自由な目的に使えるパラメータ
+    double      param_d[16]{};    // 自由な目的に使えるパラメータ
+    sEnemyShot* prev = nullptr, * next = nullptr;
 };
 
-struct sEnemyShotSet : PoolAllocator<sEnemyShotSet, 1024> {
+struct sEnemyShotSet : PoolAllocator<sEnemyShotSet, 4096> {
     // 関数ポインタ型に名前を付けて宣言を読みやすくする
     using PatternFunc = void(*)(sEnemyShotSet*);
 
     double         x = 0.0, y = 0.0;
     double         muki = 0.0;
     PatternFunc    patternFunc = nullptr;
-    int            count = 0;        // 毎フレーム自動で+1
+    int            count = 0;     // 毎フレーム自動で+1
     int            kind = 0;
-    int            alive = 60;       // 生存保証フレーム
-    int            param_i[8]{};     // 自由な目的に使えるパラメータ
-    double         param_d[8]{};     // 自由な目的に使えるパラメータ
+    int            alive = 60;    // 存在保証フレーム
+    int            param_i[16]{}; // 自由な目的に使えるパラメータ
+    double         param_d[16]{}; // 自由な目的に使えるパラメータ
     sEnemyShot*    pEnemyShotHead = nullptr;
-    sEnemyShotSet* prev = nullptr;
-    sEnemyShotSet* next = nullptr;
+    sEnemyShotSet* prev = nullptr, * next = nullptr;
 };
 
 // ============================================================

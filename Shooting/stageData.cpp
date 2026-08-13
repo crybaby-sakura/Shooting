@@ -621,5 +621,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen75", "五芒星をモチーフにした弾幕", "星符「五芒星牢（ペンタグラム・プリズン）」", "Pentagram Burst", EnemyPat_Pentagram_Qwen },
     { "Kimi75", "五芒星をモチーフにした弾幕", "星降りの儀式（Pentagram Invocation）", "Pentagram Burst", EnemyPat_Pentagram_Kimi },
     { "Zai75", "五芒星をモチーフにした弾幕", "五芒星の刻印", "Pentagram Burst", EnemyPat_Pentagram_Zai },
+    { "DeepSeek76", "ボスが2体居る弾幕", "双星交差「クロスファイア・ロンド」", "Cathedral Overdrive", EnemyPat_TwoBoss_DeepSeek },
+    { "ChatGPT76", "ボスが2体居る弾幕", "双星「シンクロナイズド・オービット」", "Cathedral Overdrive", EnemyPat_TwoBoss_ChatGPT },
+    { "Gemini76", "ボスが2体居る弾幕", "共鳴する双極（バイポーラ・レゾナンス）", "Cathedral Overdrive", EnemyPat_TwoBoss_Gemini },
+    { "Grok76", "ボスが2体居る弾幕", "双子の螺旋", "Cathedral Overdrive", EnemyPat_TwoBoss_Grok },
+    { "Claude76", "ボスが2体居る弾幕", "阿吽双獅", "Cathedral Overdrive", EnemyPat_TwoBoss_Claude },
+    { "Qwen76", "ボスが2体居る弾幕", "双環交差 ～ Twin Orbit Weave", "Cathedral Overdrive", EnemyPat_TwoBoss_Qwen },
+    { "Kimi76", "ボスが2体居る弾幕", "双星の共鳴軌道", "Cathedral Overdrive", EnemyPat_TwoBoss_Kimi },
+    { "Zai76", "ボスが2体居る弾幕", "双極交差（ツイン・クロス）・メビウスの帯", "Cathedral Overdrive", EnemyPat_TwoBoss_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

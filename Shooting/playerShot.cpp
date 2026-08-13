@@ -70,7 +70,7 @@ void playerShotHit()
 		pNextPlayerShot = pPlayerShot->next;
 		double x = pPlayerShot->x - enemy.x;
 		double y = pPlayerShot->y - enemy.y;
-		double r = imageData[img_playerShot].radiusX + imageData[img_enemy[0]].radiusX;
+		double r = imageData[img_playerShot].radiusX + imageData[img_enemy].radiusX;
 		if (x * x + y * y < r * r) {
 			// 敵機被弾エフェクト発生
 			addExplosion(pPlayerShot->x, pPlayerShot->y);
@@ -91,6 +91,36 @@ void playerShotHit()
 		}
 
 		pPlayerShot = pNextPlayerShot;
+	}
+
+	if (enemy.x2 > -999.0) {
+		pPlayerShot = playerShotHead.next;
+		while (pPlayerShot != &playerShotHead) {
+			pNextPlayerShot = pPlayerShot->next;
+			double x = pPlayerShot->x - enemy.x2;
+			double y = pPlayerShot->y - enemy.y2;
+			double r = imageData[img_playerShot].radiusX + imageData[img_enemy].radiusX;
+			if (x * x + y * y < r * r) {
+				// 敵機被弾エフェクト発生
+				addExplosion(pPlayerShot->x, pPlayerShot->y);
+
+				if (enemy.hp < 30) {
+					PlaySoundMem(sound_playerShotHit_bossLowHP, DX_PLAYTYPE_BACK);
+				}
+				else {
+					PlaySoundMem(sound_playerShotHit_default, DX_PLAYTYPE_BACK);
+				}
+
+				enemy.hp--;
+				if (enemy.hp < 0) enemy.hp = 0;
+
+				pPlayerShot->prev->next = pPlayerShot->next;
+				pPlayerShot->next->prev = pPlayerShot->prev;
+				delete pPlayerShot;
+			}
+
+			pPlayerShot = pNextPlayerShot;
+		}
 	}
 
 	if (enemy.hp <= 0) {

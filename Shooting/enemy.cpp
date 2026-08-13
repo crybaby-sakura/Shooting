@@ -8,7 +8,7 @@
 #include "tasController.h"
 
 
-#define MAX_SPARKS 500   // 同時表示最大数
+#define MAX_SPARKS 480   // 同時表示最大数
 
 // ---------- 火花パーティクル ----------
 struct Spark {
@@ -26,7 +26,7 @@ static int sparkCount = 0;            // 現在のアクティブ数
 // 火花を発生させる
 void addExplosion(double x, double y) {
     if (g_isTasMode) return;
-    
+
     const int NUM_SPARKS = 12 + effectRandInt(8);
     for (int i = 0; i < NUM_SPARKS; ++i) {
         // 満杯なら最も古いものを探して上書き（または単にスキップ）
@@ -120,7 +120,7 @@ void clearAllSparks() {
 
 
 
-#define MAX_ENEMY_ENGINE_FLAMES 600   // 5エンジン分、余裕を持って
+#define MAX_ENEMY_ENGINE_FLAMES 1200   // 5エンジン分 x 2機
 
 struct EnemyEngineFlame {
     bool active;
@@ -130,12 +130,13 @@ struct EnemyEngineFlame {
     int maxLife;
     int baseR, baseG, baseB;
     double drawRadius;   // 描画時の半径（エンジンごとに異なる）
+    int id;
 };
 
 static EnemyEngineFlame enemyFlamePool[MAX_ENEMY_ENGINE_FLAMES];
 
 void spawnEnemyEngineFlame(double x, double y, double vx, double vy,
-    int baseR, int baseG, int baseB, double radius)
+    int baseR, int baseG, int baseB, double radius, int id)
 {
     const int count = 8;   // 1エンジンあたりの発生数（必要に応じて引数化も可）
 
@@ -187,6 +188,7 @@ void spawnEnemyEngineFlame(double x, double y, double vx, double vy,
         if (p->baseB < 0) p->baseB = 0; else if (p->baseB > 255) p->baseB = 255;
 
         p->drawRadius = radius;   // 指定された半径を保持
+        p->id = id;
     }
 }
 
@@ -201,10 +203,11 @@ void updateEnemyEngineFlame() {
     }
 }
 
-void drawEnemyEngineFlame(int blendAlpha) {
+void drawEnemyEngineFlame(int blendAlpha, int blendAlpha2) {
     SetDrawBlendMode(DX_BLENDMODE_ADD, blendAlpha);
     for (int i = 0; i < MAX_ENEMY_ENGINE_FLAMES; ++i) {
         if (!enemyFlamePool[i].active) continue;
+        if (enemyFlamePool[i].id != 0) continue;
         EnemyEngineFlame* p = &enemyFlamePool[i];
         double ratio = (double)p->life / p->maxLife;
         int r = (int)(p->baseR * ratio);
@@ -213,6 +216,21 @@ void drawEnemyEngineFlame(int blendAlpha) {
         if (r < 0) r = 0; if (g < 0) g = 0; if (b < 0) b = 0;
         // エンジンごとに異なる半径で描画
         DrawCircleAA((float)p->x, (float)p->y, (float)p->drawRadius, 8, GetColor(r, g, b), TRUE);
+    }
+    if (enemy.x2 > -999.0) {
+        SetDrawBlendMode(DX_BLENDMODE_ADD, blendAlpha2);
+        for (int i = 0; i < MAX_ENEMY_ENGINE_FLAMES; ++i) {
+            if (!enemyFlamePool[i].active) continue;
+            if (enemyFlamePool[i].id != 1) continue;
+            EnemyEngineFlame* p = &enemyFlamePool[i];
+            double ratio = (double)p->life / p->maxLife;
+            int r = (int)(p->baseR * ratio);
+            int g = (int)(p->baseG * ratio);
+            int b = (int)(p->baseB * ratio);
+            if (r < 0) r = 0; if (g < 0) g = 0; if (b < 0) b = 0;
+            // エンジンごとに異なる半径で描画
+            DrawCircleAA((float)p->x, (float)p->y, (float)p->drawRadius, 8, GetColor(r, g, b), TRUE);
+        }
     }
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
@@ -228,14 +246,6 @@ void clearAllEnemyEngineFlames() {
 
 void enemyControl() {
     if (g_isTasMode) return;
-
-    static double prevX = enemy.x;
-    static double prevY = enemy.y;
-
-    double vx = enemy.x - prevX;
-    double vy = enemy.y - prevY;
-    prevX = enemy.x;
-    prevY = enemy.y;
 
     // 5つのエンジン位置（相対座標）を定義。実際の画像に合わせて調整してください。
     // 形式：{ offsetX, offsetY, R, G, B, radius }
@@ -256,12 +266,38 @@ void enemyControl() {
     };
     const int numEngines = sizeof(engines) / sizeof(engines[0]);
 
+    static double prevX = enemy.x;
+    static double prevY = enemy.y;
+
+    double vx = enemy.x - prevX;
+    double vy = enemy.y - prevY;
+    prevX = enemy.x;
+    prevY = enemy.y;
+
     for (int i = 0; i < numEngines; ++i) {
         double nozzleX = enemy.x + engines[i].ox;
         double nozzleY = enemy.y + engines[i].oy;
         spawnEnemyEngineFlame(nozzleX, nozzleY, vx, vy,
             engines[i].r, engines[i].g, engines[i].b,
-            engines[i].radius);
+            engines[i].radius, 0);
+    }
+
+    static double prevX2 = enemy.x2;
+    static double prevY2 = enemy.y2;
+
+    if (enemy.x2 > -999.0) {
+        double vx2 = enemy.x2 - prevX2;
+        double vy2 = enemy.y2 - prevY2;
+        prevX2 = enemy.x2;
+        prevY2 = enemy.y2;
+
+        for (int i = 0; i < numEngines; ++i) {
+            double nozzleX = enemy.x2 + engines[i].ox;
+            double nozzleY = enemy.y2 + engines[i].oy;
+            spawnEnemyEngineFlame(nozzleX, nozzleY, vx2, vy2,
+                engines[i].r, engines[i].g, engines[i].b,
+                engines[i].radius, 1);
+        }
     }
 
     updateEnemyEngineFlame();
@@ -270,23 +306,64 @@ void enemyControl() {
 void enemyDisp() {
     // 表示に使うハンドルを先に決める
     int handle = (StateManager::GetState() != Joutai::Win)
-        ? imageData[img_enemy[0]].handle
-        : imageData[img_enemy[1]].handle;
+        ? imageData[img_enemy].handle
+        : imageData[img_enemyDestroyed].handle;
 
     // 画像サイズを取得
     int w, h;
     GetGraphSize(handle, &w, &h);
-
-    // 自機と敵機の距離を計算
-    double dx = player.x - enemy.x;
-    double dy = player.y - enemy.y;
-    double distance = sqrt(dx * dx + dy * dy);
 
     // 透明度のパラメータ（お好みで調整）
     const double FAR_DIST = 120.0;     // この距離以遠は完全不透明
     const double NEAR_DIST = 40.0;    // この距離以内は最も透明
     const int    MIN_ALPHA = 64;      // 最も近いときのアルファ値（0～255）
     const int    MAX_ALPHA = 255;     // 遠いときのアルファ値（完全不透明）
+
+
+    // 2 体目が居るなら下に描画
+    int alpha2 = 255;
+    if (enemy.x2 > -999.0) {
+        int handle2 = (StateManager::GetState() != Joutai::Win)
+            ? imageData[img_enemy2].handle
+            : imageData[img_enemyDestroyed2].handle;
+
+        // 自機と敵機の距離を計算
+        double dx2 = player.x - enemy.x2;
+        double dy2 = player.y - enemy.y2;
+        double distance2 = sqrt(dx2 * dx2 + dy2 * dy2);
+
+        // 敵機のアルファ値を計算
+        if (distance2 >= FAR_DIST) {
+            alpha2 = MAX_ALPHA;
+        }
+        else if (distance2 <= NEAR_DIST) {
+            alpha2 = MIN_ALPHA;
+        }
+        else {
+            // 距離に比例してアルファ値を線形補間（近いほど小さい値＝透明）
+            double t = (distance2 - NEAR_DIST) / (FAR_DIST - NEAR_DIST); // 0.0～1.0
+            alpha2 = (int)(MIN_ALPHA + t * (MAX_ALPHA - MIN_ALPHA));
+        }
+
+        // アルファが255未満のときだけ半透明描画を設定
+        if (alpha2 < 255) {
+            SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha2);
+        }
+
+        // 中心座標になるように描画
+        DrawGraph((int)(enemy.x2 - w / 2), (int)(enemy.y2 - h / 2), handle2, TRUE);
+
+        // 描画モードを元に戻す
+        if (alpha2 < 255) {
+            SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+        }
+    }
+
+
+    // 自機と敵機の距離を計算
+    double dx = player.x - enemy.x;
+    double dy = player.y - enemy.y;
+    double distance = sqrt(dx * dx + dy * dy);
 
     // 敵機のアルファ値を計算
     int alpha;
@@ -314,11 +391,14 @@ void enemyDisp() {
     if (alpha < 255) {
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
     }
+   
 
     // 炎の加算強度を距離で二乗減衰させる
     double ratio = alpha / 255.0;                     // 1.0（遠）～ 約0.25（近）
     int flameBlend = (int)(100.0 * ratio * ratio);    // 100（遠）～ 約6（近）
-    drawEnemyEngineFlame(flameBlend);                 // 引数を追加した関数に渡す
+    double ratio2 = alpha2 / 255.0;                   // 1.0（遠）～ 約0.25（近）
+    int flameBlend2 = (int)(100.0 * ratio2 * ratio2); // 100（遠）～ 約6（近）
+    drawEnemyEngineFlame(flameBlend, flameBlend2);    // 引数を追加した関数に渡す
 
     drawExplosion();
 }
@@ -328,8 +408,17 @@ void enemyHit() {
 
     double dx = player.x - enemy.x;
     double dy = player.y - enemy.y;
-    double r = imageData[img_player].radiusX + imageData[img_enemy[0]].radiusX;
+    double r = imageData[img_player].radiusX + imageData[img_enemy].radiusX;
     if (dx * dx + dy * dy < r * r) {
+        if (CheckSoundMem(sound_playerDestroyed)) StopSoundMem(sound_playerDestroyed);
+        PlaySoundMem(sound_playerDestroyed, DX_PLAYTYPE_BACK);
+        StateManager::ChangeState(Joutai::Lose);
+        return;
+    }
+
+    double dx2 = player.x - enemy.x2;
+    double dy2 = player.y - enemy.y2;
+    if (dx2 * dx2 + dy2 * dy2 < r * r) {
         if (CheckSoundMem(sound_playerDestroyed)) StopSoundMem(sound_playerDestroyed);
         PlaySoundMem(sound_playerDestroyed, DX_PLAYTYPE_BACK);
         StateManager::ChangeState(Joutai::Lose);
