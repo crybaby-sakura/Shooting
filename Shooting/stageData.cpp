@@ -629,5 +629,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen76", "ボスが2体居る弾幕", "双環交差 ～ Twin Orbit Weave", "Cathedral Overdrive", EnemyPat_TwoBoss_Qwen },
     { "Kimi76", "ボスが2体居る弾幕", "双星の共鳴軌道", "Cathedral Overdrive", EnemyPat_TwoBoss_Kimi },
     { "Zai76", "ボスが2体居る弾幕", "双極交差（ツイン・クロス）・メビウスの帯", "Cathedral Overdrive", EnemyPat_TwoBoss_Zai },
+    { "DeepSeek77", "ヨーヨーをモチーフにした弾幕", "ヨーヨー弾幕「スピニング・ストリング」", "Centrifugal Breaker", EnemyPat_Yoyo_DeepSeek },
+    { "ChatGPT77", "ヨーヨーをモチーフにした弾幕", "ヨーヨー・リターン", "Centrifugal Breaker", EnemyPat_Yoyo_ChatGPT },
+    { "Gemini77", "ヨーヨーをモチーフにした弾幕", "ヨーヨー演舞『アラウンド・スリーパー』", "Centrifugal Breaker", EnemyPat_Yoyo_Gemini },
+    { "Grok77", "ヨーヨーをモチーフにした弾幕", "ヨーヨー・リターン", "Centrifugal Breaker", EnemyPat_Yoyo_Grok },
+    { "Claude77", "ヨーヨーをモチーフにした弾幕", "糸繰乱舞(いとくりらんぶ)", "Centrifugal Breaker", EnemyPat_Yoyo_Claude },
+    { "Qwen77", "ヨーヨーをモチーフにした弾幕", "ヨーヨー・リターン", "Centrifugal Breaker", EnemyPat_Yoyo_Qwen },
+    { "Kimi77", "ヨーヨーをモチーフにした弾幕", "スリーピング・ヨーヨー", "Centrifugal Breaker", EnemyPat_Yoyo_Kimi },
+    { "Zai77", "ヨーヨーをモチーフにした弾幕", "大車輪", "Centrifugal Breaker", EnemyPat_Yoyo_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

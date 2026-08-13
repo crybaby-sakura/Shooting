@@ -195,7 +195,7 @@ static void YoyoPattern(sEnemyShotSet* pSet)
 }
 
 // 敵本体パターン
-void EnemyPat_Tmp()
+void EnemyPat_Yoyo_DeepSeek()
 {
     static int muki;
 
