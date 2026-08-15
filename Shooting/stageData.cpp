@@ -637,5 +637,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen77", "ヨーヨーをモチーフにした弾幕", "ヨーヨー・リターン", "Centrifugal Breaker", EnemyPat_Yoyo_Qwen },
     { "Kimi77", "ヨーヨーをモチーフにした弾幕", "スリーピング・ヨーヨー", "Centrifugal Breaker", EnemyPat_Yoyo_Kimi },
     { "Zai77", "ヨーヨーをモチーフにした弾幕", "大車輪", "Centrifugal Breaker", EnemyPat_Yoyo_Zai },
+    { "DeepSeek78", "世界一楽しい弾幕", "残光曼荼羅 - Phantom Trail -", "Neon Bullet Frenzy", EnemyPat_TheMostFun_DeepSeek },
+    { "ChatGPT78", "世界一楽しい弾幕", "万華鏡の中で遊ぶ", "Neon Bullet Frenzy", EnemyPat_TheMostFun_ChatGPT },
+    { "Gemini78", "世界一楽しい弾幕", "潮汐の輪舞（タイダル・ロンド）", "Neon Bullet Frenzy", EnemyPat_TheMostFun_Gemini },
+    { "Grok78", "世界一楽しい弾幕", "虹色の息継ぎ", "Neon Bullet Frenzy", EnemyPat_TheMostFun_Grok },
+    { "Claude78", "世界一楽しい弾幕", "四片乱塔", "Neon Bullet Frenzy", EnemyPat_TheMostFun_Claude },
+    { "Qwen78", "世界一楽しい弾幕", "呼吸する花冠（ブレス・コロナ）", "Neon Bullet Frenzy", EnemyPat_TheMostFun_Qwen },
+    { "Kimi78", "世界一楽しい弾幕", "共鳴螺旋（Resonance Spiral）", "Neon Bullet Frenzy", EnemyPat_TheMostFun_Kimi },
+    { "Zai78", "世界一楽しい弾幕", "フラクタル・フォレスト", "Neon Bullet Frenzy", EnemyPat_TheMostFun_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };
