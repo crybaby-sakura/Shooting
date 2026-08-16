@@ -653,5 +653,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen79", "リサジュー曲線をモチーフにした弾幕", "リサジュー・ルーム", "Lissajous Drive", EnemyPat_Lissajous_Qwen },
     { "Kimi79", "リサジュー曲線をモチーフにした弾幕", "追跡する位相花", "Lissajous Drive", EnemyPat_Lissajous_Kimi },
     { "Zai79", "リサジュー曲線をモチーフにした弾幕", "交差結界「リサジューの無限迷路」", "Lissajous Drive", EnemyPat_Lissajous_Zai },
+    { "DeepSeek80", "北風と太陽をモチーフにした弾幕", "北風と太陽 ～旅人の外套を脱がせる勝負～", "North Wind Sun", EnemyPat_NorthWindAndSun_DeepSeek },
+    { "ChatGPT80", "北風と太陽をモチーフにした弾幕", "北風と太陽", "North Wind Sun", EnemyPat_NorthWindAndSun_ChatGPT },
+    { "Gemini80", "北風と太陽をモチーフにした弾幕", "旅人の上着を剥ぐ旋風と陽炎", "North Wind Sun", EnemyPat_NorthWindAndSun_Gemini },
+    { "Grok80", "北風と太陽をモチーフにした弾幕", "北風と太陽の競演", "North Wind Sun", EnemyPat_NorthWindAndSun_Grok },
+    { "Claude80", "北風と太陽をモチーフにした弾幕", "北風太陽争闘", "North Wind Sun", EnemyPat_NorthWindAndSun_Claude },
+    { "Qwen80", "北風と太陽をモチーフにした弾幕", "北風と太陽～旅人の外套を脱がせし者～", "North Wind Sun", EnemyPat_NorthWindAndSun_Qwen },
+    { "Kimi80", "北風と太陽をモチーフにした弾幕", "北風と太陽の賭け", "North Wind Sun", EnemyPat_NorthWindAndSun_Kimi },
+    { "Zai80", "北風と太陽をモチーフにした弾幕", "北風と太陽", "North Wind Sun", EnemyPat_NorthWindAndSun_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

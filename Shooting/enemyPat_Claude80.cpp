@@ -368,7 +368,7 @@ static sEnemyShotSet* NewShotSet(sEnemyShotSet::PatternFunc func, double x, doub
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_NorthWindAndSun_Claude()
 {
     if (count == 1) {
         enemy.x = CX;
