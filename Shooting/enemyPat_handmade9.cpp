@@ -9,7 +9,7 @@
 // 定数・状態保持用の静的変数
 // ============================================================================
 static const int STEP_INTERVAL = 60;  // 1手あたりのフレーム数 (60FPSで1秒)
-static const double BOARD_OFFSET_X = 72.0; // a1の座標 (72.0, 68.0)
+static const double BOARD_OFFSET_X = 72.0; // a1の座標 (72.0, 60.0)
 static const double BOARD_OFFSET_Y = 60.0;
 static const double GRID_SIZE = 48.0; // 石と石の間隔 (48ピクセル)
 
@@ -230,7 +230,7 @@ static void FireDiamond(int r, int c, int color) {
 // ============================================================================
 // メインの敵パターン関数
 // ============================================================================
-void EnemyPat_Tmp()
+void EnemyPat_Othello()
 {
     // 初期化処理（1フレーム目）
     if (count == 1) {
