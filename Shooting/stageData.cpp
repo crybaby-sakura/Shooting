@@ -645,5 +645,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen78", "世界一楽しい弾幕", "呼吸する花冠（ブレス・コロナ）", "Neon Bullet Frenzy", EnemyPat_TheMostFun_Qwen },
     { "Kimi78", "世界一楽しい弾幕", "共鳴螺旋（Resonance Spiral）", "Neon Bullet Frenzy", EnemyPat_TheMostFun_Kimi },
     { "Zai78", "世界一楽しい弾幕", "フラクタル・フォレスト", "Neon Bullet Frenzy", EnemyPat_TheMostFun_Zai },
+    { "DeepSeek79", "リサジュー曲線をモチーフにした弾幕", "リサージュ・ウィーブ", "Lissajous Drive", EnemyPat_Lissajous_DeepSeek },
+    { "ChatGPT79", "リサジュー曲線をモチーフにした弾幕", "追奏するリサジュー", "Lissajous Drive", EnemyPat_Lissajous_ChatGPT },
+    { "Gemini79", "リサジュー曲線をモチーフにした弾幕", "位相織機『リサジュー・ウィーバー』", "Lissajous Drive", EnemyPat_Lissajous_Gemini },
+    { "Grok79", "リサジュー曲線をモチーフにした弾幕", "交差する無限軌道（Lissajous Weave）", "Lissajous Drive", EnemyPat_Lissajous_Grok },
+    { "Claude79", "リサジュー曲線をモチーフにした弾幕", "位相蔓紋 -Lissajous-", "Lissajous Drive", EnemyPat_Lissajous_Claude },
+    { "Qwen79", "リサジュー曲線をモチーフにした弾幕", "リサジュー・ルーム", "Lissajous Drive", EnemyPat_Lissajous_Qwen },
+    { "Kimi79", "リサジュー曲線をモチーフにした弾幕", "追跡する位相花", "Lissajous Drive", EnemyPat_Lissajous_Kimi },
+    { "Zai79", "リサジュー曲線をモチーフにした弾幕", "交差結界「リサジューの無限迷路」", "Lissajous Drive", EnemyPat_Lissajous_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };
