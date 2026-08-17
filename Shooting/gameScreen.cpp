@@ -228,7 +228,11 @@ void special_performance() {
     static int img_Kimi59_1 = -1;
     static int img_Kimi59_2 = -1;
     static int img_Kimi59_3 = -1;
+    static int img_Gemini81_1 = -1;
+    static int img_Gemini81_2 = -1;
+    static int img_Gemini81_3 = -1;
     static int drawX = 0, drawY = 0;
+    static int drawH = 0, drawW = 0;
 
     if (stageData[stageNum].stageId == "ChatGPT33") {
         if (count == 120) {
@@ -351,6 +355,86 @@ void special_performance() {
             if ((count - (T1 + T2 + T3)) % 20 == 0) {
                 PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
             }
+        }
+    }
+    else if (stageData[stageNum].stageId == "Gemini81") {
+        const int T1 = 120;
+        if (count == T1) {
+            if (img_Gemini81_1 == -1) {
+                img_Gemini81_1 = LoadGraph("assets/images/Gemini81_1.png");
+                if (img_Gemini81_1 != -1) {
+                    int imgW, imgH;
+                    GetGraphSize(img_Gemini81_1, &imgW, &imgH);
+
+                    int scrW, scrH;
+                    GetScreenState(&scrW, &scrH, NULL);
+
+                    // 横を画面幅ぴったりにフィットさせる
+                    drawW = scrW;                              // 640
+                    drawH = (int)((double)imgH * scrW / imgW); // 縦横比を維持
+
+                    drawX = 0;                                 // 横は左端から
+                    drawY = (scrH - drawH) / 2;                // 上下中央
+                }
+            }
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+        }
+
+        const int T2 = 240;
+        if (count >= T1 && count < T1 + T2 && img_Gemini81_1 != -1) {
+            DrawExtendGraph(drawX, drawY, drawX + drawW, drawY + drawH, img_Gemini81_1, TRUE);
+        }
+
+        if (count == T1 + T2) {
+            if (img_Gemini81_2 == -1) {
+                img_Gemini81_2 = LoadGraph("assets/images/Gemini81_2.png");
+                if (img_Gemini81_2 != -1) {
+                    int imgW, imgH;
+                    GetGraphSize(img_Gemini81_2, &imgW, &imgH);
+
+                    int scrW, scrH;
+                    GetScreenState(&scrW, &scrH, NULL);
+
+                    // 横を画面幅ぴったりにフィットさせる
+                    drawW = scrW;                              // 640
+                    drawH = (int)((double)imgH * scrW / imgW); // 縦横比を維持
+
+                    drawX = 0;                                 // 横は左端から
+                    drawY = (scrH - drawH) / 2;                // 上下中央
+                }
+            }
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+        }
+
+        const int T3 = 240;
+        if (count >= T1 + T2 && count < T1 + T2 + T3 && img_Gemini81_2 != -1) {
+            DrawExtendGraph(drawX, drawY, drawX + drawW, drawY + drawH, img_Gemini81_2, TRUE);
+        }
+
+        if (count == T1 + T2 + T3) {
+            if (img_Gemini81_3 == -1) {
+                img_Gemini81_3 = LoadGraph("assets/images/Gemini81_3.png");
+                if (img_Gemini81_3 != -1) {
+                    int imgW, imgH;
+                    GetGraphSize(img_Gemini81_3, &imgW, &imgH);
+
+                    int scrW, scrH;
+                    GetScreenState(&scrW, &scrH, NULL);
+
+                    // 横を画面幅ぴったりにフィットさせる
+                    drawW = scrW;                              // 640
+                    drawH = (int)((double)imgH * scrW / imgW); // 縦横比を維持
+
+                    drawX = 0;                                 // 横は左端から
+                    drawY = (scrH - drawH) / 2;                // 上下中央
+                }
+            }
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+        }
+
+        const int T4 = 360;
+        if (count >= T1 + T2 + T3 && count < T1 + T2 + T3 + T4 && img_Gemini81_3 != -1) {
+            DrawExtendGraph(drawX, drawY, drawX + drawW, drawY + drawH, img_Gemini81_3, TRUE);
         }
     }
 }

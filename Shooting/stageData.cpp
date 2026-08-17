@@ -662,5 +662,13 @@ std::vector<StageInfo> stageData = {
     { "Qwen80", "北風と太陽をモチーフにした弾幕", "北風と太陽～旅人の外套を脱がせし者～", "North Wind Sun", EnemyPat_NorthWindAndSun_Qwen },
     { "Kimi80", "北風と太陽をモチーフにした弾幕", "北風と太陽の賭け", "North Wind Sun", EnemyPat_NorthWindAndSun_Kimi },
     { "Zai80", "北風と太陽をモチーフにした弾幕", "北風と太陽", "North Wind Sun", EnemyPat_NorthWindAndSun_Zai },
+    { "DeepSeek81", "処理落ちをモチーフにした弾幕", "フレームスキップ・バラージュ", "Frame Drop Parade", EnemyPat_Lag_DeepSeek },
+    { "ChatGPT81", "処理落ちをモチーフにした弾幕", "処理落ち", "Frame Drop Parade", EnemyPat_Lag_ChatGPT },
+    { "Gemini81", "処理落ちをモチーフにした弾幕", "クロックダウン・スパイラル", "Frame Drop Parade", EnemyPat_Lag_Gemini },
+    { "Grok81", "処理落ちをモチーフにした弾幕", "フレームドロップ・カスケード", "Frame Drop Parade", EnemyPat_Lag_Grok },
+    { "Claude81", "処理落ちをモチーフにした弾幕", "処理落ち再現", "Frame Drop Parade", EnemyPat_Lag_Claude },
+    { "Qwen81", "処理落ちをモチーフにした弾幕", "Frame Drop Spiral", "Frame Drop Parade", EnemyPat_Lag_Qwen },
+    { "Kimi81", "処理落ちをモチーフにした弾幕", "フレームドロップ・カスケード", "Frame Drop Parade", EnemyPat_Lag_Kimi },
+    { "Zai81", "処理落ちをモチーフにした弾幕", "演算遅延：ラグ・テレポーション", "Frame Drop Parade", EnemyPat_Lag_Zai },
     { "tmp", "お試し弾幕", "", "Torpedo_Hymn", EnemyPat_Tmp },
 };

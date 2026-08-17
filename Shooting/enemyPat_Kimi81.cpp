@@ -259,7 +259,7 @@ static void ShotLagCascade(sEnemyShotSet* pEnemyShotSet)
 // ============================================================
 //  敵本体のパターン：フレームドロップ・カスケード
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_Lag_Kimi()
 {
     static int muki;
     static int shot_count;
