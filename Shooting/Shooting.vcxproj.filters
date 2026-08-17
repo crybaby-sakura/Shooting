@@ -19,6 +19,9 @@
     <Filter Include="ソース ファイル\enemyPat">
       <UniqueIdentifier>{5f0b42a0-f134-47bc-93a7-946852f02c1b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\midi">
+      <UniqueIdentifier>{66c8c23a-5904-4ccd-bcb9-becd3552a417}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -1865,6 +1868,24 @@
     </ClCompile>
     <ClCompile Include="enemyPat_handmade7.cpp">
       <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="midi\Binasc.cpp">
+      <Filter>ソース ファイル\midi</Filter>
+    </ClCompile>
+    <ClCompile Include="midi\MidiEvent.cpp">
+      <Filter>ソース ファイル\midi</Filter>
+    </ClCompile>
+    <ClCompile Include="midi\MidiEventList.cpp">
+      <Filter>ソース ファイル\midi</Filter>
+    </ClCompile>
+    <ClCompile Include="midi\MidiFile.cpp">
+      <Filter>ソース ファイル\midi</Filter>
+    </ClCompile>
+    <ClCompile Include="midi\MidiMessage.cpp">
+      <Filter>ソース ファイル\midi</Filter>
+    </ClCompile>
+    <ClCompile Include="midi\Options.cpp">
+      <Filter>ソース ファイル\midi</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

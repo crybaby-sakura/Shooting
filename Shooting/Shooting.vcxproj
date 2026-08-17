@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -88,15 +88,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\nlohmann;D:\tools\midifile\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;E:\_Drive_N\program\vc2022\_tool\json-develop\include;E:\_Drive_N\program\vc2022\_tool\json-develop\include\nlohmann;E:\_Drive_N\program\vc2022\_tool\midifile\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\lib\;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);midifiled.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -107,15 +107,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\nlohmann;D:\tools\midifile\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;E:\_Drive_N\program\vc2022\_tool\json-develop\include;E:\_Drive_N\program\vc2022\_tool\json-develop\include\nlohmann;E:\_Drive_N\program\vc2022\_tool\midifile\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\lib\;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);midifile.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -124,15 +124,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\nlohmann;D:\tools\midifile\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;E:\_Drive_N\program\vc2022\_tool\json-develop\include;E:\_Drive_N\program\vc2022\_tool\json-develop\include\nlohmann;E:\_Drive_N\program\vc2022\_tool\midifile\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\lib\;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);midifiled.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,15 +143,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\nlohmann;D:\tools\midifile\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;E:\_Drive_N\program\vc2022\_tool\json-develop\include;E:\_Drive_N\program\vc2022\_tool\json-develop\include\nlohmann;E:\_Drive_N\program\vc2022\_tool\midifile\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\lib\;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);midifile.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -763,6 +763,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="masterpieceViewer.cpp" />
     <ClCompile Include="menu.cpp" />
+    <ClCompile Include="midi\Binasc.cpp" />
+    <ClCompile Include="midi\MidiEvent.cpp" />
+    <ClCompile Include="midi\MidiEventList.cpp" />
+    <ClCompile Include="midi\MidiFile.cpp" />
+    <ClCompile Include="midi\MidiMessage.cpp" />
+    <ClCompile Include="midi\Options.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="playerShot.cpp" />
     <ClCompile Include="recordController.cpp" />
