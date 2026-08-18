@@ -2,9 +2,13 @@
 
 #pragma once
 #include <vector>
-#include <cassert>
+#include <cstdio>
+#include <cstdlib>
 #include <cstddef>
 #include <cstdint>
+#include <typeinfo>
+#include <windows.h>
+
 
 //  メモリプール CRTP ベース
 template<typename Derived, int N>
@@ -29,7 +33,17 @@ private:
 public:
     void* operator new(std::size_t) {
         if (!initialized_) initPool();
-        assert(freeList_ && "pool exhausted");
+        
+        // プール枯渇チェックを常に有効にする
+        if (!freeList_) {
+            char msg[256];
+            snprintf(msg, sizeof(msg),
+                "FATAL: PoolAllocator<%s, %d> exhausted.\nCannot allocate new object.",
+                typeid(Derived).name(), N);
+            MessageBoxA(NULL, msg, "Pool Exhausted", MB_OK | MB_ICONERROR);
+            std::abort();   // OKを押した後に強制終了
+        }
+
         Derived* p = freeList_;
         freeList_ = freeList_->next;
         return p;
@@ -47,19 +61,19 @@ public:
 //  共有構造体
 // ============================================================
 struct sPlayer {
-    double x = 0.0, y = 0.0;        // 位置
+    double x = 0.0, y = 0.0;       // 中心位置
 };
 
 // プール管理付き弾構造体: PoolAllocator を継承するだけで
 // new/delete が自動的にプールを使うようになる
 struct sPlayerShot : PoolAllocator<sPlayerShot, 64> {
-    double       x = 0.0, y = 0.0;  // 位置
+    double       x = 0.0, y = 0.0; // 中心位置
     sPlayerShot* prev = nullptr;
     sPlayerShot* next = nullptr;
 };
 
 struct sEnemy {
-    double x = 0.0, y = 0.0;
+    double x = 0.0, y = 0.0;       // 中心位置
     int    hp = 0, maxHp = 0;
 };
 
