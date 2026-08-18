@@ -4,14 +4,15 @@
 
 // ステージ情報をまとめた構造体
 struct StageInfo {
-    const char* stageId;       // ステージID（半角英数）
-    const char* description;   // ステージ説明
-    const char* stageTitle;    // ステージタイトル
-    const char* bgmFileName;   // BGMファイル名
-    void (*patternFunc)();     // 敵パターン関数ポインタ
-    int bgmHandle = -1;        // BGMハンドラ（後で代入）
-    unsigned int bestTime = 59999;     // 最短クリアフレーム数（後で代入）
-    unsigned int playCount = 0;        // プレイ回数
+    const char* stageId;           // ステージID
+    const char* description;       // ステージ説明
+    const char* stageTitle;        // ステージタイトル
+    const char* stageDescription;  // ステージ説明
+    const char* bgmFileName;       // BGMファイル名
+    void (*patternFunc)();         // 敵パターン関数ポインタ
+    int bgmHandle = -1;            // BGMハンドラ（後で代入）
+    unsigned int bestTime = 59999; // 最短クリアフレーム数（後で代入）
+    unsigned int playCount = 0;    // プレイ回数（後で代入）
 };
 
 // サイズは初期化リストから自動決定

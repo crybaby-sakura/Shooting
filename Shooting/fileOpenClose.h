@@ -7,3 +7,4 @@ void loadWindowSettings();
 void saveWindowSettings();
 void loadPlayCount();
 void savePlayCount();
+void loadRecordConfig();

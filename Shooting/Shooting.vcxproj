@@ -869,6 +869,7 @@
   <ItemGroup>
     <None Include="saveData\bestTime.json" />
     <None Include="saveData\cursor.json" />
+    <None Include="saveData\recordConfig.json" />
     <None Include="saveData\window.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

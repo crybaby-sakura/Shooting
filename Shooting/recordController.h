@@ -32,5 +32,6 @@ private:
 
 // 録画モード用フラグ
 extern bool recordingMode;
+extern char recordingStageTitle[256];
 extern int  replayLoopCount;
 extern bool is_tate;
