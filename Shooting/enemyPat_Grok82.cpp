@@ -17,8 +17,8 @@ static void ShotFuton(sEnemyShotSet* pEnemyShotSet)
         PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
 
         // 布団のグリッド設定（横長の長方形）
-        const int cols = 12;          // 横方向の弾数
-        const int rows = 4;           // 縦方向の弾数
+        const int cols = 12 * 2;          // 横方向の弾数
+        const int rows = 4 * 3;           // 縦方向の弾数
         const double spacingX = 13.0; // 横間隔
         const double spacingY = 9.0;  // 縦間隔
 
@@ -94,7 +94,7 @@ static void ShotFuton(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_FutonFlewAway_Grok()
 {
     static int muki;
 
@@ -122,7 +122,7 @@ void EnemyPat_Tmp()
     }
 
     // 一定間隔で布団弾幕を発生
-    if (count % 170 == 1) {
+    if (count % 100 == 1) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
         pEnemyShotSet->count = 0;
         pEnemyShotSet->patternFunc = ShotFuton;
