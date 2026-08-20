@@ -14,6 +14,7 @@ std::vector<StageInfo> stageData = {
 	{ "handmade8", "サーカス・ギャロップを演奏する弾幕", "奏符「フォーリング・スケール」", "", "Circus Galop", EnemyPat_CircusGalop },
 	{ "handmade9", "オセロの棋譜並べをする弾幕", "盤符「リバーシブル・リバース」", "", "Moonlit Danmaku Run", EnemyPat_Othello },
 	{ "handmade10", "自機と戦える弾幕", "鏡像「ファントム・スラスター」", "自機の姿を精密に模したドット絵風の弾幕を生成し、自機に向けて突撃させます。機体後部から噴射弾幕を常時撒き散らしながら迫り来る、ドッペルゲンガーのような迫力と虚像感を兼ね備えた弾幕パターンです。", "Locrian Barrage", EnemyPat_PlayerIMG },
+	{ "handmade11", "おっぱい弾幕", "乳符「揺蕩う双丘と甘き雫」", "敵は時間と共に緩やかに形を変える豊満な曲線を弾で描き出し、その頂から重力に引かれる雫のような弾を間歇的に噴出させる。曲線は左右対称に反転して現れ、空間を柔らかく埋め尽くしていく。", "Tidal Ascend", EnemyPat_Oppai },
 	{ "ClaudeEX1", "高難易度の弾幕", "", "", "Torpedo_Hymn", EnemyPat_Difficulty_Claude },
 	{ "ClaudeEX2", "幾何学的に美しい弾幕 アナザー", "", "", "Torpedo_Hymn", EnemyPat_Geometry_Claude2 },
 	{ "GrokEX1", "彗星をモチーフにした弾幕 アナザー", "", "", "Torpedo_Hymn", EnemyPat_Comet_Grok2 },

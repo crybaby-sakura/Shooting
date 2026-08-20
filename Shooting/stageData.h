@@ -31,6 +31,7 @@ extern void EnemyPat_TurkishMarch();
 extern void EnemyPat_CircusGalop();
 extern void EnemyPat_Othello();
 extern void EnemyPat_PlayerIMG();
+extern void EnemyPat_Oppai();
 extern void EnemyPat_Difficulty_Claude();
 extern void EnemyPat_Geometry_Claude2();
 extern void EnemyPat_Comet_Grok2();

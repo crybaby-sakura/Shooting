@@ -162,6 +162,7 @@
     <ClCompile Include="enemyPat_DeepSeekEx2.cpp" />
     <ClCompile Include="enemyPat_geminiEx3.cpp" />
     <ClCompile Include="enemyPat_handmade10.cpp" />
+    <ClCompile Include="enemyPat_handmade11.cpp" />
     <ClCompile Include="enemyPat_handmade6.cpp" />
     <ClCompile Include="enemyPat_handmade7.cpp" />
     <ClCompile Include="enemyPat_handmade8.cpp" />
