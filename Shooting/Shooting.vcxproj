@@ -161,6 +161,7 @@
     <ClCompile Include="enemyPat_ClaudeEx4.cpp" />
     <ClCompile Include="enemyPat_DeepSeekEx2.cpp" />
     <ClCompile Include="enemyPat_geminiEx3.cpp" />
+    <ClCompile Include="enemyPat_handmade10.cpp" />
     <ClCompile Include="enemyPat_handmade6.cpp" />
     <ClCompile Include="enemyPat_handmade7.cpp" />
     <ClCompile Include="enemyPat_handmade8.cpp" />
@@ -173,6 +174,14 @@
     <ClCompile Include="enemyPat_ChatGPT4.cpp" />
     <ClCompile Include="enemyPat_ChatGPT5.cpp" />
     <ClCompile Include="enemyPat_ChatGPT6.cpp" />
+    <ClCompile Include="enemyPat_DeepSeek83.cpp" />
+    <ClCompile Include="enemyPat_ChatGPT83.cpp" />
+    <ClCompile Include="enemyPat_Gemini83.cpp" />
+    <ClCompile Include="enemyPat_Grok83.cpp" />
+    <ClCompile Include="enemyPat_Claude83.cpp" />
+    <ClCompile Include="enemyPat_Qwen83.cpp" />
+    <ClCompile Include="enemyPat_Kimi83.cpp" />
+    <ClCompile Include="enemyPat_Zai83.cpp" />
     <ClCompile Include="enemyPat_Claude1.cpp" />
     <ClCompile Include="enemyPat_DeepSeek82.cpp" />
     <ClCompile Include="enemyPat_ChatGPT82.cpp" />

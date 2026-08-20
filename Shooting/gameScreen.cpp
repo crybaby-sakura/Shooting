@@ -281,6 +281,17 @@ static void createRightSidePanelBG() {
         "[%sによる説明]", creator);
     y += 20;
 
+    // ここでフォントサイズを切り替える
+    int defaultFontSize = GetFontSize();
+    int lineHeight = 20;
+
+    // 最終ステージの stageDescription より長い場合は小さめにする
+    if (strlen(stageData[stageNum].stageDescription) >
+        strlen(stageData[stageData.size() - 1].stageDescription)) {
+        SetFontSize(defaultFontSize - 2);
+        lineHeight -= 1;
+    }
+
     std::vector<std::string> stageDescLines =
         WrapText(stageData[stageNum].stageDescription, descMaxWidth);
     stageDescLineCount = (int)stageDescLines.size();
@@ -288,8 +299,11 @@ static void createRightSidePanelBG() {
     for (int i = 0; i < stageDescLineCount; i++) {
         DrawFormatString(panelLeft, y, GetColor(255, 255, 255),
             "%s", stageDescLines[i].c_str());
-        y += 20;   // 行間を少し広げる
+        y += lineHeight;
     }
+
+    // 描画後に元のフォントサイズへ戻す
+    SetFontSize(defaultFontSize);
 
     SetDrawScreen(oldScreen);
 }
@@ -630,16 +644,16 @@ void foreGround() {
 
         // 背景（半透明の黒でバー部分を塗りつぶし）
         SetDrawBlendMode(DX_BLENDMODE_ALPHA, 120);
-        DrawBox(GAME_AREA_X + barX, barY, barX + barWidth, barY + barHeight, GetColor(0, 0, 0), TRUE);
+        DrawBox(GAME_AREA_X + barX, barY, GAME_AREA_X + barX + barWidth, barY + barHeight, GetColor(0, 0, 0), TRUE);
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
         // 枠（暗めの赤）
-        DrawBox(GAME_AREA_X + barX, barY, barX + barWidth, barY + barHeight, GetColor(180, 40, 40), FALSE);
+        DrawBox(GAME_AREA_X + barX, barY, GAME_AREA_X + barX + barWidth, barY + barHeight, GetColor(180, 40, 40), FALSE);
 
         // 内部のHPゲージ（明るい赤）
         int hpWidth = (int)(barWidth * (double)enemy.hp / enemy.maxHp);
         if (hpWidth > 0) {
-            DrawBox(GAME_AREA_X + barX + 1, barY + 1, barX + hpWidth - 1, barY + barHeight - 1, GetColor(255, 60, 60), TRUE);
+            DrawBox(GAME_AREA_X + barX + 1, barY + 1, GAME_AREA_X + barX + hpWidth - 1, barY + barHeight - 1, GetColor(255, 60, 60), TRUE);
         }
 
         // HP数値（白文字で中央付近に）

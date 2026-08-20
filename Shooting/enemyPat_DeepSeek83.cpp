@@ -42,6 +42,7 @@ static void AddShot(sEnemyShotSet* pSet,
     p->param_d[3] = radiusAmp;
     p->param_d[4] = radiusFreq;
     p->param_d[5] = radiusPhase;
+    p->margin = 100;
 
     // リンクリスト末尾に追加
     p->prev = pSet->pEnemyShotHead->prev;
@@ -169,7 +170,7 @@ static void RainbowRing(sEnemyShotSet* pSet)
 }
 
 // 敵本体パターン
-void EnemyPat_Tmp()
+void EnemyPat_Rainbow_DeepSeek()
 {
     static int muki;
     static int shot_kind;
@@ -191,7 +192,7 @@ void EnemyPat_Tmp()
     }
 
     // 一定間隔で虹環パターンを開始
-    if (count % 300 == 30) {
+    if (count % 240 == 30) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
         pEnemyShotSet->count = 0;
         pEnemyShotSet->patternFunc = RainbowRing;
