@@ -17,7 +17,10 @@ extern std::vector<ImageData> imageData;
 // ‰æ‘œID
 extern int img_player;
 extern int img_playerShot;
-extern int img_enemy[2];
+extern int img_enemy;
+extern int img_enemyDestroyed;
+extern int img_enemy2;
+extern int img_enemyDestroyed2;
 extern int img_enemyShotSmallBall[COL_VAR];
 extern int img_enemyShotMediumBall[COL_VAR];
 extern int img_enemyShotLargeBall[COL_VAR];

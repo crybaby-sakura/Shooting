@@ -15,7 +15,10 @@ std::vector<ImageData> imageData;
 // ---------- グローバル変数（IDを保持） ----------
 int img_player;
 int img_playerShot;
-int img_enemy[2];
+int img_enemy;
+int img_enemyDestroyed;
+int img_enemy2;
+int img_enemyDestroyed2;
 int img_enemyShotSmallBall[COL_VAR];
 int img_enemyShotMediumBall[COL_VAR];
 int img_enemyShotLargeBall[COL_VAR];
@@ -274,8 +277,10 @@ void imgSoundLoad()
 
     LoadSingleImage("assets/images/playerShot.png", &img_playerShot, 1.0, false, 22.3, 22.3);
 
-    LoadSingleImage("assets/images/enemy.png", &img_enemy[0], 1.0, false, 37.7, 37.7);
-    LoadSingleImage("assets/images/enemyDestroyed.png", &img_enemy[1], 1.0, false, 37.7, 37.7);
+    LoadSingleImage("assets/images/enemy.png", &img_enemy, 1.0, false, 37.7, 37.7);
+    LoadSingleImage("assets/images/enemyDestroyed.png", &img_enemyDestroyed, 1.0, false, 37.7, 37.7);
+    LoadSingleImage("assets/images/enemy2.png", &img_enemy2, 1.0, false, 37.7, 37.7);
+    LoadSingleImage("assets/images/enemyDestroyed2.png", &img_enemyDestroyed2, 1.0, false, 37.7, 37.7);
 
     LoadColoredShotsEx("assets/images/enemyShotSmallBall.png", 30, 30, img_enemyShotSmallBall, 0.3, false, 2.5, 2.5);
     LoadColoredShotsEx("assets/images/enemyShotMediumBall.png", 32, 32, img_enemyShotMediumBall, 0.65, false, 7.0, 7.0);

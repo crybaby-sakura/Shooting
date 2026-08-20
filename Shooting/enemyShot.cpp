@@ -67,7 +67,7 @@ void enemyShotDisp()
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 196);
 		tasColor = GetColor(255, 255, 255); // 色は好みに合わせて変更してください（ここでは赤）
 	}
-
+	
 	sEnemyShotSet* pEnemyShotSet = enemyShotSetHead.next;
 	while (pEnemyShotSet != &enemyShotSetHead) {
 		sEnemyShot* pEnemyShot = pEnemyShotSet->pEnemyShotHead->next;
