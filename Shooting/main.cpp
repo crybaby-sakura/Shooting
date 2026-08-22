@@ -85,7 +85,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     int startTime = GetNowCount();
 
     // ---------- 最低 SPLASH_MIN_TIME 間スプラッシュを維持しつつBGMをプリロード ----------
-    int SPLASH_MIN_TIME = recordingMode ? 1500 : 100;   // スプラッシュ最低表示時間[ms]
+    int SPLASH_MIN_TIME = (recordingMode || masterpieceMode) ? 1500 : 100;   // スプラッシュ最低表示時間[ms]
     int elapsed = GetNowCount() - startTime;
     if (elapsed < SPLASH_MIN_TIME && splashHandle != -1) {
         int waitEnd = startTime + SPLASH_MIN_TIME;
@@ -214,7 +214,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 // ベストタイム更新とリプレイ保存（Win時のみ）
                 if (StateManager::GetState() == Joutai::Win && !replayActive && !isMuteki) {
                     unsigned int clearTime = count;
-                    if (clearTime < stageData[stageNum].bestTime) {
+                    if (clearTime <= stageData[stageNum].bestTime) {
                         stageData[stageNum].bestTime = clearTime;
                         saveReplay(stageNum);
                         fileClose();  // bestTime.json 更新

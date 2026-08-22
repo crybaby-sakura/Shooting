@@ -14,6 +14,7 @@ static void ShotComet(sEnemyShotSet* pEnemyShotSet)
     // --------------------------------------------------------
     if (pEnemyShotSet->count == 0) {
         // 重い発射音を鳴らす
+        if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
         PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
 
         pEnemyShot = new sEnemyShot;
@@ -73,6 +74,7 @@ static void ShotComet(sEnemyShotSet* pEnemyShotSet)
 
         // 尾の展開音（控えめに再生）
         if (pEnemyShotSet->count % 10 == 0) {
+            if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
             PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
         }
     }
@@ -82,6 +84,7 @@ static void ShotComet(sEnemyShotSet* pEnemyShotSet)
     // --------------------------------------------------------
     if (pEnemyShotSet->count == 70) {
         // キラキランというニュアンスで中量音を鳴らす
+        if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
         PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
 
         pEnemyShot = pEnemyShotSet->pEnemyShotHead->next;

@@ -12,6 +12,7 @@ static void Shot7WayCurtain(sEnemyShotSet* p)
     sEnemyShot *shot, *next; double rad; int i, n;
     p->count++;
     if (p->count==1) {
+        if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
         PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
         if (p->kind==0) {
             n=7; for (i=-3; i<=3; i++) {

@@ -12,10 +12,6 @@ static void ShotHourglass(sEnemyShotSet* pEnemyShotSet)
 
     // 一定フレームごとに弾を生成
     if (pEnemyShotSet->count % 3 == 0) {
-        // 効果音 (砂が落ちる軽い音)
-        // if (CheckSoundMem(sound_enemyShot_light) == 1) StopSoundMem(sound_enemyShot_light);
-        //PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
-
         // 砂時計の膨らみを表現する角度 theta
         // sin関数を使って、-PI/4 から PI/4 の間を往復させる
         double theta = sin(pEnemyShotSet->count * 0.04) * DX_PI / 4.0;
@@ -103,7 +99,8 @@ void EnemyPat_Hourglass_Qwen()
         enemyShotSetHead.prev = pEnemyShotSet;
     }
 
-    if (count % 3 == 1) {
+    if (count % 6 == 1) {
+        if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
         PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
     }
 }

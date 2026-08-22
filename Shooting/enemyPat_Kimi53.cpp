@@ -28,7 +28,7 @@ static int GetShotKind(int baseKind, int color)
 {
     // baseKind は 0〜7（小玉〜短レーザー）
     // color は 0〜8
-    return 4 + baseKind * 9 + color;
+    return 4 + 2 + baseKind * 9 + color;
 }
 
 // ============================================================

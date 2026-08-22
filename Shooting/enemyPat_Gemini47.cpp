@@ -51,6 +51,7 @@ static void ShotHenyoriLabyrinth(sEnemyShotSet* pEnemyShotSet)
             pEnemyShot->count = 0;
 
             pEnemyShot->kind = img_enemyShotScale[(i % 2 == 0) ? 4 : 0];
+            pEnemyShot->margin = 240;
 
             pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
             pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
