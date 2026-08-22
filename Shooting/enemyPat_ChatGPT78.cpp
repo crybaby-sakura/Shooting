@@ -253,7 +253,7 @@ static void ShotKaleidoscope(sEnemyShotSet* pEnemyShotSet)
 // ============================================================
 // 敵本体
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_TheMostFun_ChatGPT()
 {
     static int muki;
     static int pattern_count;
@@ -262,7 +262,7 @@ void EnemyPat_Tmp()
         enemy.x = 240.0;
         enemy.y = 240.0;
 
-        enemy.maxHp = enemy.hp = 200;
+        enemy.maxHp = enemy.hp = 60 * 30;
 
         muki = 1;
         pattern_count = 0;
@@ -270,12 +270,13 @@ void EnemyPat_Tmp()
     else {
         enemy.x += 0.32 * muki;
 
-        if (enemy.x < 90.0)
+        if (enemy.x < 90.0 + 100)
             muki = 1;
 
-        if (enemy.x > 390.0)
+        if (enemy.x > 390.0 - 100)
             muki = -1;
     }
+    enemy.hp--;
 
     if (count % 150 == 1) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
