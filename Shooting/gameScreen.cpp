@@ -650,7 +650,7 @@ void foreGround() {
     // 特殊演出
     special_performance();
 
-    // ボスのHPバー表示（ボスが存在するときだけ描画）
+    // 縦動画モード
     if (is_tate) {
         int barX = 5;
         int barY = 2;
@@ -721,16 +721,10 @@ void drawSidePanel()
     SidePanelLayout layout = computeSidePanelLayout();
 
     // プレイ回数
-    //if (masterpieceMode) {
-    //    DrawFormatString(panelLeftScreen, layout.playCountY + 1,
-    //        GetColor(255, 255, 255), "Play Count: --");
-    //}
-    //else {
-        DrawFormatString(panelLeftScreen, layout.playCountY + 1,
-            GetColor(255, 255, 255), "Play Count: %u",
-            stageData[stageNum].playCount);
-    //}
-
+    DrawFormatString(panelLeftScreen, layout.playCountY + 1,
+        GetColor(255, 255, 255), "Play Count: %u",
+        stageData[stageNum].playCount);
+    
     // BestTime
     if (stageData[stageNum].bestTime >= 59999) {
         DrawFormatString(panelLeftScreen, layout.bestTimeY + 1,
@@ -751,6 +745,7 @@ void drawSidePanel()
     DrawBox(panelLeftScreen, layout.hpBarY,
         panelRightScreen, layout.hpBarY + 5,
         GetColor(10, 12, 18), TRUE);
+    if (enemy.maxHp <= 0) enemy.maxHp = 1;
     int hpFill = panelContentWidth * enemy.hp / enemy.maxHp;
     if (hpFill > panelContentWidth) hpFill = panelContentWidth;
     if (hpFill < 0) hpFill = 0;
@@ -798,8 +793,11 @@ void drawSidePanel()
         if (stageData[stageNum].stageId == "DeepSeek67"
             || stageData[stageNum].stageId == "ChatGPT67"
             || stageData[stageNum].stageId == "Gemini67"
-            || stageData[stageNum].stageId == "Zai67")
-        {
+            || stageData[stageNum].stageId == "Zai67"
+            || stageData[stageNum].stageId == "DeepSeek85"
+            || stageData[stageNum].stageId == "Qwen85"
+            || stageData[stageNum].stageId == "Gemini85")
+            {
             DrawString(panelLeftScreen, y, "人力では無理！", GetColor(255, 255, 128));
             y += lineHeight;
             DrawString(panelLeftScreen, y, "TAS プレイです", GetColor(255, 255, 128));
@@ -807,7 +805,12 @@ void drawSidePanel()
         }
         if (stageData[stageNum].stageId == "Claude67"
             || stageData[stageNum].stageId == "Qwen67"
-            || stageData[stageNum].stageId == "Kimi67")
+            || stageData[stageNum].stageId == "Kimi67"
+            || stageData[stageNum].stageId == "ChatGPT85"
+            || stageData[stageNum].stageId == "Claude85"
+            || stageData[stageNum].stageId == "Kimi85"
+            || stageData[stageNum].stageId == "Zai85"
+            || stageData[stageNum].stageId == "Grok85")
         {
             DrawString(panelLeftScreen, y, "人力プレイです", GetColor(255, 255, 128));
             isMuteki = false;

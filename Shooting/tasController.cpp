@@ -23,16 +23,15 @@ void iniGameForTas()
 	sEnemyShotSet* pEnemyShotSet, * pNextEnemyShotSet;
 	sEnemyShot* pEnemyShot, * pNextEnemyShot;
 
-    //gameSeed = GetNowCount();
     SRand((int)gameSeed);
 
 	count = 0;
-	//replayKeyHistory.clear();
 	replayActive = false;
-	resetStars();
 
 	player.x = 240.0;
 	player.y = 400.0;
+    enemy.x2 = -999.0;
+    enemy.y2 = -999.0;
 
 	pPlayerShot = playerShotHead.next;
 	playerShotHead.next = &playerShotHead;

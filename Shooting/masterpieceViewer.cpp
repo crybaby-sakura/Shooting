@@ -23,7 +23,7 @@
 
 
 // 傑作選録画モード
-bool masterpieceMode = true;
+bool masterpieceMode = false;
 
 std::vector<MasterpieceEntry> masterpieceList = {
     { "Gemini47",   "専用素材を全く用意していないにも関わらず既存の弾だけでへにょりレーザーを上手く表現してくれました。単なる正弦波ではなく2つ重ねてへにょり度を上げているのも良い感じ。" },
