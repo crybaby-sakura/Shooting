@@ -6,6 +6,7 @@
 #include "player.h"
 #include "effectRand.h"
 #include "tasController.h"
+#include "gameScreen.h"
 
 
 #define MAX_SPARKS 480   // 同時表示最大数
@@ -105,7 +106,7 @@ void drawExplosion() {
         unsigned int b = (unsigned int)(baseB * ratio * 0.5);
         int finalColor = GetColor(r, g, b);
 
-        DrawCircleAA((float)s->x, (float)s->y, 2, 8, finalColor, TRUE);
+        DrawCircleAA(GAME_AREA_X + (float)s->x, (float)s->y, 2, 8, finalColor, TRUE);
     }
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
@@ -215,7 +216,7 @@ void drawEnemyEngineFlame(int blendAlpha, int blendAlpha2) {
         int b = (int)(p->baseB * ratio);
         if (r < 0) r = 0; if (g < 0) g = 0; if (b < 0) b = 0;
         // エンジンごとに異なる半径で描画
-        DrawCircleAA((float)p->x, (float)p->y, (float)p->drawRadius, 8, GetColor(r, g, b), TRUE);
+        DrawCircleAA(GAME_AREA_X + (float)p->x, (float)p->y, (float)p->drawRadius, 8, GetColor(r, g, b), TRUE);
     }
     if (enemy.x2 > -999.0) {
         SetDrawBlendMode(DX_BLENDMODE_ADD, blendAlpha2);
@@ -229,7 +230,7 @@ void drawEnemyEngineFlame(int blendAlpha, int blendAlpha2) {
             int b = (int)(p->baseB * ratio);
             if (r < 0) r = 0; if (g < 0) g = 0; if (b < 0) b = 0;
             // エンジンごとに異なる半径で描画
-            DrawCircleAA((float)p->x, (float)p->y, (float)p->drawRadius, 8, GetColor(r, g, b), TRUE);
+            DrawCircleAA(GAME_AREA_X + (float)p->x, (float)p->y, (float)p->drawRadius, 8, GetColor(r, g, b), TRUE);
         }
     }
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -351,7 +352,7 @@ void enemyDisp() {
         }
 
         // 中心座標になるように描画
-        DrawGraph((int)(enemy.x2 - w / 2), (int)(enemy.y2 - h / 2), handle2, TRUE);
+        DrawGraph(GAME_AREA_X + (int)(enemy.x2 - w / 2), (int)(enemy.y2 - h / 2), handle2, TRUE);
 
         // 描画モードを元に戻す
         if (alpha2 < 255) {
@@ -385,7 +386,7 @@ void enemyDisp() {
     }
 
     // 中心座標になるように描画
-    DrawGraph((int)(enemy.x - w / 2), (int)(enemy.y - h / 2), handle, TRUE);
+    DrawGraph(GAME_AREA_X + (int)(enemy.x - w / 2), (int)(enemy.y - h / 2), handle, TRUE);
 
     // 描画モードを元に戻す
     if (alpha < 255) {

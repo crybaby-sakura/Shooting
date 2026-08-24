@@ -1,7 +1,8 @@
 #pragma once
 
-extern int GAME_W;
-extern int GAME_H; 
+#define GAME_W 854 
+#define GAME_H 480
+#define GAME_AREA_X 187   // ゲームエリアの左端X座標
 
 void backGround();
 void foreGround();

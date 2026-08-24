@@ -15,10 +15,11 @@
 #include "fileOpenClose.h"
 #include "getHitKeyStateAll2.h"
 #include "replay.h"
-#include "stateManager.h"   // StateManager, Joutai
+#include "stateManager.h"
 #include "recordController.h"
 #include "masterpieceViewer.h"
 #include "tasController.h"
+#include <cstring> 
 
 
 _Use_decl_annotations_
@@ -38,7 +39,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     int splashHandle = LoadGraph("assets/images/splash.jpg");
     if (splashHandle != -1) {
         SetDrawScreen(DX_SCREEN_BACK);   // 実画面のバックバッファに描画
-        DrawGraph(0, 0, splashHandle, TRUE);
+
+        // 画像全体のサイズを取得（854x480のはず）
+        int imgW, imgH;
+        GetGraphSize(splashHandle, &imgW, &imgH);
+
+        // ソース領域を計算（中央から GAME_W 分だけ切り出す）
+        int srcX = (imgW - GAME_W) / 2;   // 横方向の余白を半分ずつ
+        int srcY = 0;
+        int srcW = GAME_W;
+        int srcH = GAME_H;                // 縦は480固定のはず
+
+        // 切り出した領域を画面全体に描画（必要なら拡縮される）
+        DrawRectGraph(0, 0, srcX, srcY, srcW, srcH, splashHandle, TRUE);
+
         ScreenFlip();
     }
     if (!recordingMode && !masterpieceMode) {
@@ -54,7 +68,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     // 通常のロード処理（画像・効果音・メニューBGMなど）
     fileOpen();
-    loadCursorPos();                     // カーソル位置を復元（先に読み込む）        
+    loadCursorPos();                     // カーソル位置を復元（先に読み込む）   
+    if (recordingMode) {
+        // ステージ名が recordingStageTitle であるステージにカーソルを合わせる
+        for (int i = 0; i < (int)stageData.size(); ++i) {
+            if (strcmp(stageData[i].stageId, recordingStageTitle) == 0) {
+                cursor.page = i / 100;
+                cursor.y = (i % 100) / 10;
+                cursor.x = i % 10;
+                break;
+            }
+        }
+    }
     imgSoundLoad();                      // 画像/効果音/メニューBGM 読込
     stageNum = cursor.page * 100 + cursor.y * 10 + cursor.x;
     

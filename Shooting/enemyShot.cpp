@@ -5,6 +5,7 @@
 #include "stateManager.h"
 #include "player.h"
 #include "tasController.h"
+#include "gameScreen.h"
 
 
 void enemyShotControl(){
@@ -91,7 +92,7 @@ void enemyShotDisp()
 
 				if (!imageData[pEnemyShot->kind].rotatable) {
 					// 回転しない弾は DxLib 標準の DrawOval で描画
-					DrawOval((int)pEnemyShot->x, (int)pEnemyShot->y, (int)rx, (int)ry, tasColor, TRUE);
+					DrawOval(GAME_AREA_X + (int)pEnemyShot->x, (int)pEnemyShot->y, (int)rx, (int)ry, tasColor, TRUE);
 				}
 				else {
 					// 弾が回転する場合、DxLib に傾いた楕円を描画する標準関数がないため
@@ -122,7 +123,7 @@ void enemyShotDisp()
 						int py2 = cy + (int)(lx2 * s + ly2 * c);
 
 						// 三角形を描画して塗りつぶす
-						DrawTriangle(cx, cy, px1, py1, px2, py2, tasColor, TRUE);
+						DrawTriangle(GAME_AREA_X + cx, cy, px1, py1, px2, py2, tasColor, TRUE);
 					}
 				}
 			}
@@ -131,12 +132,12 @@ void enemyShotDisp()
 				// 通常モード：従来通りの画像描画
 				// ==========================================
 				if (!imageData[pEnemyShot->kind].rotatable) {
-					DrawRotaGraph((int)pEnemyShot->x, (int)pEnemyShot->y,
+					DrawRotaGraph(GAME_AREA_X + (int)pEnemyShot->x, (int)pEnemyShot->y,
 						imageData[pEnemyShot->kind].mag, 0.0,
 						imageData[pEnemyShot->kind].handle, TRUE, FALSE);
 				}
 				else {
-					DrawRotaGraph((int)pEnemyShot->x, (int)pEnemyShot->y,
+					DrawRotaGraph(GAME_AREA_X + (int)pEnemyShot->x, (int)pEnemyShot->y,
 						imageData[pEnemyShot->kind].mag, pEnemyShot->muki,
 						imageData[pEnemyShot->kind].handle, TRUE, FALSE);
 				}

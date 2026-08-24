@@ -164,6 +164,7 @@
     <ClCompile Include="enemyPat_handmade6.cpp" />
     <ClCompile Include="enemyPat_handmade7.cpp" />
     <ClCompile Include="enemyPat_handmade8.cpp" />
+    <ClCompile Include="enemyPat_handmade9.cpp" />
     <ClCompile Include="gameScreen.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="enemyPat_ChatGPT1.cpp" />
@@ -173,7 +174,31 @@
     <ClCompile Include="enemyPat_ChatGPT5.cpp" />
     <ClCompile Include="enemyPat_ChatGPT6.cpp" />
     <ClCompile Include="enemyPat_Claude1.cpp" />
+    <ClCompile Include="enemyPat_DeepSeek81.cpp" />
+    <ClCompile Include="enemyPat_ChatGPT81.cpp" />
+    <ClCompile Include="enemyPat_Gemini81.cpp" />
+    <ClCompile Include="enemyPat_Grok81.cpp" />
+    <ClCompile Include="enemyPat_Claude81.cpp" />
+    <ClCompile Include="enemyPat_Qwen81.cpp" />
+    <ClCompile Include="enemyPat_Kimi81.cpp" />
+    <ClCompile Include="enemyPat_Zai81.cpp" />
     <ClCompile Include="enemyPat_Claude2.cpp" />
+    <ClCompile Include="enemyPat_DeepSeek80.cpp" />
+    <ClCompile Include="enemyPat_ChatGPT80.cpp" />
+    <ClCompile Include="enemyPat_Gemini80.cpp" />
+    <ClCompile Include="enemyPat_Grok80.cpp" />
+    <ClCompile Include="enemyPat_Claude80.cpp" />
+    <ClCompile Include="enemyPat_Qwen80.cpp" />
+    <ClCompile Include="enemyPat_Kimi80.cpp" />
+    <ClCompile Include="enemyPat_Zai80.cpp" />
+    <ClCompile Include="enemyPat_DeepSeek79.cpp" />
+    <ClCompile Include="enemyPat_ChatGPT79.cpp" />
+    <ClCompile Include="enemyPat_Gemini79.cpp" />
+    <ClCompile Include="enemyPat_Grok79.cpp" />
+    <ClCompile Include="enemyPat_Claude79.cpp" />
+    <ClCompile Include="enemyPat_Qwen79.cpp" />
+    <ClCompile Include="enemyPat_Kimi79.cpp" />
+    <ClCompile Include="enemyPat_Zai79.cpp" />
     <ClCompile Include="enemyPat_DeepSeek78.cpp" />
     <ClCompile Include="enemyPat_ChatGPT78.cpp" />
     <ClCompile Include="enemyPat_Gemini78.cpp" />
@@ -850,6 +875,7 @@
   <ItemGroup>
     <None Include="saveData\bestTime.json" />
     <None Include="saveData\cursor.json" />
+    <None Include="saveData\recordConfig.json" />
     <None Include="saveData\window.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

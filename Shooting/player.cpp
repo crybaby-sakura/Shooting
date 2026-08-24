@@ -4,6 +4,7 @@
 #include "imgSoundLoad.h"
 #include "effectRand.h"
 #include "tasController.h"
+#include "gameScreen.h"
 #include <math.h>
 
 
@@ -126,7 +127,7 @@ void drawForceParticles()
         if (r < 0) r = 0; if (g < 0) g = 0; if (b < 0) b = 0;
 
         // 小さな円（半径2）で描画
-        DrawCircleAA((float)p->x, (float)p->y, 2, 8, GetColor(r, g, b), TRUE);
+        DrawCircleAA(GAME_AREA_X + (float)p->x, (float)p->y, 2, 8, GetColor(r, g, b), TRUE);
     }
 
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -244,7 +245,7 @@ void drawPlayerEngineFlame() {
         int b = (int)(p->baseB * ratio);
         if (r < 0) r = 0; if (g < 0) g = 0; if (b < 0) b = 0;
         // 半径 1 の小さな点（アンチエイリアス円だと線に見える）
-        DrawCircleAA((float)p->x, (float)p->y, 1, 8, GetColor(r, g, b), TRUE);
+        DrawCircleAA(GAME_AREA_X + (float)p->x, (float)p->y, 1, 8, GetColor(r, g, b), TRUE);
     }
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
@@ -295,10 +296,10 @@ void playerControl() {
 }
 
 void playerDisp() {
-    DrawGraph((int)(player.x - 18.0 + 0.5), (int)(player.y - 26.0 + 0.5), imageData[img_player].handle, TRUE);
+    DrawGraph(GAME_AREA_X + (int)(player.x - 18.0 + 0.5), (int)(player.y - 26.0 + 0.5), imageData[img_player].handle, TRUE);
     if (isSlowMode || g_isTasMode) {
-        DrawCircle((int)(player.x + 0.5), (int)(player.y + 0.5), 4, GetColor(255,0,0), TRUE);
-        DrawCircle((int)(player.x + 0.5), (int)(player.y + 0.5), 2, GetColor(255,255,255), TRUE);
+        DrawCircle(GAME_AREA_X + (int)(player.x + 0.5), (int)(player.y + 0.5), 4, GetColor(255,0,0), TRUE);
+        DrawCircle(GAME_AREA_X + (int)(player.x + 0.5), (int)(player.y + 0.5), 2, GetColor(255,255,255), TRUE);
     }
 
     drawPlayerEngineFlame();

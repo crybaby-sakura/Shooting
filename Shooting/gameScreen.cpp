@@ -1,5 +1,7 @@
 ﻿// gameScreen.cpp
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "DxLib.h"
 #include "stateManager.h"
 #include "gameScreen.h"
@@ -15,9 +17,8 @@
 #include <math.h>
 #include <string> 
 #include <vector> 
+#include <ctype.h>   // isdigit 用
 
-int GAME_W = 640;
-int GAME_H = 480;
 
 #define NUM_STARS 30
 
@@ -29,9 +30,9 @@ typedef struct {
 static Star stars[NUM_STARS];
 static int starsInitialized = 0;
 static int fieldBG = -1;
-static int sidePanelBG = -1;
-static int lastStageForSidePanel = -1;      // 生成時の stageNum
-static int descLineCount = 0;               // 説明文の行数（静的）
+static int leftSidePanelBG = -1;
+static int rightSidePanelBG = -1;
+static int lastStageForSidePanel = -1;   // 生成時の stageNum
 
 // 情報領域の背景色
 static const int INFO_BG_COLOR = GetColor(30, 30, 50);
@@ -63,104 +64,238 @@ static void createFieldBG() {
     SetDrawScreen(oldScreen);
 }
 
-// サイドパネル背景を一枚の画像として生成（動的要素を除く）
-static void createSidePanelBG() {
-    // 以前の画像を破棄
-    if (sidePanelBG != -1) DeleteGraph(sidePanelBG);
+static int descLineCount = 0;               // 説明文の行数（静的）
+static int stageDescLineCount = 0;          // 長い説明文の行数（静的）
 
-    sidePanelBG = MakeScreen(160, 480, FALSE);
-    int oldScreen = GetDrawScreen();
-    SetDrawScreen(sidePanelBG);
-
-    // パネル背景グラデーション（x=480～640 → 画像内 0～160）
-    for (int i = 0; i < 160; i++) {
-        int shade = (int)(60.0 * (double)(160 - i) / 160.0);
-        int col = GetColor(shade, shade, shade);
-        DrawLine(i, 0, i, 480, col);
+// ステージIDから作成者名と数字を抽出する
+static void parseStageId(const char* stageId, char* creator, int* number) {
+    int len = (int)strlen(stageId);
+    int numStart = len;
+    while (numStart > 0 && isdigit((unsigned char)stageId[numStart - 1])) {
+        numStart--;
     }
-    // 左端の境界線（画面左端 x=480）
-    DrawBox(0, 0, 1, 480, GetColor(100, 100, 100), TRUE);
+    if (numStart < len) {
+        *number = atoi(stageId + numStart);
+        strncpy(creator, stageId, numStart);
+        creator[numStart] = '\0';
+    }
+    else {
+        *number = 0;
+        strcpy(creator, stageId);
+    }
+}
 
-    const int panelLeft = 10;   // 画像内での座標（画面座標480+10=490）
-    const int panelRight = 150; // 画像内（480+150=630）
-    const int descMaxWidth = 140;
+typedef struct {
+    int playCountY;
+    int bestTimeY;
+    int timeY;
+    int bossSeparatorY;
+    int bossLabelY;
+    int hpBarY;
+    int replayY;       // stageDescStartY は不要
+} SidePanelLayout;
+
+static SidePanelLayout computeSidePanelLayout() {
+    SidePanelLayout layout;
     const int lineHeight = 16;
     const int halfLine = lineHeight / 2;
+    const int quarterLine = lineHeight / 4;
 
-    // タイトル背景と文字（画面座標 490,0 相当）
-    DrawBox(panelLeft - 1, 0, panelRight, 30, GetColor(0, 50, 100), TRUE);
-    DrawFormatString(panelLeft + 2, 3, GetColor(255, 255, 255), "■ STAGE %d", stageNum);
+    int y = 40;
+    y += descLineCount * 20;
+    y += lineHeight;  // 空行
 
-    // 情報エリアの背景（クリア）
-    DrawBox(5, 36, 155, 480, INFO_BG_COLOR, TRUE);  // 画像内 5～155 = 画面 485～635
+    layout.playCountY = y;
+    y += lineHeight;
 
-    // stageId
+    y += lineHeight;  // Play Count と Best の間
+    layout.bestTimeY = y;
+    y += lineHeight;
+
+    layout.timeY = y;
+    y += lineHeight;
+
+    y += halfLine;
+    layout.bossSeparatorY = y;
+    y += 1 + halfLine;
+
+    layout.bossLabelY = y;
+    y += lineHeight;
+
+    y += quarterLine;
+    layout.hpBarY = y;
+    y += 5; // HPバー高さ
+
+    y += lineHeight;  // HPバー下の余白
+
+    layout.replayY = y;
+    return layout;
+}
+
+static void createLeftSidePanelBG() {
+    if (leftSidePanelBG != -1) DeleteGraph(leftSidePanelBG);
+
+    const int panelWidth = 187;
+    leftSidePanelBG = MakeScreen(panelWidth, 480, FALSE);
+    int oldScreen = GetDrawScreen();
+    SetDrawScreen(leftSidePanelBG);
+
+    // ---- 背景描画（既存の createSidePanelBG と同様のグラデーション等）----
+    // 1. 背景縦グラデーション
+    for (int y = 0; y < 480; y++) {
+        int t = y * 100 / 479;
+        int r = 45 - (45 - 25) * t / 100;
+        int g = 45 - (45 - 28) * t / 100;
+        int b = 65 - (65 - 42) * t / 100;
+        DrawLine(0, y, panelWidth, y, GetColor(r, g, b));
+    }
+    // 2. 左側アクセントバー
+    for (int y = 0; y < 480; y++) {
+        int t = y * 100 / 479;
+        int r = 0;
+        int g = 180 - 120 * t / 100;
+        int b = 255 - 75 * t / 100;
+        DrawLine(0, y, 2, y, GetColor(r, g, b));
+    }
+    // 3. 枠
+    DrawBox(0, 0, panelWidth - 1, 479, GetColor(120, 140, 180), FALSE);
+    DrawBox(2, 2, panelWidth - 3, 477, GetColor(70, 90, 120), FALSE);
+    // 4. ヘッダー背景
+    for (int y = 0; y < 30; y++) {
+        int t = y * 100 / 29;
+        int r = 10 + t * 20 / 100;
+        int g = 40 + t * 30 / 100;
+        int b = 80 + t * 30 / 100;
+        DrawLine(0, y, panelWidth, y, GetColor(r, g, b));
+    }
+    DrawLine(0, 30, panelWidth, 30, GetColor(100, 200, 255));
+    // 5. 情報エリア背景
+    for (int y = 36; y < 480-5; y++) {
+        int t = (y - 36) * 100 / (479 - 36);
+        int r = 22 - t * 8 / 100;
+        int g = 25 - t * 10 / 100;
+        int b = 40 - t * 15 / 100;
+        DrawLine(5, y, panelWidth - 5, y, GetColor(r, g, b));
+    }
+    // 6. 格子パターン
+    SetDrawBlendMode(DX_BLENDMODE_ALPHA, 8);
+    int gridColor = GetColor(255, 255, 255);
+    for (int x = 5; x < panelWidth - 5; x += 20) {
+        DrawLine(x, 36, x, 479, gridColor);
+    }
+    for (int y = 36; y < 480; y += 20) {
+        DrawLine(5, y, panelWidth - 6, y, gridColor);
+    }
+    SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+    // ---- 固定コンテンツ ----
+
+    const int panelLeft = 10;
+    const int descMaxWidth = panelWidth - 20;
+
+    // タイトル
+    char creator[64];
+    int stageNumber;
+    parseStageId(stageData[stageNum].stageId, creator, &stageNumber);
+    if (strcmp(creator, "Zai") == 0) strcpy(creator, "Z.ai");
+    DrawFormatString(panelLeft, 3, GetColor(255, 255, 255),
+        "STAGE %d(%s)", stageNumber, creator);
+
+    // 短い説明文
     int currentY = 40;
-    DrawFormatString(panelLeft, currentY, GetColor(200, 200, 255), "%s", stageData[stageNum].stageId);
-    currentY += lineHeight + halfLine;
-
-    // 説明文（折り返しあり・重い処理はここだけ）
-    std::vector<std::string> descLines = WrapText(stageData[stageNum].description, descMaxWidth);
-    descLineCount = (int)descLines.size();   // 後で使うために保存
+    std::vector<std::string> descLines = WrapText(stageData[stageNum].description, descMaxWidth + 15);
+    descLineCount = (int)descLines.size();
     for (int i = 0; i < descLineCount; i++) {
-        DrawFormatString(panelLeft, currentY, GetColor(180, 200, 220), "%s", descLines[i].c_str());
-        currentY += lineHeight;
+        DrawFormatString(panelLeft, currentY, GetColor(180, 200, 220),
+            "%s", descLines[i].c_str());
+        currentY += 20;
     }
 
-    // 説明文とプレイ回数の間（1行あける）
-    currentY += lineHeight;
+    // BOSS区切り線とHPバー枠
+    SidePanelLayout layout = computeSidePanelLayout();
+    DrawLine(panelLeft, layout.bossSeparatorY,
+        panelLeft + descMaxWidth, layout.bossSeparatorY,
+        GetColor(100, 100, 150));
+    DrawBox(panelLeft, layout.hpBarY,
+        panelLeft + descMaxWidth, layout.hpBarY + 5,
+        GetColor(0, 255, 255), FALSE);
 
-    // プレイ回数行（動的描画で上書きするため、位置だけ進める）
-    // 静的には何も描かない
-    currentY += lineHeight;
+    SetDrawScreen(oldScreen);
+}
 
-    // Play Count と Best の間
-    currentY += lineHeight;
+static void createRightSidePanelBG() {
+    if (rightSidePanelBG != -1) DeleteGraph(rightSidePanelBG);
 
-    // BestTime 行（動的描画で上書き）
-    currentY += lineHeight;
+    const int panelWidth = 187;
+    rightSidePanelBG = MakeScreen(panelWidth, 480, FALSE);
+    int oldScreen = GetDrawScreen();
+    SetDrawScreen(rightSidePanelBG);
 
-    // Time は動的なのでここでは描かない
-    currentY += lineHeight;
-
-    // ---- BOSS 区切り線（上下に0.5行のスペース） ----
-    currentY += halfLine;
-    DrawLine(panelLeft, currentY, panelLeft + 140, currentY, GetColor(100, 100, 150));
-    currentY += 1 + halfLine;
-
-    // BOSS ラベル
-    DrawFormatString(panelLeft, currentY, GetColor(255, 255, 255), "BOSS");
-    currentY += 18;
-
-    // HP バー枠（塗りは動的）
-    DrawBox(panelLeft, currentY, panelLeft + 140, currentY + 5, GetColor(0, 255, 255), FALSE);
-    currentY += 10;
-    // HP数値テキストは動的なので枠だけ
-
-    currentY += lineHeight * 2;   // HP表示の下のスペース
-
-    // Q: Quit（常に表示）
-    if (!masterpieceMode) {
-        DrawString(panelLeft + 5, currentY, "Q: Quit", GetColor(255, 255, 255));
-        currentY += lineHeight;
+    // 背景は左パネルと同様（コピー）でもよいが、少し色を変えてもよい
+    // ここでは左パネルと同じ背景を描画
+    for (int y = 0; y < 480; y++) {
+        int t = y * 100 / 479;
+        int r = 45 - (45 - 25) * t / 100;
+        int g = 45 - (45 - 28) * t / 100;
+        int b = 65 - (65 - 42) * t / 100;
+        DrawLine(0, y, panelWidth, y, GetColor(r, g, b));
+    }
+    for (int y = 0; y < 480; y++) {
+        int t = y * 100 / 479;
+        int r = 0;
+        int g = 180 - 120 * t / 100;
+        int b = 255 - 75 * t / 100;
+        DrawLine(0, y, 2, y, GetColor(r, g, b));
+    }
+    DrawBox(0, 0, panelWidth - 1, 479, GetColor(120, 140, 180), FALSE);
+    DrawBox(2, 2, panelWidth - 3, 477, GetColor(70, 90, 120), FALSE);
+    
+    // 5. 情報エリア背景（濃紺グラデーション）※ヘッダーなしなのでy=0から開始
+    for (int y = 0+5; y < 480-5; y++) {
+        int t = y * 100 / 479;
+        int r = 22 - t * 8 / 100;
+        int g = 25 - t * 10 / 100;
+        int b = 40 - t * 15 / 100;
+        DrawLine(5, y, panelWidth - 5, y, GetColor(r, g, b));
     }
 
-    // リプレイモード表示用の予約行（動的描画に任せる）
-    currentY += lineHeight;
+    // 6. 格子パターン（低アルファ・決定的）
+    SetDrawBlendMode(DX_BLENDMODE_ALPHA, 8);
+    int gridColor = GetColor(255, 255, 255);
+    for (int x = 5; x < panelWidth - 5; x += 20) {
+        DrawLine(x, 0, x, 479, gridColor);
+    }
+    for (int y = 0; y < 480; y += 20) {
+        DrawLine(5, y, panelWidth - 6, y, gridColor);
+    }
+    SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-    // 傑作選コメント（静的描画）
-    if (masterpieceMode && g_masterpieceComment) {
-        currentY += lineHeight;
-        const int commentAreaWidth = 140;
-        std::vector<std::string> commentLines = WrapText(g_masterpieceComment, commentAreaWidth);
-        for (const auto& line : commentLines) {
-            DrawString(panelLeft + 2, currentY, line.c_str(), GetColor(255, 255, 200));
-            currentY += lineHeight + 2;
-        }
+    // ---- 長い説明文を表示 ----
+
+    const int panelLeft = 5;
+    const int descMaxWidth = panelWidth - 5;
+
+    char creator[64];
+    int stageNumber;
+    parseStageId(stageData[stageNum].stageId, creator, &stageNumber);
+    if (strcmp(creator, "Zai") == 0) strcpy(creator, "Z.ai");
+
+    int y = 5;
+    DrawFormatString(panelLeft, y, GetColor(255, 200, 100),
+        "[%sによる説明]", creator);
+    y += 20;
+
+    std::vector<std::string> stageDescLines =
+        WrapText(stageData[stageNum].stageDescription, descMaxWidth);
+    stageDescLineCount = (int)stageDescLines.size();
+
+    for (int i = 0; i < stageDescLineCount; i++) {
+        DrawFormatString(panelLeft, y, GetColor(200, 220, 180),
+            "%s", stageDescLines[i].c_str());
+        y += 20;   // 行間を少し広げる
     }
 
     SetDrawScreen(oldScreen);
-    lastStageForSidePanel = stageNum;
 }
 
 void resetStars() {
@@ -205,7 +340,7 @@ void backGround()
     updateStars();
 
     if (fieldBG == -1) createFieldBG();
-    DrawGraph(0, 0, fieldBG, FALSE);
+    DrawGraph(GAME_AREA_X + 0, 0, fieldBG, FALSE);
 
     for (int i = 0; i < NUM_STARS; i++) {
         double twinkle = 0.5 + 0.5 * sin((double)(count * 2 + stars[i].twinklePhase) / 60.0);
@@ -215,8 +350,8 @@ void backGround()
         int cx = (int)stars[i].x;
         int cy = (int)stars[i].y;
         int half = stars[i].size;
-        DrawLine(cx - half, cy, cx + half, cy, stars[i].color);
-        DrawLine(cx, cy - half, cx, cy + half, stars[i].color);
+        DrawLine(GAME_AREA_X + cx - half, cy, GAME_AREA_X + cx + half, cy, stars[i].color);
+        DrawLine(GAME_AREA_X + cx, cy - half, GAME_AREA_X + cx, cy + half, stars[i].color);
     }
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
@@ -228,7 +363,11 @@ void special_performance() {
     static int img_Kimi59_1 = -1;
     static int img_Kimi59_2 = -1;
     static int img_Kimi59_3 = -1;
+    static int img_Gemini81_1 = -1;
+    static int img_Gemini81_2 = -1;
+    static int img_Gemini81_3 = -1;
     static int drawX = 0, drawY = 0;
+    static int drawH = 0, drawW = 0;
 
     if (stageData[stageNum].stageId == "ChatGPT33") {
         if (count == 120) {
@@ -353,6 +492,76 @@ void special_performance() {
             }
         }
     }
+    else if (stageData[stageNum].stageId == "Gemini81") {
+        const int T1 = 120;
+        if (count == T1) {
+            if (img_Gemini81_1 == -1) {
+                img_Gemini81_1 = LoadGraph("assets/images/Gemini81_1.png");
+            }
+
+            if (img_Gemini81_1 != -1) {
+                int imgW, imgH;
+                GetGraphSize(img_Gemini81_1, &imgW, &imgH);
+
+                int scrW, scrH;
+                GetScreenState(&scrW, &scrH, NULL);
+
+                drawX = (scrW - imgW) / 2;
+                drawY = (scrH - imgH) / 2;
+            }
+
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+        }
+
+        const int T2 = 240;
+        if (count >= T1 && count < T1 + T2 && img_Gemini81_1 != -1) {
+            DrawGraph(drawX, drawY, img_Gemini81_1, TRUE);
+        }
+
+        if (count == T1 + T2) {
+            if (img_Gemini81_2 == -1) {
+                img_Gemini81_2 = LoadGraph("assets/images/Gemini81_2.png");
+                if (img_Gemini81_2 != -1) {
+                    int imgW, imgH;
+                    GetGraphSize(img_Gemini81_2, &imgW, &imgH);
+
+                    int scrW, scrH;
+                    GetScreenState(&scrW, &scrH, NULL);
+
+                    drawX = (scrW - imgW) / 2;
+                    drawY = (scrH - imgH) / 2;
+                }
+            }
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+        }
+
+        const int T3 = 240;
+        if (count >= T1 + T2 && count < T1 + T2 + T3 && img_Gemini81_2 != -1) {
+            DrawGraph(drawX, drawY, img_Gemini81_2, TRUE);
+        }
+
+        if (count == T1 + T2 + T3) {
+            if (img_Gemini81_3 == -1) {
+                img_Gemini81_3 = LoadGraph("assets/images/Gemini81_3.png");
+                if (img_Gemini81_3 != -1) {
+                    int imgW, imgH;
+                    GetGraphSize(img_Gemini81_3, &imgW, &imgH);
+
+                    int scrW, scrH;
+                    GetScreenState(&scrW, &scrH, NULL);
+
+                    drawX = (scrW - imgW) / 2;
+                    drawY = (scrH - imgH) / 2;
+                }
+            }
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+        }
+
+        const int T4 = 360;
+        if (count >= T1 + T2 + T3 && count < T1 + T2 + T3 + T4 && img_Gemini81_3 != -1) {
+            DrawGraph(drawX, drawY, img_Gemini81_3, TRUE);
+        }
+    }
 }
 
 void foreGround() {
@@ -394,17 +603,17 @@ void foreGround() {
     }
 
     // 縁取り（BORDER_WIDTHだけずらす）
-    DrawFormatString(TITLE_X - BORDER_WIDTH, TITLE_Y, BORDER_COLOR, "%s", titleText);
-    DrawFormatString(TITLE_X + BORDER_WIDTH, TITLE_Y, BORDER_COLOR, "%s", titleText);
-    DrawFormatString(TITLE_X, TITLE_Y - BORDER_WIDTH, BORDER_COLOR, "%s", titleText);
-    DrawFormatString(TITLE_X, TITLE_Y + BORDER_WIDTH, BORDER_COLOR, "%s", titleText);
+    DrawFormatString(GAME_AREA_X + TITLE_X - BORDER_WIDTH, TITLE_Y, BORDER_COLOR, "%s", titleText);
+    DrawFormatString(GAME_AREA_X + TITLE_X + BORDER_WIDTH, TITLE_Y, BORDER_COLOR, "%s", titleText);
+    DrawFormatString(GAME_AREA_X + TITLE_X, TITLE_Y - BORDER_WIDTH, BORDER_COLOR, "%s", titleText);
+    DrawFormatString(GAME_AREA_X + TITLE_X, TITLE_Y + BORDER_WIDTH, BORDER_COLOR, "%s", titleText);
 
     if (titleAlpha < 255) {
         SetDrawBlendMode(DX_BLENDMODE_ALPHA, titleAlpha);
     }
 
     // 本体の文字を描画
-    DrawFormatString(TITLE_X, TITLE_Y, TEXT_COLOR, "%s", titleText);
+    DrawFormatString(GAME_AREA_X + TITLE_X, TITLE_Y, TEXT_COLOR, "%s", titleText);
 
     if (titleAlpha < 255) {
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -425,21 +634,21 @@ void foreGround() {
 
         // 背景（半透明の黒でバー部分を塗りつぶし）
         SetDrawBlendMode(DX_BLENDMODE_ALPHA, 120);
-        DrawBox(barX, barY, barX + barWidth, barY + barHeight, GetColor(0, 0, 0), TRUE);
+        DrawBox(GAME_AREA_X + barX, barY, barX + barWidth, barY + barHeight, GetColor(0, 0, 0), TRUE);
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
         // 枠（暗めの赤）
-        DrawBox(barX, barY, barX + barWidth, barY + barHeight, GetColor(180, 40, 40), FALSE);
+        DrawBox(GAME_AREA_X + barX, barY, barX + barWidth, barY + barHeight, GetColor(180, 40, 40), FALSE);
 
         // 内部のHPゲージ（明るい赤）
         int hpWidth = (int)(barWidth * (double)enemy.hp / enemy.maxHp);
         if (hpWidth > 0) {
-            DrawBox(barX + 1, barY + 1, barX + hpWidth - 1, barY + barHeight - 1, GetColor(255, 60, 60), TRUE);
+            DrawBox(GAME_AREA_X + barX + 1, barY + 1, barX + hpWidth - 1, barY + barHeight - 1, GetColor(255, 60, 60), TRUE);
         }
 
         // HP数値（白文字で中央付近に）
         SetFontSize(14);
-        DrawFormatString(barX + 140, barY - 1, GetColor(255, 255, 255),
+        DrawFormatString(GAME_AREA_X + barX + 140, barY - 1, GetColor(255, 255, 255),
             "BOSS HP: %d / %d", enemy.hp, enemy.maxHp);
         SetFontSize(defaultFontSize);  // foreGround内で定義済みのデフォルトサイズに戻す
 
@@ -457,128 +666,151 @@ void foreGround() {
 				pSet = pSet->next;
 			}
 			// FPS表示の少し上 (y=436) に表示。FPSは通常 (565,460) 付近。
-			DrawFormatString(360, 460, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
+			DrawFormatString(GAME_AREA_X + 360, 460, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
         }
     }
 }
 
+// 情報行の背景＋左アクセント＋下線
+static void drawInfoRowBG(int x, int y, int w, int h, int baseColor, int accentColor) {
+    DrawBox(x, y, x + w, y + h, baseColor, TRUE);
+    DrawBox(x, y, x + 3, y + h, accentColor, TRUE);
+    DrawLine(x, y + h, x + w, y + h, GetColor(60, 70, 90));
+}
+
 void drawSidePanel()
 {
-    // ステージが変わったら背景画像を作り直す
-    if (sidePanelBG == -1 || stageNum != lastStageForSidePanel) {
-        createSidePanelBG();
+    // 左パネル背景
+    if (leftSidePanelBG == -1 || stageNum != lastStageForSidePanel) {
+        createLeftSidePanelBG();
     }
-    DrawGraph(480, 0, sidePanelBG, FALSE);
+    DrawGraph(0, 0, leftSidePanelBG, FALSE);
 
-    const int panelLeft = 490;
+    // 右パネル背景
+    if (rightSidePanelBG == -1 || stageNum != lastStageForSidePanel) {
+        createRightSidePanelBG();
+    }
+    DrawGraph(GAME_W - 187, 0, rightSidePanelBG, FALSE);
+
+    // ===== 左パネルの動的要素 =====
+    const int panelLeftScreen = 10;               // 左パネル内のX(画面座標では +0)
+    const int panelContentWidth = 187 - 20;       // 167px
+    const int panelRightScreen = panelLeftScreen + panelContentWidth;
     const int lineHeight = 16;
-    const int halfLine = lineHeight / 2;
 
-    // 動的要素の描画位置を計算（静的要素と同じ順序で currentY を進める）
-    int currentY = 40;                                  // stageId の始点
-    currentY += lineHeight + halfLine;                  // stageId の高さ
-    currentY += descLineCount * lineHeight;             // 説明文の行数分（WrapTextしない）
-    currentY += lineHeight;             // 説明文とプレイ回数の間の空行
-    int playCountY = currentY;          // プレイ回数の行
-    currentY += lineHeight;             // プレイ回数の行の高さ分
-    currentY += lineHeight;             // プレイ回数と BestTime の間の隙間
-    int bestTimeY = currentY;
-    currentY += lineHeight;             // BestTime の行の高さ分
-    int timeY = currentY;               // Time の行
-    currentY += lineHeight;
+    SidePanelLayout layout = computeSidePanelLayout();
 
-    // BOSS 区切り線の位置
-    currentY += halfLine;                               // 線の上スペース
-    int bossSeparatorY = currentY;
-    currentY += 1 + halfLine;                           // 線の下スペース
-
-    // BOSS ラベル
-    currentY += 18;
-
-    // HP バーと数値の位置
-    int hpBarY = currentY;
-    currentY += 10;
-    int hpTextY = currentY;
-
-    // リプレイモード表示位置は Q: Quit の下
-    int replayY = currentY + (masterpieceMode ? 0 : lineHeight * 2) + lineHeight * 2;  // HP下1行空け + Q行 + 1行空け
-
-    // ---- 動的描画 ----
-    // プレイ回数（BestTimeの上、隙間あり）
-    DrawBox(panelLeft, playCountY, 630, playCountY + lineHeight, INFO_BG_COLOR, TRUE);
+    // プレイ回数
+    drawInfoRowBG(panelLeftScreen, layout.playCountY, panelContentWidth, lineHeight,
+        GetColor(30, 32, 45), GetColor(0, 180, 255));
     if (masterpieceMode) {
-        DrawFormatString(panelLeft, playCountY, GetColor(255, 255, 255), "Play Count: --");
+        DrawFormatString(panelLeftScreen + 10, layout.playCountY + 1,
+            GetColor(255, 255, 255), "Play Count: --");
     }
     else {
-        DrawFormatString(panelLeft, playCountY, GetColor(255, 255, 255), "Play Count: %u", stageData[stageNum].playCount);
+        DrawFormatString(panelLeftScreen + 10, layout.playCountY + 1,
+            GetColor(255, 255, 255), "Play Count: %u",
+            stageData[stageNum].playCount);
     }
 
-    // BestTime（更新される可能性があるため動的描画）
-    DrawBox(panelLeft, bestTimeY, 630, bestTimeY + lineHeight, INFO_BG_COLOR, TRUE);
+    // BestTime
+    drawInfoRowBG(panelLeftScreen, layout.bestTimeY, panelContentWidth, lineHeight,
+        GetColor(32, 34, 47), GetColor(0, 200, 100));
     if (stageData[stageNum].bestTime >= 59999) {
-        DrawFormatString(panelLeft, bestTimeY, GetColor(255, 255, 255), "BestTime: --.--");
+        DrawFormatString(panelLeftScreen + 10, layout.bestTimeY + 1,
+            GetColor(255, 255, 255), "BestTime: --.--");
     }
     else {
-        DrawFormatString(panelLeft, bestTimeY, GetColor(255, 255, 255), "BestTime: %5.2f", (double)stageData[stageNum].bestTime / 60);
+        DrawFormatString(panelLeftScreen + 10, layout.bestTimeY + 1,
+            GetColor(255, 255, 255), "BestTime: %5.2f",
+            (double)stageData[stageNum].bestTime / 60);
     }
 
-    // Time（背景を塗りつぶしてから描画）
-    DrawBox(panelLeft, timeY, 630, timeY + lineHeight, INFO_BG_COLOR, TRUE);
-    DrawFormatString(panelLeft, timeY, GetColor(255, 255, 255), "    Time: %5.2f", (double)count / 60);
+    // Time
+    drawInfoRowBG(panelLeftScreen, layout.timeY, panelContentWidth, lineHeight,
+        GetColor(30, 32, 45), GetColor(255, 200, 0));
+    DrawFormatString(panelLeftScreen + 10, layout.timeY + 1,
+        GetColor(255, 255, 255), "    Time: %5.2f",
+        (double)count / 60);
 
-    // HP バー（塗りのみ、枠は静的）
-    DrawBox(panelLeft, hpBarY, panelLeft + 140, hpBarY + 5, INFO_BG_COLOR, TRUE); // 前フレームの塗りを消す
-    SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-    DrawBox(panelLeft, hpBarY, panelLeft + 140 * enemy.hp / enemy.maxHp, hpBarY + 5, GetColor(0, 255, 255), TRUE);
-    SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+    // BOSS HP
+    drawInfoRowBG(panelLeftScreen, layout.bossLabelY, panelContentWidth, lineHeight,
+        GetColor(35, 28, 34), GetColor(255, 100, 100));
+    DrawFormatString(panelLeftScreen + 10, layout.bossLabelY + 1,
+        GetColor(255, 255, 255), "HP: %d / %d",
+        enemy.hp, enemy.maxHp);
 
-    // HP 数値
-    DrawBox(panelLeft, hpTextY, 630, hpTextY + lineHeight, INFO_BG_COLOR, TRUE);
-    DrawFormatString(panelLeft, hpTextY, GetColor(255, 255, 255), "HP: %d / %d", enemy.hp, enemy.maxHp);
+    // HPバー
+    DrawBox(panelLeftScreen, layout.hpBarY,
+        panelRightScreen, layout.hpBarY + 5,
+        GetColor(10, 12, 18), TRUE);
+    int hpFill = panelContentWidth * enemy.hp / enemy.maxHp;
+    if (hpFill > panelContentWidth) hpFill = panelContentWidth;
+    if (hpFill < 0) hpFill = 0;
+    for (int x = 0; x < hpFill; x++) {
+        int ratio = x * 100 / panelContentWidth;
+        int r = 255;
+        int g = 255 - 155 * ratio / 100;
+        int b = 255 - 255 * ratio / 100;
+        DrawLine(panelLeftScreen + x, layout.hpBarY,
+            panelLeftScreen + x, layout.hpBarY + 4,
+            GetColor(r, g, b));
+    }
+    DrawBox(panelLeftScreen, layout.hpBarY,
+        panelRightScreen, layout.hpBarY + 5,
+        GetColor(0, 255, 255), FALSE);
 
-    // リプレイモード
+    // HP残量警告
+    if (enemy.maxHp > 0 && enemy.hp < enemy.maxHp / 5 && (count / 10) % 2 == 0) {
+        SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
+        DrawBox(panelLeftScreen, layout.hpBarY,
+            panelRightScreen, layout.hpBarY + 5,
+            GetColor(255, 0, 0), TRUE);
+        SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+    }
+
+    // リプレイモード表示
     if (replayActive) {
-        DrawBox(panelLeft, replayY, 630, replayY + lineHeight, INFO_BG_COLOR, TRUE);
-        DrawString(panelLeft + 5, replayY, "<Replay Mode>", GetColor(255, 255, 128));
+        drawInfoRowBG(panelLeftScreen, layout.replayY, panelContentWidth, lineHeight,
+            GetColor(40, 35, 25), GetColor(255, 200, 0));
+        DrawString(panelLeftScreen + 10, layout.replayY + 1,
+            "<Replay Mode>", GetColor(255, 255, 128));
 
-        int y = replayY + lineHeight + lineHeight;
+        int y = layout.replayY + lineHeight * 2;
+
         if (stageData[stageNum].stageId == "Grok67") {
-            DrawBox(panelLeft, y, 630, y + lineHeight, INFO_BG_COLOR, TRUE);
-            DrawString(panelLeft + 5, y, "TAS でも無理！", GetColor(255, 255, 128));
+            DrawString(panelLeftScreen + 5, y, "TAS でも無理！", GetColor(255, 255, 128));
             y += lineHeight;
-            DrawBox(panelLeft, y, 630, y + lineHeight, INFO_BG_COLOR, TRUE);
-            DrawString(panelLeft + 5, y, "無敵モード ON", GetColor(255, 255, 128));
+            DrawString(panelLeftScreen + 5, y, "無敵モード ON", GetColor(255, 255, 128));
             isMuteki = true;
         }
+        // 他の分岐も同様に短縮した文字列に調整
         if (stageData[stageNum].stageId == "DeepSeek67"
             || stageData[stageNum].stageId == "ChatGPT67"
             || stageData[stageNum].stageId == "Gemini67"
             || stageData[stageNum].stageId == "Zai67")
         {
-            DrawBox(panelLeft, y, 630, y + lineHeight, INFO_BG_COLOR, TRUE);
-            DrawString(panelLeft + 5, y, "人力では無理！", GetColor(255, 255, 128));
+            DrawString(panelLeftScreen + 5, y, "人力では無理！", GetColor(255, 255, 128));
             y += lineHeight;
-            DrawBox(panelLeft, y, 630, y + lineHeight, INFO_BG_COLOR, TRUE);
-            DrawString(panelLeft + 5, y, "TAS プレイです", GetColor(255, 255, 128));
+            DrawString(panelLeftScreen + 5, y, "TAS プレイです", GetColor(255, 255, 128));
             isMuteki = false;
         }
         if (stageData[stageNum].stageId == "Claude67"
             || stageData[stageNum].stageId == "Qwen67"
             || stageData[stageNum].stageId == "Kimi67")
         {
-            DrawBox(panelLeft, y, 630, y + lineHeight, INFO_BG_COLOR, TRUE);
-            DrawString(panelLeft + 5, y, "人力プレイです", GetColor(255, 255, 128));
+            DrawString(panelLeftScreen + 5, y, "人力プレイです", GetColor(255, 255, 128));
             isMuteki = false;
         }
     }
 
-    // デバッグ用：無敵モード中、存在する敵弾数とセット数を画面右下に表示
+    // デバッグ用（無敵モード時）
     if (isMuteki) {
         int bulletCount = 0;
-        int setCount = 0;                       // ★追加
+        int setCount = 0;
         sEnemyShotSet* pSet = enemyShotSetHead.next;
         while (pSet != &enemyShotSetHead) {
-            ++setCount;                         // ★セットをカウント
+            ++setCount;
             sEnemyShot* pShot = pSet->pEnemyShotHead->next;
             while (pShot != pSet->pEnemyShotHead) {
                 ++bulletCount;
@@ -586,10 +818,9 @@ void drawSidePanel()
             }
             pSet = pSet->next;
         }
-        // FPS表示の少し上 (y=436) に表示。FPSは通常 (565,460) 付近。
-        DrawFormatString(485, 396, GetColor(255, 255, 0), "<Invincible Mode>");
-        DrawFormatString(519, 416, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
-        DrawFormatString(519, 436, GetColor(255, 255, 255), "   Sets: %d", setCount);  // ★追加
+        DrawFormatString(panelLeftScreen, 396, GetColor(255, 255, 0), "<Invincible Mode>");
+        DrawFormatString(panelLeftScreen, 416, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
+        DrawFormatString(panelLeftScreen, 436, GetColor(255, 255, 255), "   Sets: %d", setCount);
     }
 }
 
@@ -605,7 +836,7 @@ void drawGameOverlay()
     }
 
     SetDrawBlendMode(DX_BLENDMODE_ALPHA, 80);
-    DrawBox(0, 0, 480, 480, overlayColor, TRUE);
+    DrawBox(GAME_AREA_X + 0, 0, GAME_AREA_X + 480, 480, overlayColor, TRUE);
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
     const char* message;
@@ -619,12 +850,12 @@ void drawGameOverlay()
         msgColor = GetColor(255, 100, 100);
     }
 
-    DrawBox(140, 200, 340, 300, GetColor(20, 20, 40), TRUE);
-    DrawBox(140, 200, 340, 202, msgColor, TRUE);
-    DrawString(240 - (int)strlen(message) * 8, 205, message, GetColor(255, 255, 255));
+    DrawBox(GAME_AREA_X + 140, 200, GAME_AREA_X + 340, 300, GetColor(20, 20, 40), TRUE);
+    DrawBox(GAME_AREA_X + 140, 200, GAME_AREA_X + 340, 202, msgColor, TRUE);
+    DrawString(GAME_AREA_X + 240 - (int)strlen(message) * 8, 205, message, GetColor(255, 255, 255));
 
-    if (!replayActive) DrawString(155, 230, "V   : Retry", GetColor(255, 255, 255));
-    else               DrawString(155, 230, "R   : Replay", GetColor(255, 255, 255));
-    DrawString(155, 250, "N   : Next Stage", GetColor(255, 255, 255));
-    DrawString(155, 270, "Q   : Quit", GetColor(255, 255, 255));
+    if (!replayActive) DrawString(GAME_AREA_X + 155, 230, "V   : Retry", GetColor(255, 255, 255));
+    else               DrawString(GAME_AREA_X + 155, 230, "R   : Replay", GetColor(255, 255, 255));
+    DrawString(GAME_AREA_X + 155, 250, "N   : Next Stage", GetColor(255, 255, 255));
+    DrawString(GAME_AREA_X + 155, 270, "Q   : Quit", GetColor(255, 255, 255));
 }

@@ -1,308 +1,298 @@
-﻿// enemyPat_kaleidoscope.cpp
+﻿// enemyPat_lagCascade.cpp
+// 処理落ちモチーフ弾幕「フレームドロップ・カスケード」
 
 #include "DxLib.h"
 #include "gv.h"
 #include "imgSoundLoad.h"
+#include "player.h"
 #include <math.h>
 
-static double Clamp01(double v)
-{
-    if (v < 0.0) return 0.0;
-    if (v > 1.0) return 1.0;
-    return v;
-}
+// ============================================================
+//  定数定義
+// ============================================================
+static const int PHASE1_WAY = 24;        // 第1段：24way大弾
+static const int PHASE1_SPEED = 180 * 3;       // 大弾速度（100分の1単位：1.80）
+static const int PHASE1_UPDATE = 6;         // 大弾の位置更新間隔（6フレームに1回）
+static const int PHASE2_SPLIT = 3;         // 大弾→小弾の分裂数
+static const int PHASE2_SPEED = 150;       // 小弾速度（1.50）
+static const int PHASE2_UPDATE = 6;         // 小弾も6フレーム更新
+static const int PHASE3_SPLIT = 3;         // 小弾→微弾の分裂数
+static const int PHASE3_SPEED = 120;       // 微弾速度（1.20）
+static const int PHASE3_UPDATE = 6;         // 微弾も6フレーム更新
+static const int LAG_THRESHOLD = 150;       // ラグ発生弾数閾値
+static const int LAG_DURATION = 90;        // ラグ停止フレーム数（1.5秒@60fps）
+static const double RECOVER_MULT = 1.8;       // 回復後の速度倍率
+static const int MARGIN = 0;        // 画面外判定マージン（大きめに取る）
 
-static double SmoothStep(double v)
+// ============================================================
+//  弾の種類・色のエイリアス（可読性のため）
+// ============================================================
+static const int KIND_LARGE = 0;  // 中玉 赤
+static const int KIND_MID = 1;  // 小玉 黄
+static const int KIND_SMALL = 3;  // 銃弾 緑
+static const int COLOR_RED = 0;
+static const int COLOR_YEL = 1;
+static const int COLOR_GRN = 2;
+
+// ============================================================
+//  弾の生成ヘルパー
+// ============================================================
+static sEnemyShot* CreateShot(
+    sEnemyShotSet* pSet,
+    double x, double y,
+    double muki, double speed,
+    int kindBase, int color,
+    int updateInterval,
+    int splitGen = 0
+)
 {
-    v = Clamp01(v);
-    return v * v * (3.0 - 2.0 * v);
+    sEnemyShot* p = new sEnemyShot;
+    p->x = x;
+    p->y = y;
+    p->muki = muki;
+    p->speed = speed / 100.0;
+    // count のインクリメントはメインルーチンが自動で行う
+    // 分裂直後に即座に動かないよう、初期値を 1 に設定
+    p->count = 1;
+
+    // 色を反映（8色周期で種類に応じた画像を選択）
+    int imgArray[8] = {
+        img_enemyShotSmallBall[color],
+        img_enemyShotMediumBall[color],
+        img_enemyShotLargeBall[color],
+        img_enemyShotBullet[color],
+        img_enemyShotScale[color],
+        img_enemyShotDiamond[color],
+        img_enemyShotMediumOval[color],
+        img_enemyShotLaser[color]
+    };
+    switch (kindBase) {
+    case 0: p->kind = imgArray[1]; break;  // 中玉
+    case 1: p->kind = imgArray[0]; break;  // 小玉
+    case 3: p->kind = imgArray[3]; break;  // 銃弾
+    default: p->kind = imgArray[0]; break;
+    }
+
+    // パラメータに世代と更新間隔を保存
+    p->param_i[0] = splitGen;        // 0=大弾, 1=小弾, 2=微弾
+    p->param_i[1] = updateInterval;  // 位置更新間隔（フレーム）
+    p->param_i[2] = 0;               // ラグ回復フラグ（0=通常, 1=回復待ち）
+    p->param_i[3] = 0;               // 明滅カウンタ
+    p->param_d[0] = 0.0;
+    p->param_d[1] = 0.0;
+    p->param_d[2] = speed / 100.0;   // 元の速度（回復時に使用）
+    p->margin = 240;
+
+    p->prev = pSet->pEnemyShotHead->prev;
+    p->next = pSet->pEnemyShotHead;
+    pSet->pEnemyShotHead->prev->next = p;
+    pSet->pEnemyShotHead->prev = p;
+    return p;
 }
 
 // ============================================================
-// 弾幕：万華鏡の中で遊ぶ
+//  弾の分裂処理
 // ============================================================
-static void ShotKaleidoscope(sEnemyShotSet* pEnemyShotSet)
+static void SplitShot(
+    sEnemyShotSet* pSet,
+    sEnemyShot* pParent,
+    int splitCount,
+    int nextGen,
+    int speed100,
+    int updateInterval,
+    int kindBase,
+    int color
+)
 {
-    const double CX = 240.0;
-    const double CY = 245.0;
+    for (int i = 0; i < splitCount; i++) {
+        double baseMuki = pParent->muki + DX_PI;
+        double spread = DX_PI / 4.0;
+        double muki = baseMuki - spread / 2.0
+            + spread * i / (splitCount - 1.0);
 
+        // プレイヤー方向への微補正（20%程度）
+        //double toPlayer = atan2(player.y - pParent->y, player.x - pParent->x);
+        //muki = muki * 0.8 + toPlayer * 0.2;
+        
+        CreateShot(pSet, pParent->x + 1.0 * cos(muki), pParent->y + 1.0 * sin(muki),
+            muki, speed100, kindBase, color, updateInterval, nextGen);
+    }
+}
+
+// ============================================================
+//  弾幕パターン：フレームドロップ・カスケード
+// ============================================================
+static void ShotLagCascade(sEnemyShotSet* pEnemyShotSet)
+{
+    // --------------------------------------------------------
+    //  第1段：初回生成（24way大弾）
+    // --------------------------------------------------------
     if (pEnemyShotSet->count == 0) {
-        if (CheckSoundMem(sound_enemyCharge))
-            StopSoundMem(sound_enemyCharge);
-        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
+        if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
+        PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
 
-        const double gap = pEnemyShotSet->param_d[0];
-        const int K = 3;
-
-        // 外周
-        for (int i = 0; i < 18 * K; i++) {
-            double base = i * (2.0 * DX_PI / 18.0 / K);
-
-            double diff = base - gap;
-            while (diff > DX_PI) diff -= 2.0 * DX_PI;
-            while (diff < -DX_PI) diff += 2.0 * DX_PI;
-
-            if (fabs(diff) < 0.16)
-                continue;
-
-            sEnemyShot* pShot = new sEnemyShot;
-
-            pShot->x = CX;
-            pShot->y = CY;
-            pShot->speed = 0.0;
-            pShot->kind = img_enemyShotMediumBall[3];
-            pShot->param_i[0] = 0;
-            pShot->param_d[0] = base;
-
-            pShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pShot;
-        }
-
-        // 内周
-        for (int i = 0; i < 18 * K; i++) {
-            double base = i * (2.0 * DX_PI / 18.0 / K);
-
-            double diff = base - gap;
-            while (diff > DX_PI) diff -= 2.0 * DX_PI;
-            while (diff < -DX_PI) diff += 2.0 * DX_PI;
-
-            if (fabs(diff) < 0.16)
-                continue;
-
-            sEnemyShot* pShot = new sEnemyShot;
-
-            pShot->x = CX;
-            pShot->y = CY;
-            pShot->speed = 0.0;
-            pShot->kind = img_enemyShotSmallBall[6];
-            pShot->param_i[0] = 1;
-            pShot->param_d[0] = base;
-
-            pShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pShot;
-        }
-
-        // 中心の菱形弾
-        for (int i = 0; i < 6; i++) {
-            sEnemyShot* pShot = new sEnemyShot;
-
-            pShot->x = CX;
-            pShot->y = CY;
-            pShot->speed = 0.0;
-            pShot->kind = img_enemyShotDiamond[1];
-            pShot->param_i[0] = 2;
-            pShot->param_d[0] = i * DX_PI / 3.0;
-
-            pShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pShot;
+        for (int i = 0; i < PHASE1_WAY; i++) {
+            double muki = (DX_PI * 2.0 / PHASE1_WAY) * i;
+            CreateShot(pEnemyShotSet,
+                pEnemyShotSet->x, pEnemyShotSet->y,
+                muki, PHASE1_SPEED,
+                KIND_LARGE, COLOR_RED,
+                PHASE1_UPDATE, 0);
         }
     }
 
-    const int t = pEnemyShotSet->count;
+    // --------------------------------------------------------
+    //  ラグピーク判定：全弾数カウント
+    // --------------------------------------------------------
+    int totalShots = 0;
+    sEnemyShot* pTmp = pEnemyShotSet->pEnemyShotHead->next;
+    while (pTmp != pEnemyShotSet->pEnemyShotHead) {
+        totalShots++;
+        pTmp = pTmp->next;
+    }
 
+    // ラグピーク（処理落ち停止）判定
+    bool isLagging = (totalShots >= LAG_THRESHOLD);
+
+    if (isLagging) {
+        if (pEnemyShotSet->param_i[0] == 0) {
+            if (CheckSoundMem(sound_enemyCharge)) StopSoundMem(sound_enemyCharge);
+            PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
+        }
+        pEnemyShotSet->param_i[0]++;
+    }
+    else {
+        pEnemyShotSet->param_i[0] = 0;
+    }
+
+    bool inLagFreeze = (pEnemyShotSet->param_i[0] >= 1 &&
+        pEnemyShotSet->param_i[0] <= LAG_DURATION);
+
+    // --------------------------------------------------------
+    //  各弾の更新処理
+    // --------------------------------------------------------
     sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-
     while (pShot != pEnemyShotSet->pEnemyShotHead) {
+        sEnemyShot* pNext = pShot->next;
 
-        // ====================================================
-        // 外周リング
-        // ====================================================
-        if (pShot->param_i[0] == 0) {
-            double r;
-            double rot;
-
-            if (t < 120) {
-                // 20 -> 206
-                double u = SmoothStep(t / 120.0);
-
-                r = 20.0 + 186.0 * u;
-                rot = 0.010 * t;
+        // ラグピーク中：全弾完全停止（位置更新しない）
+        if (inLagFreeze) {
+            pShot->param_i[3]++;
+            // 大弾のみ、プレイヤー位置にわずかなノイズを与える演出
+            if (pShot->param_i[0] == 0) {
+                static int noiseTimer = 0;
+                if (noiseTimer++ % 4 == 0) {
+                    int dx = GetRand(2) - 1;
+                    int dy = GetRand(2) - 1;
+                    player.x += dx;
+                    player.y += dy;
+                    spawnForceParticles(player.x, player.y, dx, dy);
+                }
             }
-            else if (t < 240) {
-                // 206 -> 206
-                // 半径を維持しながら揺らす
-                double u = (t - 120) / 120.0;
-
-                r = 206.0 + 28.0 * sin(u * DX_PI);
-                rot = 1.20 + 0.016 * (t - 120);
-            }
-            else if (t < 310) {
-                // 206 -> 0 を滑らかに収束
-                double u = SmoothStep((t - 240) / 70.0);
-
-                r = 206.0 * (1.0 - u);
-                rot = 3.12 + 0.023 * (t - 240);
-            }
-            else {
-                // 0から滑らかに炸裂
-                double u = t - 310;
-
-                r = 7.5 * u;
-                rot = 4.73 + 0.030 * u;
-            }
-
-            double theta = pShot->param_d[0] + rot * 0.4;
-
-            pShot->x = CX + r * cos(theta);
-            pShot->y = CY + r * sin(theta);
-            pShot->muki = theta;
+            pShot = pNext;
+            continue;
         }
 
-        // ====================================================
-        // 内周リング
-        // ====================================================
-        else if (pShot->param_i[0] == 1) {
-            double r;
-            double rot;
+        // ラグ回復直後の初回更新：速度・更新間隔を変更
+        if (pShot->param_i[2] == 1) {
+            pShot->param_i[2] = 0;
+            pShot->param_i[1] = 1; // 更新間隔を1フレームに
+            pShot->speed = pShot->param_d[2] * RECOVER_MULT;
 
-            if (t < 120) {
-                // 12 -> 126
-                double u = SmoothStep(t / 120.0);
-
-                r = 12.0 + 114.0 * u;
-                rot = -0.017 * t;
-            }
-            else if (t < 240) {
-                // 126 -> 126
-                double u = (t - 120) / 120.0;
-
-                r = 126.0 + 18.0 * sin(u * DX_PI);
-                rot = -2.04 - 0.022 * (t - 120);
-            }
-            else if (t < 310) {
-                // 126 -> 18 を滑らかに収束
-                double u = SmoothStep((t - 240) / 70.0);
-
-                r = 126.0 - 108.0 * u;
-                rot = -4.68 - 0.028 * (t - 240);
-            }
-            else {
-                // 中心から徐々に炸裂
-                double u = t - 310;
-
-                r = 5.0 * u / 3;
-                rot = -6.64 - 0.034 * u / 10;
-            }
-
-            double theta = pShot->param_d[0] + rot;
-
-            pShot->x = CX + r * cos(theta);
-            pShot->y = CY + r * sin(theta);
-            pShot->muki = theta;
+            double toPlayer = atan2(player.y - pShot->y, player.x - pShot->x);
+            pShot->muki = pShot->muki * 0.7 + toPlayer * 0.3;
         }
 
-        // ====================================================
-        // 中心の菱形弾
-        // ====================================================
-        else {
-            double r;
-            double theta;
-
-            if (t < 120) {
-                double u = SmoothStep(t / 120.0);
-
-                r = 8.0 + 8.0 * u;
-                theta = pShot->param_d[0] + 0.028 * t;
-            }
-            else if (t < 240) {
-                double u = (t - 120) / 120.0;
-
-                r = 16.0 + 8.0 * sin(u * DX_PI);
-                theta = pShot->param_d[0]
-                    + 3.36
-                    + 0.028 * (t - 120);
-            }
-            else if (t < 310) {
-                double u = SmoothStep((t - 240) / 70.0);
-
-                r = 24.0 * (1.0 - u);
-                theta = pShot->param_d[0]
-                    + 6.72
-                    + 0.028 * (t - 240);
-            }
-            else {
-                double u = t - 310;
-
-                r = 2.8 * u;
-                theta = pShot->param_d[0]
-                    + 8.68
-                    + 0.030 * u;
-            }
-
-            pShot->x = CX + r * cos(theta);
-            pShot->y = CY + r * sin(theta);
-            pShot->muki = theta;
+        // 位置更新（カクカク演出）
+        // メインルーチンが自動で count++ するので、ここではインクリメントしない
+        if (pShot->count % pShot->param_i[1] == 0) {
+            pShot->x += pShot->speed * cos(pShot->muki);
+            pShot->y += pShot->speed * sin(pShot->muki);
         }
 
-        pShot = pShot->next;
+        // --------------------------------------------------------
+        //  画面端判定と分裂
+        // --------------------------------------------------------
+        bool outOfBounds = (pShot->x < -MARGIN ||
+            pShot->x > 480 + MARGIN ||
+            pShot->y < -MARGIN ||
+            pShot->y > 480 + MARGIN);
+
+        if (outOfBounds && pShot->param_i[0] < 2) {
+            int nextGen = pShot->param_i[0] + 1;
+            int splitCnt = (nextGen == 1) ? PHASE2_SPLIT : PHASE3_SPLIT;
+            int spd = (nextGen == 1) ? PHASE2_SPEED : PHASE3_SPEED;
+            int upd = (nextGen == 1) ? PHASE2_UPDATE : PHASE3_UPDATE;
+            int kindBase = (nextGen == 1) ? KIND_MID : KIND_SMALL;
+            int color = (nextGen == 1) ? COLOR_YEL : COLOR_GRN;
+
+            if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
+            PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
+
+            SplitShot(pEnemyShotSet, pShot, splitCnt, nextGen,
+                spd, upd, kindBase, color);
+
+            pShot->prev->next = pShot->next;
+            pShot->next->prev = pShot->prev;
+            delete pShot;
+        }
+
+        pShot = pNext;
     }
 
-    if (pEnemyShotSet->count == 310) {
-        if (CheckSoundMem(sound_enemyShot_extreme))
-            StopSoundMem(sound_enemyShot_extreme);
+    // --------------------------------------------------------
+    //  ラグ解除時：全弾に回復フラグを立てる
+    // --------------------------------------------------------
+    if (pEnemyShotSet->param_i[0] == LAG_DURATION) {
+        sEnemyShot* p = pEnemyShotSet->pEnemyShotHead->next;
+        while (p != pEnemyShotSet->pEnemyShotHead) {
+            p->param_i[2] = 1;
+            p = p->next;
+        }
+        if (CheckSoundMem(sound_enemyShot_extreme)) StopSoundMem(sound_enemyShot_extreme);
         PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+
+        pEnemyShotSet->param_i[0] = LAG_DURATION + 1;
     }
 }
 
 // ============================================================
-// 敵本体
+//  敵本体のパターン：フレームドロップ・カスケード
 // ============================================================
 void EnemyPat_Tmp()
 {
     static int muki;
-    static int pattern_count;
+    static int shot_count;
 
     if (count == 1) {
         enemy.x = 240.0;
-        enemy.y = 240.0;
-
+        enemy.y = 60.0;
         enemy.maxHp = enemy.hp = 200;
-
         muki = 1;
-        pattern_count = 0;
+        shot_count = 0;
     }
     else {
-        enemy.x += 0.32 * muki;
-
-        if (enemy.x < 90.0)
-            muki = 1;
-
-        if (enemy.x > 390.0)
-            muki = -1;
+        enemy.x += 0.6 * (double)muki;
+        if (count % 180 == 90) muki *= -1;
     }
 
-    if (count % 150 == 1) {
+    if (count % 120 == 1) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
-
         pEnemyShotSet->count = 0;
-        pEnemyShotSet->patternFunc = ShotKaleidoscope;
-
-        pEnemyShotSet->x = 240.0;
-        pEnemyShotSet->y = 245.0;
-
-        pEnemyShotSet->muki = 0.0;
-        pEnemyShotSet->kind = pattern_count++;
-
-        pEnemyShotSet->param_d[0] =
-            (pattern_count % 8) * DX_PI / 4.0
-            + DX_PI / 8.0;
+        pEnemyShotSet->patternFunc = ShotLagCascade;
+        pEnemyShotSet->x = enemy.x;
+        pEnemyShotSet->y = enemy.y + 15.0;
+        pEnemyShotSet->muki = atan2(player.y - pEnemyShotSet->y,
+            player.x - pEnemyShotSet->x);
+        pEnemyShotSet->kind = shot_count++;
+        pEnemyShotSet->param_i[0] = 0;
 
         pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
-
-        pEnemyShotSet->pEnemyShotHead->prev =
-            pEnemyShotSet->pEnemyShotHead;
-        pEnemyShotSet->pEnemyShotHead->next =
-            pEnemyShotSet->pEnemyShotHead;
+        pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
+        pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
 
         pEnemyShotSet->prev = enemyShotSetHead.prev;
         pEnemyShotSet->next = &enemyShotSetHead;
-
         enemyShotSetHead.prev->next = pEnemyShotSet;
         enemyShotSetHead.prev = pEnemyShotSet;
     }

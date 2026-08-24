@@ -5,6 +5,7 @@
 #include "imgSoundLoad.h"
 #include "stateManager.h"
 #include "enemy.h"
+#include "gameScreen.h"
 
 
 void playerShotControl()
@@ -56,7 +57,7 @@ void playerShotDisp()
 
 	pPlayerShot = playerShotHead.next;
 	while (pPlayerShot != &playerShotHead) {
-		DrawGraph((int)(pPlayerShot->x - (11-1)/2), (int)(pPlayerShot->y - (35-1)/2), imageData[img_playerShot].handle, TRUE);
+		DrawGraph(GAME_AREA_X + (int)(pPlayerShot->x - (11-1)/2), (int)(pPlayerShot->y - (35-1)/2), imageData[img_playerShot].handle, TRUE);
 		pPlayerShot = pPlayerShot->next;
 	}
 }

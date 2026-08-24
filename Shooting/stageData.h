@@ -4,14 +4,15 @@
 
 // ステージ情報をまとめた構造体
 struct StageInfo {
-    const char* stageId;       // ステージID（半角英数）
-    const char* description;   // ステージ説明
-    const char* stageTitle;    // ステージタイトル
-    const char* bgmFileName;   // BGMファイル名
-    void (*patternFunc)();     // 敵パターン関数ポインタ
-    int bgmHandle = -1;        // BGMハンドラ（後で代入）
-    unsigned int bestTime = 59999;     // 最短クリアフレーム数（後で代入）
-    unsigned int playCount = 0;        // プレイ回数
+    const char* stageId;           // ステージID
+    const char* description;       // ステージ説明
+    const char* stageTitle;        // ステージタイトル
+    const char* stageDescription;  // ステージ説明
+    const char* bgmFileName;       // BGMファイル名
+    void (*patternFunc)();         // 敵パターン関数ポインタ
+    int bgmHandle = -1;            // BGMハンドラ（後で代入）
+    unsigned int bestTime = 59999; // 最短クリアフレーム数（後で代入）
+    unsigned int playCount = 0;    // プレイ回数（後で代入）
 };
 
 // サイズは初期化リストから自動決定
@@ -28,6 +29,7 @@ extern void EnemyPat_Smeargle();
 extern void EnemyPat_Nabeatsu();
 extern void EnemyPat_TurkishMarch();
 extern void EnemyPat_CircusGalop();
+extern void EnemyPat_Othello();
 extern void EnemyPat_Difficulty_Claude();
 extern void EnemyPat_Geometry_Claude2();
 extern void EnemyPat_Comet_Grok2();
@@ -662,3 +664,27 @@ extern void EnemyPat_TheMostFun_Claude();
 extern void EnemyPat_TheMostFun_Qwen();
 extern void EnemyPat_TheMostFun_Kimi();
 extern void EnemyPat_TheMostFun_Zai();
+extern void EnemyPat_Lissajous_DeepSeek();
+extern void EnemyPat_Lissajous_ChatGPT();
+extern void EnemyPat_Lissajous_Gemini();
+extern void EnemyPat_Lissajous_Grok();
+extern void EnemyPat_Lissajous_Claude();
+extern void EnemyPat_Lissajous_Qwen();
+extern void EnemyPat_Lissajous_Kimi();
+extern void EnemyPat_Lissajous_Zai();
+extern void EnemyPat_NorthWindAndSun_DeepSeek();
+extern void EnemyPat_NorthWindAndSun_ChatGPT();
+extern void EnemyPat_NorthWindAndSun_Gemini();
+extern void EnemyPat_NorthWindAndSun_Grok();
+extern void EnemyPat_NorthWindAndSun_Claude();
+extern void EnemyPat_NorthWindAndSun_Qwen();
+extern void EnemyPat_NorthWindAndSun_Kimi();
+extern void EnemyPat_NorthWindAndSun_Zai();
+extern void EnemyPat_Lag_DeepSeek();
+extern void EnemyPat_Lag_ChatGPT();
+extern void EnemyPat_Lag_Gemini();
+extern void EnemyPat_Lag_Grok();
+extern void EnemyPat_Lag_Claude();
+extern void EnemyPat_Lag_Qwen();
+extern void EnemyPat_Lag_Kimi();
+extern void EnemyPat_Lag_Zai();

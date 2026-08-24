@@ -7,8 +7,10 @@
 #include "fileOpenClose.h"
 #include "stageData.h"
 #include "stateManager.h"
+#include "recordController.h"
 #include <fstream>
 #include <string>
+#include <cstring> 
 #include "json.hpp"
 
 using json = nlohmann::json;
@@ -57,6 +59,7 @@ void fileOpen()
     }
 
     loadPlayCount();
+    loadRecordConfig();
 }
 
 void fileClose()
@@ -218,4 +221,45 @@ void savePlayCount()
     std::ofstream ofs("saveData/playCount.json");
     if (ofs.is_open())
         ofs << j.dump(4);
+}
+
+// 録画設定の読み込み
+void loadRecordConfig()
+{
+    // デフォルト値
+    recordingMode = true;
+    std::strncpy(recordingStageTitle, "DeepSeek75", sizeof(recordingStageTitle) - 1);
+    recordingStageTitle[sizeof(recordingStageTitle) - 1] = '\0';
+    replayLoopCount = 8;
+    is_tate = false;
+
+    std::ifstream ifs("saveData/recordConfig.json");
+    if (!ifs.is_open())
+        return;
+
+    try
+    {
+        json j;
+        ifs >> j;
+
+        if (j.is_object())
+        {
+            if (j.contains("recordingMode") && j["recordingMode"].is_boolean())
+                recordingMode = j["recordingMode"].get<bool>();
+
+            if (j.contains("recordingStageTitle") && j["recordingStageTitle"].is_string())
+            {
+                std::string s = j["recordingStageTitle"].get<std::string>();
+                std::strncpy(recordingStageTitle, s.c_str(), sizeof(recordingStageTitle) - 1);
+                recordingStageTitle[sizeof(recordingStageTitle) - 1] = '\0';
+            }
+
+            if (j.contains("replayLoopCount") && j["replayLoopCount"].is_number_integer())
+                replayLoopCount = j["replayLoopCount"].get<int>();
+
+            if (j.contains("is_tate") && j["is_tate"].is_boolean())
+                is_tate = j["is_tate"].get<bool>();
+        }
+    }
+    catch (...) {}
 }
