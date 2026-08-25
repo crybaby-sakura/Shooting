@@ -248,7 +248,7 @@ static void ShotHaikuAkaiHari(sEnemyShotSet* pEnemyShotSet)
 // ============================================================
 //  敵本体のパターン
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_Haiku_DeepSeek()
 {
     static int muki;
 
