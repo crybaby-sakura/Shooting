@@ -292,6 +292,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
         // FPS 調整
         int MS = 17;
+        if (key[KEY_INPUT_D] >= 1) MS = 17 * 8; // デバッグ用
         int elapsed = GetNowCount() - frameStart;
         if (elapsed < MS) WaitTimer(MS - elapsed);
     }

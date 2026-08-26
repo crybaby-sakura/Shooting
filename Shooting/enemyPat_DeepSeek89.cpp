@@ -1,4 +1,4 @@
-﻿// EnemyPat_Tmp.cpp
+﻿// EnemyPat_JumpScare_DeepSeek.cpp
 // ジャンプスケア風弾幕「虚ろなる眼球（ホロウ・アイ）」
 
 #include "DxLib.h"
@@ -99,8 +99,8 @@ static void EyeJumpScare(sEnemyShotSet* pSet)
         // 6フレームごとに自機狙いの黒い視線弾を2発
         if (t % 3 == 0) {
             double base = atan2(player.y - CY, player.x - CX);
-            AddShot(pSet, CX, CY, base - 0.04, 7.8, img_enemyShotSmallBall[7]);       // 黒
-            AddShot(pSet, CX, CY, base + 0.04, 7.8, img_enemyShotSmallBall[7]);
+            AddShot(pSet, CX, CY, base, 7.8, img_enemyShotSmallBall[7]);       // 黒
+            AddShot(pSet, CX, CY, base + 0.08, 7.6, img_enemyShotSmallBall[7]);
         }
     }
 
@@ -133,7 +133,7 @@ static void EyeJumpScare(sEnemyShotSet* pSet)
 }
 
 // 敵本体パターン
-void EnemyPat_Tmp()
+void EnemyPat_JumpScare_DeepSeek()
 {
     static int shot_count;
 
