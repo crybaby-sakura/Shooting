@@ -140,7 +140,7 @@ bool TAS_OnLoseState()
     if (!g_isTasMode) return false;
 
     // 最大値から10フレーム前（下限0）
-    int target = s_maxCount - 10;
+    int target = s_maxCount - 60;
     if (target < 0) target = 0;
 
     // キー履歴を切り詰める
