@@ -754,3 +754,4 @@ extern void EnemyPat_JumpScare_Claude();
 extern void EnemyPat_JumpScare_Qwen();
 extern void EnemyPat_JumpScare_Kimi();
 extern void EnemyPat_JumpScare_Zai();
+extern void EnemyPat_FlashMentalArithmetic();

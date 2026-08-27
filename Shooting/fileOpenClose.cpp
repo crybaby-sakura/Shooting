@@ -8,6 +8,9 @@
 #include "stageData.h"
 #include "stateManager.h"
 #include "recordController.h"
+#include "tasController.h"
+#include "tasAutoMaker.h"
+#include "fps.h"
 #include <fstream>
 #include <string>
 #include <cstring> 
@@ -259,6 +262,18 @@ void loadRecordConfig()
 
             if (j.contains("is_tate") && j["is_tate"].is_boolean())
                 is_tate = j["is_tate"].get<bool>();
+
+            if (j.contains("g_isTasMode") && j["g_isTasMode"].is_boolean())
+                g_isTasMode = j["g_isTasMode"].get<bool>();
+
+            if (j.contains("frameDurationMs") && j["frameDurationMs"].is_number_integer())
+                frameDurationMs = j["frameDurationMs"].get<int>();
+
+            if (j.contains("rollbackFrames") && j["rollbackFrames"].is_number_integer())
+                rollbackFrames = j["rollbackFrames"].get<int>();
+
+            if (j.contains("g_isAutoTasMode") && j["g_isAutoTasMode"].is_boolean())
+                g_isAutoTasMode = j["g_isAutoTasMode"].get<bool>();
         }
     }
     catch (...) {}

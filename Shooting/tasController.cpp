@@ -14,7 +14,8 @@
 
 
 // TASモードの有効/無効を切り替える
-bool g_isTasMode = 0;
+bool g_isTasMode;
+int rollbackFrames;
 
 
 void iniGameForTas()
@@ -140,7 +141,7 @@ bool TAS_OnLoseState()
     if (!g_isTasMode) return false;
 
     // 最大値から10フレーム前（下限0）
-    int target = s_maxCount - 60;
+    int target = s_maxCount - rollbackFrames;
     if (target < 0) target = 0;
 
     // キー履歴を切り詰める

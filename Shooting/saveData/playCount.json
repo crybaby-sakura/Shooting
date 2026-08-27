@@ -80,7 +80,7 @@
     "ChatGPT80": 2,
     "ChatGPT81": 27,
     "ChatGPT82": 20,
-    "ChatGPT83": 62,
+    "ChatGPT83": 127,
     "ChatGPT84": 1,
     "ChatGPT85": 22,
     "ChatGPT86": 42,
@@ -723,6 +723,7 @@
     "handmade1": 0,
     "handmade10": 57,
     "handmade11": 13,
+    "handmade12": 18,
     "handmade2": 0,
     "handmade3": 0,
     "handmade4": 0,
@@ -732,5 +733,5 @@
     "handmade8": 32,
     "handmade9": 35,
     "sample": 754,
-    "tmp": 3234
+    "tmp": 3272
 }

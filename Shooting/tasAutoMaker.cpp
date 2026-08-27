@@ -30,7 +30,7 @@
 #include <cstdlib>   // exit() 用
 
 // 自動TASモードの有効/無効を切り替える
-bool g_isAutoTasMode = false;
+bool g_isAutoTasMode;
 
 namespace {
 

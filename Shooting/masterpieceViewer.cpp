@@ -202,7 +202,7 @@ int masterpieceMain() {
         SetDrawScreen(gameScreen);
 
         int elapsed = GetNowCount() - frameStart;
-        if (elapsed < 17) WaitTimer(17 - elapsed);
+        if (elapsed < frameDurationMs) WaitTimer(frameDurationMs - elapsed);
     }
 
     return 0;

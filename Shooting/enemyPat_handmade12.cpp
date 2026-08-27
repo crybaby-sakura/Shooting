@@ -270,7 +270,7 @@ static sEnemyShotSet* SpawnShotSet(sEnemyShotSet::PatternFunc func,
 // =====================================================================
 //  敵本体パターン
 // =====================================================================
-void EnemyPat_Tmp()
+void EnemyPat_FlashMentalArithmetic()
 {
     enum { PH_GEN = 0, PH_FLASH, PH_ANSWER, PH_JUDGE };
 
@@ -287,7 +287,7 @@ void EnemyPat_Tmp()
     if (count == 1) {
         enemy.x = 240.0;
         enemy.y = 80.0;
-        enemy.maxHp = enemy.hp = 300; // 初期値300
+        enemy.maxHp = enemy.hp = 200;
         muki = 1;
         phase = PH_GEN;
         phaseStart = count;
@@ -337,14 +337,11 @@ void EnemyPat_Tmp()
         }
         nums[terms - 1] = rem;
 
-        // 7セグ点灯フレームを HP で線形補間
-        //   HP=300 → 現状(34)の3倍 = 102 / HP=0 → 現状の半分 = 17
-        //   factor(hp) = 0.5 + (3.0 - 0.5) * (hp / 300)
         {
             double hp = (double)enemy.hp;
             if (hp < 0.0)   hp = 0.0;
-            if (hp > 300.0) hp = 300.0;
-            const double factor = 0.5 + (3.0 - 0.5) * (hp / 300.0);
+            if (hp > 200.0) hp = 200.0;
+            const double factor = 0.5 + (3.0 - 0.5) * (hp / 200.0);
             onFrames = (int)(34.0 * factor + 0.5);
             if (onFrames < 1) onFrames = 1;
         }
@@ -381,7 +378,7 @@ void EnemyPat_Tmp()
 
                  // ------------------------------------------------------------
     case PH_ANSWER: { // 解答時間（この間にHPを答えに合わせる）
-        const int LIMIT = 180;
+        const int LIMIT = 240;
         int remain = LIMIT - t;
         if (remain < 0) remain = 0;
 

@@ -109,7 +109,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 preloadStage = (preloadStage + 1) % totalStages;
             }
 
-            WaitTimer(17);   // CPU負荷軽減 & 約60fps維持
+            WaitTimer(frameDurationMs);   // CPU負荷軽減 & 約60fps維持
         }
     }
 
@@ -291,10 +291,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         SetDrawScreen(gameScreen);
 
         // FPS 調整
-        int MS = 17;
-        if (key[KEY_INPUT_D] >= 1) MS = 17 * 8; // デバッグ用
+        if (key[KEY_INPUT_D] >= 1) frameDurationMs = 17 * 8; // デバッグ用に激遅にする
         int elapsed = GetNowCount() - frameStart;
-        if (elapsed < MS) WaitTimer(MS - elapsed);
+        if (elapsed < frameDurationMs) WaitTimer(frameDurationMs - elapsed);
     }
 
     iniGame();
