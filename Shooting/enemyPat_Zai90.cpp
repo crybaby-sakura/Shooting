@@ -294,7 +294,7 @@ static void ShotBrownian(sEnemyShotSet* pSet)
 }
 
 // ================= 敵本体のパターン =================
-void EnemyPat_Tmp()
+void EnemyPat_BrownianMotion_Zai()
 {
     static int muki;
 
