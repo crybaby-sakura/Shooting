@@ -104,7 +104,7 @@ static void ShotSlitherSnake(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_Slitherio_Zai()
 {
     static int shot_count;
 

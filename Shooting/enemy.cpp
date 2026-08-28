@@ -405,15 +405,13 @@ void enemyDisp() {
 }
 
 void enemyHit() {
-    if (isMuteki) return;
-
     double dx = player.x - enemy.x;
     double dy = player.y - enemy.y;
     double r = imageData[img_player].radiusX + imageData[img_enemy].radiusX;
     if (dx * dx + dy * dy < r * r) {
         if (CheckSoundMem(sound_playerDestroyed)) StopSoundMem(sound_playerDestroyed);
         PlaySoundMem(sound_playerDestroyed, DX_PLAYTYPE_BACK);
-        StateManager::ChangeState(Joutai::Lose);
+        if (!isMuteki) StateManager::ChangeState(Joutai::Lose);
         return;
     }
 
@@ -422,6 +420,6 @@ void enemyHit() {
     if (dx2 * dx2 + dy2 * dy2 < r * r) {
         if (CheckSoundMem(sound_playerDestroyed)) StopSoundMem(sound_playerDestroyed);
         PlaySoundMem(sound_playerDestroyed, DX_PLAYTYPE_BACK);
-        StateManager::ChangeState(Joutai::Lose);
+        if (!isMuteki) StateManager::ChangeState(Joutai::Lose);
     }
 }
