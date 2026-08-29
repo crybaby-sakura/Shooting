@@ -244,7 +244,7 @@ static void ShotSpirograph(sEnemyShotSet* pEnemyShotSet)
 // ------------------------------------------------------------
 // 敵本体のパターン
 // ------------------------------------------------------------
-void EnemyPat_Tmp()
+void EnemyPat_Spirograph_Kimi()
 {
     static sEnemyShotSet* pOuter = nullptr;
     static sEnemyShotSet* pInner = nullptr;

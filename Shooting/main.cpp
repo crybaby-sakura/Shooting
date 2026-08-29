@@ -55,16 +55,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
         ScreenFlip();
     }
-    if (!recordingMode && !masterpieceMode) {
-        loadWindowSettings();            // ウィンドウ位置・サイズを復元
-    }
-
-    // ここでウィンドウを表示する（これまでは非表示だったので一瞬でスプラッシュが現れる）
-    HWND hwnd = (HWND)GetMainWindowHandle();
-    if (!hwnd || !IsWindowVisible(hwnd)) SetWindowVisibleFlag(TRUE);
-    
-    // 起動時刻を記録（スプラッシュ最低表示時間のため）
-    int startTime = GetNowCount();
 
     // 通常のロード処理（画像・効果音・メニューBGMなど）
     fileOpen();
@@ -82,7 +72,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
     imgSoundLoad();                      // 画像/効果音/メニューBGM 読込
     stageNum = cursor.page * 100 + cursor.y * 10 + cursor.x;
+
+    if (!recordingMode && !masterpieceMode) {
+        loadWindowSettings();            // ウィンドウ位置・サイズを復元
+    }
+
+    // ここでウィンドウを表示する（これまでは非表示だったので一瞬でスプラッシュが現れる）
+    HWND hwnd = (HWND)GetMainWindowHandle();
+    if (!hwnd || !IsWindowVisible(hwnd)) SetWindowVisibleFlag(TRUE);
     
+    // 起動時刻を記録（スプラッシュ最低表示時間のため）
+    int startTime = GetNowCount();
+
     // ---------- 最低 SPLASH_MIN_TIME 間スプラッシュを維持しつつBGMをプリロード ----------
     int SPLASH_MIN_TIME = recordingMode ? 1500 : 100;   // スプラッシュ最低表示時間[ms]
     int elapsed = GetNowCount() - startTime;

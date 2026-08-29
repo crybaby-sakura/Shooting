@@ -92,7 +92,7 @@ typedef struct {
     int bossSeparatorY;
     int bossLabelY;
     int hpBarY;
-    int replayY;       // stageDescStartY は不要
+    int replayY;
 } SidePanelLayout;
 
 static SidePanelLayout computeSidePanelLayout() {
@@ -119,12 +119,11 @@ static SidePanelLayout computeSidePanelLayout() {
     layout.bossSeparatorY = y;
     y += 1 + halfLine;
 
+    layout.hpBarY = y;
+    y += 10; // HPバー高さ
+
     layout.bossLabelY = y;
     y += lineHeight;
-
-    y += quarterLine;
-    layout.hpBarY = y;
-    y += 5; // HPバー高さ
 
     y += lineHeight;  // HPバー下の余白
 
@@ -213,11 +212,8 @@ static void createLeftSidePanelBG() {
 
     // BOSS区切り線とHPバー枠
     SidePanelLayout layout = computeSidePanelLayout();
-    DrawLine(panelLeft, layout.bossSeparatorY,
-        panelLeft + descMaxWidth, layout.bossSeparatorY,
-        GetColor(100, 100, 150));
-    DrawBox(panelLeft, layout.hpBarY,
-        panelLeft + descMaxWidth, layout.hpBarY + 5,
+   DrawBox(panelLeft, layout.hpBarY,
+        panelLeft + descMaxWidth, layout.hpBarY,
         GetColor(0, 255, 255), FALSE);
 
     SetDrawScreen(oldScreen);
@@ -281,19 +277,33 @@ static void createRightSidePanelBG() {
     if (strcmp(creator, "Zai") == 0) strcpy(creator, "Z.ai");
 
     int y = 5;
-    DrawFormatString(panelLeft, y, GetColor(255, 200, 100),
+    DrawFormatString(panelLeft, y, GetColor(180, 200, 220),
         "[%sによる説明]", creator);
     y += 20;
+
+    // ここでフォントサイズを切り替える
+    int defaultFontSize = GetFontSize();
+    int lineHeight = 20;
+
+    // 最終ステージの stageDescription より長い場合は小さめにする
+    if (strlen(stageData[stageNum].stageDescription) >
+        strlen(stageData[stageData.size() - 1].stageDescription)) {
+        SetFontSize(defaultFontSize - 2);
+        lineHeight -= 1;
+    }
 
     std::vector<std::string> stageDescLines =
         WrapText(stageData[stageNum].stageDescription, descMaxWidth);
     stageDescLineCount = (int)stageDescLines.size();
 
     for (int i = 0; i < stageDescLineCount; i++) {
-        DrawFormatString(panelLeft, y, GetColor(200, 220, 180),
+        DrawFormatString(panelLeft, y, GetColor(255, 255, 255),
             "%s", stageDescLines[i].c_str());
-        y += 20;   // 行間を少し広げる
+        y += lineHeight;
     }
+
+    // 描画後に元のフォントサイズへ戻す
+    SetFontSize(defaultFontSize);
 
     SetDrawScreen(oldScreen);
 }
@@ -634,16 +644,16 @@ void foreGround() {
 
         // 背景（半透明の黒でバー部分を塗りつぶし）
         SetDrawBlendMode(DX_BLENDMODE_ALPHA, 120);
-        DrawBox(GAME_AREA_X + barX, barY, barX + barWidth, barY + barHeight, GetColor(0, 0, 0), TRUE);
+        DrawBox(GAME_AREA_X + barX, barY, GAME_AREA_X + barX + barWidth, barY + barHeight, GetColor(0, 0, 0), TRUE);
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
         // 枠（暗めの赤）
-        DrawBox(GAME_AREA_X + barX, barY, barX + barWidth, barY + barHeight, GetColor(180, 40, 40), FALSE);
+        DrawBox(GAME_AREA_X + barX, barY, GAME_AREA_X + barX + barWidth, barY + barHeight, GetColor(180, 40, 40), FALSE);
 
         // 内部のHPゲージ（明るい赤）
         int hpWidth = (int)(barWidth * (double)enemy.hp / enemy.maxHp);
         if (hpWidth > 0) {
-            DrawBox(GAME_AREA_X + barX + 1, barY + 1, barX + hpWidth - 1, barY + barHeight - 1, GetColor(255, 60, 60), TRUE);
+            DrawBox(GAME_AREA_X + barX + 1, barY + 1, GAME_AREA_X + barX + hpWidth - 1, barY + barHeight - 1, GetColor(255, 60, 60), TRUE);
         }
 
         // HP数値（白文字で中央付近に）
@@ -671,13 +681,6 @@ void foreGround() {
     }
 }
 
-// 情報行の背景＋左アクセント＋下線
-static void drawInfoRowBG(int x, int y, int w, int h, int baseColor, int accentColor) {
-    DrawBox(x, y, x + w, y + h, baseColor, TRUE);
-    DrawBox(x, y, x + 3, y + h, accentColor, TRUE);
-    DrawLine(x, y + h, x + w, y + h, GetColor(60, 70, 90));
-}
-
 void drawSidePanel()
 {
     // 左パネル背景
@@ -701,44 +704,31 @@ void drawSidePanel()
     SidePanelLayout layout = computeSidePanelLayout();
 
     // プレイ回数
-    drawInfoRowBG(panelLeftScreen, layout.playCountY, panelContentWidth, lineHeight,
-        GetColor(30, 32, 45), GetColor(0, 180, 255));
     if (masterpieceMode) {
-        DrawFormatString(panelLeftScreen + 10, layout.playCountY + 1,
+        DrawFormatString(panelLeftScreen, layout.playCountY + 1,
             GetColor(255, 255, 255), "Play Count: --");
     }
     else {
-        DrawFormatString(panelLeftScreen + 10, layout.playCountY + 1,
+        DrawFormatString(panelLeftScreen, layout.playCountY + 1,
             GetColor(255, 255, 255), "Play Count: %u",
             stageData[stageNum].playCount);
     }
 
     // BestTime
-    drawInfoRowBG(panelLeftScreen, layout.bestTimeY, panelContentWidth, lineHeight,
-        GetColor(32, 34, 47), GetColor(0, 200, 100));
     if (stageData[stageNum].bestTime >= 59999) {
-        DrawFormatString(panelLeftScreen + 10, layout.bestTimeY + 1,
+        DrawFormatString(panelLeftScreen, layout.bestTimeY + 1,
             GetColor(255, 255, 255), "BestTime: --.--");
     }
     else {
-        DrawFormatString(panelLeftScreen + 10, layout.bestTimeY + 1,
+        DrawFormatString(panelLeftScreen, layout.bestTimeY + 1,
             GetColor(255, 255, 255), "BestTime: %5.2f",
             (double)stageData[stageNum].bestTime / 60);
     }
 
     // Time
-    drawInfoRowBG(panelLeftScreen, layout.timeY, panelContentWidth, lineHeight,
-        GetColor(30, 32, 45), GetColor(255, 200, 0));
-    DrawFormatString(panelLeftScreen + 10, layout.timeY + 1,
+    DrawFormatString(panelLeftScreen, layout.timeY + 1,
         GetColor(255, 255, 255), "    Time: %5.2f",
         (double)count / 60);
-
-    // BOSS HP
-    drawInfoRowBG(panelLeftScreen, layout.bossLabelY, panelContentWidth, lineHeight,
-        GetColor(35, 28, 34), GetColor(255, 100, 100));
-    DrawFormatString(panelLeftScreen + 10, layout.bossLabelY + 1,
-        GetColor(255, 255, 255), "HP: %d / %d",
-        enemy.hp, enemy.maxHp);
 
     // HPバー
     DrawBox(panelLeftScreen, layout.hpBarY,
@@ -760,6 +750,11 @@ void drawSidePanel()
         panelRightScreen, layout.hpBarY + 5,
         GetColor(0, 255, 255), FALSE);
 
+    // BOSS HP
+    DrawFormatString(panelLeftScreen, layout.bossLabelY + 1,
+        GetColor(255, 255, 255), "HP: %d / %d",
+        enemy.hp, enemy.maxHp);
+
     // HP残量警告
     if (enemy.maxHp > 0 && enemy.hp < enemy.maxHp / 5 && (count / 10) % 2 == 0) {
         SetDrawBlendMode(DX_BLENDMODE_ALPHA, 60);
@@ -771,17 +766,15 @@ void drawSidePanel()
 
     // リプレイモード表示
     if (replayActive) {
-        drawInfoRowBG(panelLeftScreen, layout.replayY, panelContentWidth, lineHeight,
-            GetColor(40, 35, 25), GetColor(255, 200, 0));
-        DrawString(panelLeftScreen + 10, layout.replayY + 1,
+        DrawString(panelLeftScreen, layout.replayY + 1,
             "<Replay Mode>", GetColor(255, 255, 128));
 
         int y = layout.replayY + lineHeight * 2;
 
         if (stageData[stageNum].stageId == "Grok67") {
-            DrawString(panelLeftScreen + 5, y, "TAS でも無理！", GetColor(255, 255, 128));
+            DrawString(panelLeftScreen, y, "TAS でも無理！", GetColor(255, 255, 128));
             y += lineHeight;
-            DrawString(panelLeftScreen + 5, y, "無敵モード ON", GetColor(255, 255, 128));
+            DrawString(panelLeftScreen, y, "無敵モード ON", GetColor(255, 255, 128));
             isMuteki = true;
         }
         // 他の分岐も同様に短縮した文字列に調整
@@ -790,16 +783,16 @@ void drawSidePanel()
             || stageData[stageNum].stageId == "Gemini67"
             || stageData[stageNum].stageId == "Zai67")
         {
-            DrawString(panelLeftScreen + 5, y, "人力では無理！", GetColor(255, 255, 128));
+            DrawString(panelLeftScreen, y, "人力では無理！", GetColor(255, 255, 128));
             y += lineHeight;
-            DrawString(panelLeftScreen + 5, y, "TAS プレイです", GetColor(255, 255, 128));
+            DrawString(panelLeftScreen, y, "TAS プレイです", GetColor(255, 255, 128));
             isMuteki = false;
         }
         if (stageData[stageNum].stageId == "Claude67"
             || stageData[stageNum].stageId == "Qwen67"
             || stageData[stageNum].stageId == "Kimi67")
         {
-            DrawString(panelLeftScreen + 5, y, "人力プレイです", GetColor(255, 255, 128));
+            DrawString(panelLeftScreen, y, "人力プレイです", GetColor(255, 255, 128));
             isMuteki = false;
         }
     }
