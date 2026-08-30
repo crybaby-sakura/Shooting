@@ -297,10 +297,11 @@ void playerControl() {
 
 void playerDisp() {
     DrawGraph(GAME_AREA_X + (int)(player.x - 18.0 + 0.5), (int)(player.y - 26.0 + 0.5), imageData[img_player].handle, TRUE);
-    if (isSlowMode || g_isTasMode) {
-        DrawCircle(GAME_AREA_X + (int)(player.x + 0.5), (int)(player.y + 0.5), 4, GetColor(255,0,0), TRUE);
-        DrawCircle(GAME_AREA_X + (int)(player.x + 0.5), (int)(player.y + 0.5), 2, GetColor(255,255,255), TRUE);
-    }
+
+    if (!isSlowMode && !g_isTasMode) SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+    DrawCircle(GAME_AREA_X + (int)(player.x + 0.5), (int)(player.y + 0.5), 4, GetColor(255,0,0), TRUE);
+    DrawCircle(GAME_AREA_X + (int)(player.x + 0.5), (int)(player.y + 0.5), 2, GetColor(255,255,255), TRUE);
+    if (!isSlowMode && !g_isTasMode) SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
     drawPlayerEngineFlame();
 

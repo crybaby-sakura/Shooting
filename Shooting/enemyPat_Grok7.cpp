@@ -13,6 +13,7 @@ static void ShotComet(sEnemyShotSet* pEnemyShotSet)
 
     if (pEnemyShotSet->count == 0) {
         // 効果音
+        if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
         PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
 
         double baseMuki = pEnemyShotSet->muki;

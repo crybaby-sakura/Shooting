@@ -212,9 +212,24 @@ static void createLeftSidePanelBG() {
 
     // BOSS区切り線とHPバー枠
     SidePanelLayout layout = computeSidePanelLayout();
-   DrawBox(panelLeft, layout.hpBarY,
+    DrawBox(panelLeft, layout.hpBarY,
         panelLeft + descMaxWidth, layout.hpBarY,
         GetColor(0, 255, 255), FALSE);
+
+    // 傑作選コメント（静的描画）
+    if (masterpieceMode && g_masterpieceComment) {
+        int lineHeight = 16;
+        currentY += 180;
+        if (stageData[stageNum].stageId == "Grok67") currentY += 36;
+        DrawString(panelLeft, currentY, "[一言コメント]", GetColor(180, 200, 220));
+        currentY += 20;
+        const int commentAreaWidth = GAME_AREA_X - 10;
+        std::vector<std::string> commentLines = WrapText(g_masterpieceComment, commentAreaWidth);
+        for (const auto& line : commentLines) {
+            DrawString(panelLeft, currentY, line.c_str(), GetColor(255, 255, 255));
+            currentY += lineHeight + 2;
+        }
+    }
 
     SetDrawScreen(oldScreen);
 }
@@ -635,7 +650,7 @@ void foreGround() {
     // 特殊演出
     special_performance();
 
-    // ボスのHPバー表示（ボスが存在するときだけ描画）
+    // 縦動画モード
     if (is_tate) {
         int barX = 5;
         int barY = 2;
@@ -695,6 +710,8 @@ void drawSidePanel()
     }
     DrawGraph(GAME_W - 187, 0, rightSidePanelBG, FALSE);
 
+    lastStageForSidePanel = stageNum;
+
     // ===== 左パネルの動的要素 =====
     const int panelLeftScreen = 10;               // 左パネル内のX(画面座標では +0)
     const int panelContentWidth = 187 - 20;       // 167px
@@ -704,16 +721,10 @@ void drawSidePanel()
     SidePanelLayout layout = computeSidePanelLayout();
 
     // プレイ回数
-    if (masterpieceMode) {
-        DrawFormatString(panelLeftScreen, layout.playCountY + 1,
-            GetColor(255, 255, 255), "Play Count: --");
-    }
-    else {
-        DrawFormatString(panelLeftScreen, layout.playCountY + 1,
-            GetColor(255, 255, 255), "Play Count: %u",
-            stageData[stageNum].playCount);
-    }
-
+    DrawFormatString(panelLeftScreen, layout.playCountY + 1,
+        GetColor(255, 255, 255), "Play Count: %u",
+        stageData[stageNum].playCount);
+    
     // BestTime
     if (stageData[stageNum].bestTime >= 59999) {
         DrawFormatString(panelLeftScreen, layout.bestTimeY + 1,
@@ -734,6 +745,7 @@ void drawSidePanel()
     DrawBox(panelLeftScreen, layout.hpBarY,
         panelRightScreen, layout.hpBarY + 5,
         GetColor(10, 12, 18), TRUE);
+    if (enemy.maxHp <= 0) enemy.maxHp = 1;
     int hpFill = panelContentWidth * enemy.hp / enemy.maxHp;
     if (hpFill > panelContentWidth) hpFill = panelContentWidth;
     if (hpFill < 0) hpFill = 0;
@@ -781,8 +793,11 @@ void drawSidePanel()
         if (stageData[stageNum].stageId == "DeepSeek67"
             || stageData[stageNum].stageId == "ChatGPT67"
             || stageData[stageNum].stageId == "Gemini67"
-            || stageData[stageNum].stageId == "Zai67")
-        {
+            || stageData[stageNum].stageId == "Zai67"
+            || stageData[stageNum].stageId == "DeepSeek85"
+            || stageData[stageNum].stageId == "Qwen85"
+            || stageData[stageNum].stageId == "Gemini85")
+            {
             DrawString(panelLeftScreen, y, "人力では無理！", GetColor(255, 255, 128));
             y += lineHeight;
             DrawString(panelLeftScreen, y, "TAS プレイです", GetColor(255, 255, 128));
@@ -790,7 +805,12 @@ void drawSidePanel()
         }
         if (stageData[stageNum].stageId == "Claude67"
             || stageData[stageNum].stageId == "Qwen67"
-            || stageData[stageNum].stageId == "Kimi67")
+            || stageData[stageNum].stageId == "Kimi67"
+            || stageData[stageNum].stageId == "ChatGPT85"
+            || stageData[stageNum].stageId == "Claude85"
+            || stageData[stageNum].stageId == "Kimi85"
+            || stageData[stageNum].stageId == "Zai85"
+            || stageData[stageNum].stageId == "Grok85")
         {
             DrawString(panelLeftScreen, y, "人力プレイです", GetColor(255, 255, 128));
             isMuteki = false;
@@ -800,10 +820,10 @@ void drawSidePanel()
     // デバッグ用（無敵モード時）
     if (isMuteki) {
         int bulletCount = 0;
-        int setCount = 0;
+        //int setCount = 0;
         sEnemyShotSet* pSet = enemyShotSetHead.next;
         while (pSet != &enemyShotSetHead) {
-            ++setCount;
+            //++setCount;
             sEnemyShot* pShot = pSet->pEnemyShotHead->next;
             while (pShot != pSet->pEnemyShotHead) {
                 ++bulletCount;
@@ -811,9 +831,8 @@ void drawSidePanel()
             }
             pSet = pSet->next;
         }
-        DrawFormatString(panelLeftScreen, 396, GetColor(255, 255, 0), "<Invincible Mode>");
-        DrawFormatString(panelLeftScreen, 416, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
-        DrawFormatString(panelLeftScreen, 436, GetColor(255, 255, 255), "   Sets: %d", setCount);
+        DrawFormatString(panelLeftScreen, 416, GetColor(255, 255, 0), "<Invincible Mode>");
+        DrawFormatString(panelLeftScreen, 436, GetColor(255, 255, 255), "Bullets: %d", bulletCount);
     }
 }
 

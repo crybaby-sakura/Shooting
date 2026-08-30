@@ -9,6 +9,7 @@
 #include "imgSoundLoad.h"
 #include "initial.h"
 #include "gameScreen.h"
+#include "tasAutoMaker.h"
 #include <string> 
 #include <math.h>
 
@@ -300,6 +301,11 @@ void moveCursor()
     stageNum = cursor.page * 100 + cursor.y * 10 + cursor.x;
 
     if (key[KEY_INPUT_V] == 1 && stageNum < (int)stageData.size()) {
+        if (g_isAutoTasMode) {
+            TAS_AutoSearchStart();
+            return;
+        }
+
         StateManager::ChangeState(Joutai::Game);
         return;
     }

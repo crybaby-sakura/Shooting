@@ -1,364 +1,261 @@
-﻿// enemyPat_spirograph.cpp
-// スピログラフモチーフ弾幕：機巧星華
+﻿// enemyPat_Tmp.cpp
+// TAS前提・超高難易度弾幕パターン「因果律の縫い針（カルマ・ニードル）」
 
 #include "DxLib.h"
 #include "gv.h"
 #include "imgSoundLoad.h"
 #include <math.h>
 
-// ------------------------------------------------------------
-// 外歯車（固定環）— 大きな歯車を弾の輪で表現
-// 24発の弾を円周上に配置し、全体として回転させる
-// ------------------------------------------------------------
-static void ShotOuterGear(sEnemyShotSet* pEnemyShotSet)
+// ============================================================
+// 弾幕パターン関数：因果律の縫い針
+// ============================================================
+static void ShotKarmaNeedle(sEnemyShotSet* pSet)
 {
-    sEnemyShot* pEnemyShot;
-    int i;
+    int t = pSet->count; // メインルーチンで自動インクリメントされる値を使用
 
-    // 初回生成：24発で歯車を構成
-    if (pEnemyShotSet->count == 0) {
-        if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
-        PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
+    // --- 演出: 開始時の予告音 ---
+    if (t == 0) {
+        if (CheckSoundMem(sound_enemyCharge)) StopSoundMem(sound_enemyCharge);
+        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
+    }
 
-        int teeth = 24;
-        for (i = 0; i < teeth; i++) {
-            pEnemyShot = new sEnemyShot;
+    // ========================================================
+    // Phase 1: リサジュ曲線の壁と回転する「縫い針」 (t = 0 ~ 240)
+    // 視覚的には隙間のない壁に見えるが、数学的に計算された狭い隙間が回転している。
+    // ========================================================
+    if (t < 240) {
+        if (t % 4 == 0) { // 4フレームごとにリング状に展開
+            int num_bullets = 72;
+            double gap_angle = (t * 0.04);       // 時間とともに回転する安全角度
+            double gap_width = 0.12;             // TASのみが通れる極限の隙間（ラジアン）
 
-            // 歯の凹凸：偶数番目を大玉(赤)、奇数番目を中玉(橙)
-            if (i % 2 == 0) {
-                pEnemyShot->kind = img_enemyShotLargeBall[0];   // 赤
+            for (int i = 0; i < num_bullets; i++) {
+                double angle = (i * 2.0 * DX_PI) / num_bullets;
+
+                // 現在の弾の角度と安全角度の差を計算（0〜PIに正規化）
+                double diff = fabs(angle - gap_angle);
+                while (diff > DX_PI) diff = 2.0 * DX_PI - diff;
+
+                // 安全隙間以外の場所にのみ弾を配置
+                if (diff > gap_width) {
+                    sEnemyShot* pShot = new sEnemyShot;
+                    pShot->x = pSet->x;
+                    pShot->y = pSet->y;
+                    pShot->muki = angle;
+                    pShot->speed = 3.2;
+                    // 白(6)の小玉(2.5x2.5)で緻密な壁を表現
+                    pShot->kind = img_enemyShotSmallBall[6];
+                    pShot->margin = 480;
+
+                    pShot->prev = pSet->pEnemyShotHead->prev;
+                    pShot->next = pSet->pEnemyShotHead;
+                    pSet->pEnemyShotHead->prev->next = pShot;
+                    pSet->pEnemyShotHead->prev = pShot;
+                }
             }
-            else {
-                pEnemyShot->kind = img_enemyShotMediumBall[8];  // 橙
+            // 効果音の間引き再生（負荷と聴覚的演出のバランス）
+            if (t % 20 == 0) {
+                if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
+                PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
+            }
+        }
+    }
+    // ========================================================
+    // Phase 2: サブピクセル同期の回廊 (t = 240 ~ 420)
+    // 正弦波で動く幅3ピクセルの隙間。自機はこれに完全に同期する円運動・速度切り替えを要求される。
+    // ========================================================
+    else if (t < 420) {
+        if (t % 3 == 0) {
+            // 安全ルート中心座標（正弦波で左右に振れる）
+            double gap_x = 240.0 + 90.0 * sin(t * 0.07);
+            double gap_width = 1.5; // 片側1.5px = 合計3pxの隙間。自機当たり判定(2x2)でかすりが必須レベル
+
+            // 左側の壁（青(4)の鱗弾 4.0x3.0）
+            for (double y_offset = -15.0; y_offset <= 15.0; y_offset += 5.0) {
+                sEnemyShot* pShot = new sEnemyShot;
+                pShot->x = gap_x - gap_width - 3.5;
+                pShot->y = pSet->y + y_offset;
+                pShot->muki = DX_PI / 2.0; // 下向き
+                pShot->speed = 4.5;
+                pShot->kind = img_enemyShotScale[4];
+                pShot->margin = 480;
+
+                pShot->prev = pSet->pEnemyShotHead->prev;
+                pShot->next = pSet->pEnemyShotHead;
+                pSet->pEnemyShotHead->prev->next = pShot;
+                pSet->pEnemyShotHead->prev = pShot;
+            }
+            // 右側の壁
+            for (double y_offset = -15.0; y_offset <= 15.0; y_offset += 5.0) {
+                sEnemyShot* pShot = new sEnemyShot;
+                pShot->x = gap_x + gap_width + 3.5;
+                pShot->y = pSet->y + y_offset;
+                pShot->muki = DX_PI / 2.0;
+                pShot->speed = 4.5;
+                pShot->kind = img_enemyShotScale[4];
+                pShot->margin = 480;
+
+                pShot->prev = pSet->pEnemyShotHead->prev;
+                pShot->next = pSet->pEnemyShotHead;
+                pSet->pEnemyShotHead->prev->next = pShot;
+                pSet->pEnemyShotHead->prev = pShot;
             }
 
-            // 初期配置角度
-            pEnemyShot->param_d[0] = DX_PI * 2.0 * i / teeth;
+            // 【TAS用ガイド】隙間の中心を走るシアン(3)の銃弾(5.0x2.0)
+            // 人間には邪魔な弾に見えるが、TASはこの弾の中心座標に自機を完璧にトレースさせる
+            sEnemyShot* pGuide = new sEnemyShot;
+            pGuide->x = gap_x;
+            pGuide->y = pSet->y - 20.0;
+            pGuide->muki = DX_PI / 2.0;
+            pGuide->speed = 4.5;
+            pGuide->kind = img_enemyShotBullet[3];
+            pGuide->margin = 480;
 
-            pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+            pGuide->prev = pSet->pEnemyShotHead->prev;
+            pGuide->next = pSet->pEnemyShotHead;
+            pSet->pEnemyShotHead->prev->next = pGuide;
+            pSet->pEnemyShotHead->prev = pGuide;
         }
     }
+    // ========================================================
+    // Phase 3: 位相ズレのレーザー (t = 420 ~ 540)
+    // 放射状に広がるレーザーのうち、1つだけが「短レーザー」として処理され、
+    // 当たり判定の発生フレームが1フレーム分ズレる（仕様上の位相ズレを模倣）
+    // ========================================================
+    else if (t < 540) {
+        if (t % 15 == 0) {
+            if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
+            PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
 
-    // 毎フレーム：回転角を進めて位置を再計算
-    double baseAngle = pEnemyShotSet->param_d[3] * pEnemyShotSet->count;
-    double radius = pEnemyShotSet->param_d[2];
+            for (int i = 0; i < 8; i++) {
+                double angle = (i * 2.0 * DX_PI) / 8.0 + (t * 0.015);
 
-    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-    while (pShot != pEnemyShotSet->pEnemyShotHead) {
-        double angle = pShot->param_d[0] + baseAngle;
-        pShot->x = pEnemyShotSet->x + radius * cos(angle);
-        pShot->y = pEnemyShotSet->y + radius * sin(angle);
-        pShot = pShot->next;
-    }
-}
+                if (i == 3) {
+                    // 位相ズレ枠：中心から離れた位置に「短レーザー(64.0x4.0)」を配置
+                    // TASはここが「通れる瞬間」であることを計算上で知っている
+                    sEnemyShot* pLaser = new sEnemyShot;
+                    pLaser->x = pSet->x + 120.0 * cos(angle);
+                    pLaser->y = pSet->y + 120.0 * sin(angle);
+                    pLaser->muki = angle + DX_PI; // 内側を向く
+                    pLaser->speed = 0.0; // 発生位置に固定（または非常に低速）
+                    // マゼンタ(5)の短レーザー
+                    pLaser->kind = img_enemyShotLaser[5];
+                    pLaser->margin = 480;
 
-// ------------------------------------------------------------
-// 内歯車（回転環）— 小さな歯車を弾の輪で表現
-// 外歯車の内側を公転＋自転させる
-// ------------------------------------------------------------
-static void ShotInnerGear(sEnemyShotSet* pEnemyShotSet)
-{
-    sEnemyShot* pEnemyShot;
-    int i;
+                    pLaser->prev = pSet->pEnemyShotHead->prev;
+                    pLaser->next = pSet->pEnemyShotHead;
+                    pSet->pEnemyShotHead->prev->next = pLaser;
+                    pSet->pEnemyShotHead->prev = pLaser;
+                }
+                else {
+                    // 通常の致死レーザー
+                    sEnemyShot* pLaser = new sEnemyShot;
+                    pLaser->x = pSet->x;
+                    pLaser->y = pSet->y;
+                    pLaser->muki = angle;
+                    pLaser->speed = 7.0;
+                    // 赤(0)の短レーザー
+                    pLaser->kind = img_enemyShotLaser[0];
+                    pLaser->margin = 480;
 
-    // 初回生成：8発で歯車を構成
-    if (pEnemyShotSet->count == 0) {
-        if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
-        PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
-
-        int teeth = 8;
-        for (i = 0; i < teeth; i++) {
-            pEnemyShot = new sEnemyShot;
-
-            // 歯の凹凸：偶数番目を中玉(青)、奇数番目を小玉(シアン)
-            if (i % 2 == 0) {
-                pEnemyShot->kind = img_enemyShotMediumBall[4];  // 青
+                    pLaser->prev = pSet->pEnemyShotHead->prev;
+                    pLaser->next = pSet->pEnemyShotHead;
+                    pSet->pEnemyShotHead->prev->next = pLaser;
+                    pSet->pEnemyShotHead->prev = pLaser;
+                }
             }
-            else {
-                pEnemyShot->kind = img_enemyShotSmallBall[3];   // シアン
-            }
-
-            // 自転基準角度
-            pEnemyShot->param_d[0] = DX_PI * 2.0 * i / teeth;
-
-            pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
         }
     }
+    // ========================================================
+    // Phase 4: 最適化ルートの可視化（クライマックス） (t = 540)
+    // ========================================================
+    else if (t == 540) {
+        if (CheckSoundMem(sound_enemyShot_extreme)) StopSoundMem(sound_enemyShot_extreme);
+        PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
 
-    // 公転計算
-    double orbitAngle = pEnemyShotSet->param_d[3] * pEnemyShotSet->count;
-    double orbitR = pEnemyShotSet->param_d[2];
-    double selfSpeed = pEnemyShotSet->param_d[4];
-    double selfR = pEnemyShotSet->param_d[5];
-
-    double centerX = pEnemyShotSet->x + orbitR * cos(orbitAngle);
-    double centerY = pEnemyShotSet->y + orbitR * sin(orbitAngle);
-
-    // 火花エフェクト（噛み合い演出）：30フレームごとに内歯車中心から散らす
-    if (pEnemyShotSet->count % 30 == 0) {
-        sEnemyShot* pSpark = new sEnemyShot;
-        pSpark->x = centerX;
-        pSpark->y = centerY;
-        // GetRand(360) は 0〜360 の整数 → 0〜2π
-        pSpark->muki = GetRand(360) / 180.0 * DX_PI;
-        pSpark->speed = 0.5 + GetRand(100) / 100.0;
-        pSpark->kind = img_enemyShotSmallBall[1];  // 黄
-        pSpark->param_i[0] = 60;  // 寿命フレーム（火花専用フラグ兼用）
-
-        pSpark->prev = pEnemyShotSet->pEnemyShotHead->prev;
-        pSpark->next = pEnemyShotSet->pEnemyShotHead;
-        pEnemyShotSet->pEnemyShotHead->prev->next = pSpark;
-        pEnemyShotSet->pEnemyShotHead->prev = pSpark;
-    }
-
-    // 弾更新
-    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-    while (pShot != pEnemyShotSet->pEnemyShotHead) {
-        sEnemyShot* pNext = pShot->next;
-
-        // param_i[0] > 0 のものは火花として扱う
-        if (pShot->param_i[0] > 0) {
-            pShot->x += pShot->speed * cos(pShot->muki);
-            pShot->y += pShot->speed * sin(pShot->muki);
-            //pShot->param_i[0]--;
-
-            // 寿命切れで自前削除（メインルーチンの画面外消去とは別）
-            //if (pShot->param_i[0] <= 0) {
-            //    pShot->prev->next = pShot->next;
-            //    pShot->next->prev = pShot->prev;
-            //    delete pShot;
-            //}
-        }
-        else {
-            // 歯車弾：自転
-            double angle = pShot->param_d[0] + selfSpeed * pEnemyShotSet->count;
-            pShot->x = centerX + selfR * cos(angle);
-            pShot->y = centerY + selfR * sin(angle);
-        }
-
-        pShot = pNext;
-    }
-}
-
-// ------------------------------------------------------------
-// スピログラフ描画点 — 曲線を描く弾を生成・更新
-// ------------------------------------------------------------
-static void ShotSpirograph(sEnemyShotSet* pEnemyShotSet)
-{
-    int interval = pEnemyShotSet->param_i[1];
-    if (interval <= 0) interval = 2;
-
-    // 新規弾生成
-    if (pEnemyShotSet->count % interval == 0) {
-        if (pEnemyShotSet->count % 10 == 0) {
-            if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
-            PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
-        }
-
-        int numPoints = pEnemyShotSet->param_i[0];
-        if (numPoints <= 0) numPoints = 3;
-
-        double R = pEnemyShotSet->param_d[0];
-        double r = pEnemyShotSet->param_d[1];
-        double d = pEnemyShotSet->param_d[2];
-        double thetaStep = pEnemyShotSet->param_d[3];
-        double baseTheta = pEnemyShotSet->count * thetaStep;
-        double centerX = pEnemyShotSet->param_d[4];
-        double centerY = pEnemyShotSet->param_d[5];
-
-        for (int i = 0; i < numPoints; i++) {
+        // TASが通ってきた軌跡を讃えるかのように、美しい正多角形の弾幕を展開
+        for (int i = 0; i < 36; i++) {
             sEnemyShot* pShot = new sEnemyShot;
+            double angle = (i * 2.0 * DX_PI) / 36.0;
+            pShot->x = pSet->x;
+            pShot->y = pSet->y;
+            pShot->muki = angle;
+            pShot->speed = 4.0;
+            // シアン(3)の菱形弾(4.5x2.5)で鋭く美しい収束を表現
+            pShot->kind = img_enemyShotDiamond[3];
+            pShot->margin = 480;
 
-            double phase = DX_PI * 2.0 * i / numPoints;
-            double t = baseTheta + phase;
-
-            // スピログラフ曲線座標
-            double x = (R - r) * cos(t) + d * cos((R - r) / r * t);
-            double y = (R - r) * sin(t) - d * sin((R - r) / r * t);
-
-            pShot->x = centerX + x;
-            pShot->y = centerY + y;
-            pShot->kind = img_enemyShotSmallBall[2];  // 緑
-
-            // 曲線パラメータを保存
-            pShot->param_d[0] = t;        // θ
-            pShot->param_d[1] = R;
-            pShot->param_d[2] = r;
-            pShot->param_d[3] = d;
-            pShot->param_d[4] = centerX;  // 中心X
-            pShot->param_d[5] = centerY;  // 中心Y
-            //pShot->speed = thetaStep;     // θ増加量
-            pShot->speed = 1.0;
-            pShot->muki = atan2(y, x);
-
-            pShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pShot;
+            pShot->prev = pSet->pEnemyShotHead->prev;
+            pShot->next = pSet->pEnemyShotHead;
+            pSet->pEnemyShotHead->prev->next = pShot;
+            pSet->pEnemyShotHead->prev = pShot;
         }
     }
 
-    // 既存弾更新
-    //sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-    //while (pShot != pEnemyShotSet->pEnemyShotHead) {
-    //    sEnemyShot* pNext = pShot->next;
-
-    //    // θを進めて座標を再計算
-    //    //pShot->param_d[0] += pShot->speed;
-    //    double t = pShot->param_d[0];
-    //    double R = pShot->param_d[1];
-    //    double r = pShot->param_d[2];
-    //    double d = pShot->param_d[3];
-
-    //    double x = (R - r) * cos(t) + d * cos((R - r) / r * t);
-    //    double y = (R - r) * sin(t) - d * sin((R - r) / r * t);
-
-    //    pShot->x = pShot->param_d[4] + x;
-    //    pShot->y = pShot->param_d[5] + y;
-
-    //    // 寿命管理：180フレーム（約3秒）で消去
-    //    if (pShot->count > 180) {
-    //        pShot->prev->next = pShot->next;
-    //        pShot->next->prev = pShot->prev;
-    //        delete pShot;
-    //    }
-
-    //    pShot = pNext;
-    //}
-
-    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-    while (pShot != pEnemyShotSet->pEnemyShotHead) {
+    // ========================================================
+    // 弾の移動処理
+    // （メインルーチンでcount管理はされるが、座標更新はパターン関数内で行う仕様にあわせる）
+    // ========================================================
+    sEnemyShot* pShot = pSet->pEnemyShotHead->next;
+    while (pShot != pSet->pEnemyShotHead) {
         pShot->x += pShot->speed * cos(pShot->muki);
         pShot->y += pShot->speed * sin(pShot->muki);
-
         pShot = pShot->next;
     }
 }
 
-// ------------------------------------------------------------
-// 敵本体のパターン
-// ------------------------------------------------------------
+
+// ============================================================
+// 敵本体のパターン制御
+// ============================================================
 void EnemyPat_Tmp()
 {
-    static sEnemyShotSet* pOuter = nullptr;
-    static sEnemyShotSet* pInner = nullptr;
-    static sEnemyShotSet* pSpiro = nullptr;
-    static int phase;
-    static double muki;
+    // 静的変数でマスターとなる弾幕セットを保持
+    static sEnemyShotSet* pMasterSet = nullptr;
 
-    // 初期化
     if (count == 1) {
+        // 初期配置
         enemy.x = 240.0;
-        enemy.y = 180.0;
-        enemy.maxHp = enemy.hp = 200;
-        phase = 0;
-        muki = 1.0;
+        enemy.y = 40.0;
+        enemy.maxHp = enemy.hp = 600; // 10秒パターンに見合う耐久力
 
-        // --- 外歯車（固定環）生成 ---
-        pOuter = new sEnemyShotSet;
-        pOuter->count = 0;
-        pOuter->patternFunc = ShotOuterGear;
-        pOuter->x = enemy.x;
-        pOuter->y = enemy.y;
-        pOuter->param_d[2] = 100.0;  // 半径
-        pOuter->param_d[3] = 0.013;  // 回転速度（ラジアン/フレーム、約1周/8秒）
+        // 弾幕セットの作成（このパターンでは1つだけ作成し、使い回す）
+        pMasterSet = new sEnemyShotSet;
+        pMasterSet->count = 0; // メインルーチンで自動+1される
+        pMasterSet->patternFunc = ShotKarmaNeedle;
+        pMasterSet->x = enemy.x;
+        pMasterSet->y = enemy.y + 10.0;
+        pMasterSet->muki = DX_PI / 2.0;
+        pMasterSet->kind = 0;
 
-        pOuter->pEnemyShotHead = new sEnemyShot;
-        pOuter->pEnemyShotHead->prev = pOuter->pEnemyShotHead;
-        pOuter->pEnemyShotHead->next = pOuter->pEnemyShotHead;
+        // 弾リストのヘッダ初期化
+        pMasterSet->pEnemyShotHead = new sEnemyShot;
+        pMasterSet->pEnemyShotHead->prev = pMasterSet->pEnemyShotHead;
+        pMasterSet->pEnemyShotHead->next = pMasterSet->pEnemyShotHead;
 
-        pOuter->prev = enemyShotSetHead.prev;
-        pOuter->next = &enemyShotSetHead;
-        enemyShotSetHead.prev->next = pOuter;
-        enemyShotSetHead.prev = pOuter;
-
-        // --- 内歯車（回転環）生成 ---
-        pInner = new sEnemyShotSet;
-        pInner->count = 0;
-        pInner->patternFunc = ShotInnerGear;
-        pInner->x = enemy.x;
-        pInner->y = enemy.y;
-        pInner->param_d[2] = 60.0;   // 公転半径
-        pInner->param_d[3] = 0.052;  // 公転速度（約1周/2秒）
-        pInner->param_d[4] = 0.105;  // 自転速度（約1周/1秒）
-        pInner->param_d[5] = 20.0;   // 自転半径（歯車サイズ）
-
-        pInner->pEnemyShotHead = new sEnemyShot;
-        pInner->pEnemyShotHead->prev = pInner->pEnemyShotHead;
-        pInner->pEnemyShotHead->next = pInner->pEnemyShotHead;
-
-        pInner->prev = enemyShotSetHead.prev;
-        pInner->next = &enemyShotSetHead;
-        enemyShotSetHead.prev->next = pInner;
-        enemyShotSetHead.prev = pInner;
-
-        // --- スピログラフ生成 ---
-        pSpiro = new sEnemyShotSet;
-        pSpiro->count = 0;
-        pSpiro->patternFunc = ShotSpirograph;
-        pSpiro->x = enemy.x;
-        pSpiro->y = enemy.y;
-        pSpiro->param_d[0] = 80.0;   // R（固定円半径）
-        pSpiro->param_d[1] = 25.0;   // r（回転円半径）
-        pSpiro->param_d[2] = 20.0;   // d（描画点距離）
-        pSpiro->param_d[3] = 0.03;   // θ増加量
-        pSpiro->param_d[4] = enemy.x;
-        pSpiro->param_d[5] = enemy.y;
-        pSpiro->param_i[0] = 3;      // 描画点数
-        pSpiro->param_i[1] = 2;      // 生成間隔（フレーム）
-
-        pSpiro->pEnemyShotHead = new sEnemyShot;
-        pSpiro->pEnemyShotHead->prev = pSpiro->pEnemyShotHead;
-        pSpiro->pEnemyShotHead->next = pSpiro->pEnemyShotHead;
-
-        pSpiro->prev = enemyShotSetHead.prev;
-        pSpiro->next = &enemyShotSetHead;
-        enemyShotSetHead.prev->next = pSpiro;
-        enemyShotSetHead.prev = pSpiro;
+        // 全体リストに連結
+        pMasterSet->prev = enemyShotSetHead.prev;
+        pMasterSet->next = &enemyShotSetHead;
+        enemyShotSetHead.prev->next = pMasterSet;
+        enemyShotSetHead.prev = pMasterSet;
     }
+    else {
+        // 敵の移動制御
+        if (count < 120) {
+            // 開始120フレーム(2秒)で中央(y=120)へ滑らかに降下
+            enemy.y += (120.0 - enemy.y) * 0.05;
+        }
+        else {
+            // 120フレーム以降は、サブピクセル単位の美しいリサジュ曲線ホバリング
+            // TASの視覚的美学として、規則的だが複雑な軌道を描く
+            enemy.x = 240.0 + 12.0 * sin(count * 0.03);
+            enemy.y = 120.0 + 8.0 * cos(count * 0.04);
+        }
 
-    // 敵の動き：ゆっくり左右移動
-    enemy.x += 0.6 * muki;
-    if (count % 180 == 90) muki *= -1.0;
-
-    // ShotSetの中心位置を敵に追従
-    if (pOuter) {
-        pOuter->x = enemy.x;
-        pOuter->y = enemy.y;
-    }
-    if (pInner) {
-        pInner->x = enemy.x;
-        pInner->y = enemy.y;
-    }
-    if (pSpiro) {
-        pSpiro->param_d[4] = enemy.x;
-        pSpiro->param_d[5] = enemy.y;
-    }
-
-    // フェーズ遷移
-    if (count == 600 && phase == 0) {       // 10秒：フェーズ2
-        phase = 1;
-        pInner->param_d[3] *= 1.5;          // 公転加速
-        pInner->param_d[4] *= 1.5;          // 自転加速
-        pSpiro->param_i[0] = 5;             // 描画点を5箇所に増加
-        pSpiro->param_d[3] *= 1.3;          // 描画速度上昇
-    }
-    else if (count == 1200 && phase == 1) { // 20秒：フェーズ3
-        phase = 2;
-        pOuter->param_d[3] *= -1.0;         // 外歯車回転方向反転
-    }
-    else if (count == 1800 && phase == 2) { // 30秒：フェーズ4
-        phase = 3;
-    }
-
-    // フェーズ4：外歯車の半径を徐々に縮小（高密度絶弾へ）
-    if (phase >= 3 && pOuter && pOuter->param_d[2] > 50.0) {
-        pOuter->param_d[2] -= 0.15;
+        // 弾幕発生基準点を敵の位置に追従させる
+        if (pMasterSet != nullptr) {
+            pMasterSet->x = enemy.x;
+            pMasterSet->y = enemy.y + 10.0;
+        }
     }
 }

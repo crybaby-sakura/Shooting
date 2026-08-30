@@ -102,6 +102,8 @@ static void ShotBlow(sEnemyShotSet* pEnemyShotSet)
             pShot->prev->next = pShot->next;
             pShot->next->prev = pShot->prev;
             delete pShot;
+            pShot = pNext;
+            continue;
         }
 
         //------------------------------------------------

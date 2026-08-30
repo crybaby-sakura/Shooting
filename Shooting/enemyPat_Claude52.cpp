@@ -1,345 +1,439 @@
-﻿// enemyPat_HaneotoHachinojiMai.cpp
-//
-// 蜂モチーフ弾幕：「羽音の八の字舞(はねおとのはちのじまい)」
-// ミツバチの8の字ダンス(waggle dance)をモチーフにした3フェーズ弾幕。
-//
-//   フェーズ1: 巣房展開   … 六角格子(2重リング)状に弾がじわっと滲み出て静止・微振動
-//   フェーズ2: 8の字舞    … 働き蜂弾がレムニスケート軌道で8の字を描きつつ、自機を直接狙う
-//                          針弾(刺突弾)を周期的に放つ
-//   フェーズ3: 花粉散布   … 蜂本体の位置から自機を狙って花粉弾を放射しつつ、全弾が外へ弾け散る
-//
-// 素材選定方針:
-//   ・巣房(ハニカム)  : img_enemyShotMediumOval  (黄/橙。蜜蝋の巣穴を丸っこい塊で表現)
-//   ・蜂本体          : img_enemyShotMediumBall  (橙/白の明滅。交差点通過時に羽音の振動を演出)
-//   ・花粉            : img_enemyShotSmallBall   (黄。小粒でばら撒き向き。自機狙いの扇状)
-//   ・針(刺突弾)      : img_enemyShotBullet      (黒。細長く高速、自機へ直撃を狙う)
-//   ・img_enemyShotLaser は規約により不使用(判定が実画像より大きいため)。
-//
-// 設計方針(既存パターン踏襲):
-//   ・弾の位置は pShot->count から直接計算する純関数とし、速度積分(+=)は行わない。
-//   ・count / pEnemyShotSet->count / pEnemyShot->count のインクリメントと
-//     画面外弾の削除はメインルーチン側の仕様に委ねる。
-//   ・GetRand(x) は 0〜x の x+1 通りを返す(リプレイ再現性のため必ずこれを使用)。
+﻿// enemyPat_RokkakuSugomori.cpp
+// 六角巣籠 -Hexagonal Nest-
+// 陰蜂(蜂)モチーフの4フェーズ無限ループパターン
+// 1:営巣(六角の巣が同心リング状に形成) → 2:偵察羽音(警戒セルが決まり羽音弾が漏れる)
+// → 3:群飛乱舞(警戒セルから螺旋バースト+自機狙い3way) → 4:毒針一閃(全セル自機狙い針弾→巣が放射状に崩壊)
+// 以後フェーズ1へループ。
 
 #include "DxLib.h"
 #include "gv.h"
 #include "imgSoundLoad.h"
 #include <math.h>
 
-namespace {
-    // ---- ハニカム(巣房)関連 ----
-    constexpr int    HONEY_RING1_NUM = 6;      // 内側リングの弾数
-    constexpr int    HONEY_RING2_NUM = 6;      // 外側リングの弾数
-    constexpr double  HONEY_R1 = 70.0;   // 内側リング半径
-    constexpr double  HONEY_R2 = 140.0;  // 外側リング半径
-    constexpr int    HONEY_EASE_FRAME = 70;     // 滲み出て定位置に着くまでのフレーム数
-    constexpr int    HONEY_ACCEL_START = 300;    // 弾け飛び始めるフレーム(自弾count基準)
-    constexpr double  HONEY_ACCEL = 0.006;  // 弾け飛ぶ加速係数
+// ============================================================
+//  定数
+// ============================================================
+static const int    LOOP_LEN = 720; // ループ周期(フレーム)
 
-    // ---- 働き蜂(8の字ダンス本体)関連 ----
-    constexpr int     BEE_NUM = 7;       // 働き蜂弾の数
-    constexpr double  BEE_A = 150.0;   // レムニスケートのスケール
-    constexpr double  BEE_OMEGA = 0.045;   // θの進行速度
-    constexpr double  BEE_ROT_OMEGA = 0.0015;  // 長軸回転の速度
-    constexpr int     BEE_GROW_FRAME = 80;      // 軌道が育ちきるまでのフレーム
-    constexpr int     BEE_DISPERSE_START = 380;     // 軌道を膨らませ退場させ始めるフレーム
-    constexpr double  BEE_DISPERSE_ACCEL = 0.02;     // 退場時の膨張係数
+static const int    PH2_START = 150; // 偵察羽音フェーズ開始
+static const int    PH3_START = 330; // 群飛乱舞フェーズ開始
+static const int    PH4_TELEGRAPH_START = 600; // 毒針予告(全セル赤点滅)開始
+static const int    PH4_NEEDLE_FRAME = 630; // 毒針発射フレーム
+static const int    PH4_EXPLODE_START = 636; // 巣崩壊(放射状飛散)開始
 
-    // ---- 花粉散布関連 ----
-    constexpr int     POLLEN_START_FRAME = 260;              // 散布開始フレーム(自弾count基準)
-    constexpr int     POLLEN_END_FRAME = 370;               // 散布終了フレーム
-    constexpr int     POLLEN_INTERVAL = 18;                // 散布間隔
-    constexpr int     POLLEN_PER_BURST = 2;                 // 1蜂・1回あたりの花粉数
-    constexpr double  POLLEN_SPREAD_HALF = 18.0 * DX_PI / 180.0; // 花粉の広がり角(半角)
-    constexpr double  POLLEN_SPEED_MIN = 1.6;
-    constexpr double  POLLEN_SPEED_RANGE = 1.2;
+static const double HEX_SPACING = 34.0; // セル間隔
+static const double HEX_VERT_R = 12.0; // 各セル六角形の頂点半径
+static const int    HEX_CELL_COUNT = 19; // リング0~2 (1+6+12)
+static const int    HEX_VERTS = 6;
 
-    // ---- 針(刺突弾)関連: 蜂本体から自機を直接狙う高速弾 ----
-    constexpr int     STINGER_START_FRAME = 100;   // 撃ち始めるフレーム(自弾count基準)
-    constexpr int     STINGER_END_FRAME = 380;   // 撃ち終えるフレーム
-    constexpr int     STINGER_INTERVAL = 40;    // 発射間隔
-    constexpr double  STINGER_SPEED = 3.2;   // 速度(直撃を狙う高速弾)
+static const double NEST_CENTER_X = 240.0;
+static const double NEST_CENTER_Y = 190.0;
 
-    // ---- 弾の役割 (param_i[0] に格納) ----
-    constexpr int SHOT_ROLE_HONEY = 0;
-    constexpr int SHOT_ROLE_BEE = 1;
-    constexpr int SHOT_ROLE_POLLEN = 2;
-    constexpr int SHOT_ROLE_STINGER = 3;
+static const int    MARKED_CELL_COUNT = 6; // 群飛乱舞で暴れるセルの数
+
+// ============================================================
+//  巣の六角格子情報(初回のみ計算し使い回す)
+// ============================================================
+static double gCellOx[HEX_CELL_COUNT];
+static double gCellOy[HEX_CELL_COUNT];
+static int    gCellRing[HEX_CELL_COUNT];
+static bool   gHexInitialized = false;
+
+// 各ループで「次に暴れるセル」として選ばれたかどうか
+static bool   gMarkedCell[HEX_CELL_COUNT];
+
+// 軸座標(q,r)からリング番号(中心からの六角距離)を求める
+static int HexRing(int q, int r)
+{
+    int s = -q - r;
+    int aq = q < 0 ? -q : q;
+    int ar = r < 0 ? -r : r;
+    int as = s < 0 ? -s : s;
+    int m = aq;
+    if (ar > m) m = ar;
+    if (as > m) m = as;
+    return m;
 }
 
-// 巣房弾: 中心から滲み出て定位置で微振動し、やがて外へ弾け飛ぶ(すべてcountの純関数)
-static void UpdateHoneycombShot(sEnemyShot* pShot, double cx, double cy)
+// 六角格子(半径2、19セル)の各セル中心オフセットを一度だけ計算
+static void InitHexGrid()
 {
-    const double dx = pShot->param_d[0];
-    const double dy = pShot->param_d[1];
-    const double vibPhase = pShot->param_d[2];
-    const int c = pShot->count;
+    if (gHexInitialized) return;
 
-    double ratio;
-    if (c < HONEY_EASE_FRAME) {
-        double t = (double)c / HONEY_EASE_FRAME;
-        ratio = 1.0 - (1.0 - t) * (1.0 - t); // ease-out
-    }
-    else {
-        ratio = 1.0;
-    }
+    int idx = 0;
+    for (int q = -2; q <= 2; q++) {
+        for (int r = -2; r <= 2; r++) {
+            int ring = HexRing(q, r);
+            if (ring > 2) continue;
+            if (idx >= HEX_CELL_COUNT) continue; // 安全策
 
-    double extra = 0.0;
-    if (c > HONEY_ACCEL_START) {
-        double t = (double)(c - HONEY_ACCEL_START);
-        extra = HONEY_ACCEL * t * t;
+            gCellOx[idx] = HEX_SPACING * (sqrt(3.0) * q + sqrt(3.0) / 2.0 * r);
+            gCellOy[idx] = HEX_SPACING * (1.5 * r);
+            gCellRing[idx] = ring;
+            idx++;
+        }
     }
 
-    double vib = 0.0;
-    if (c >= HONEY_EASE_FRAME && c <= HONEY_ACCEL_START) {
-        vib = 2.0 * sin(0.06 * c + vibPhase);
-    }
-
-    const double len = sqrt(dx * dx + dy * dy) + 1e-6;
-    const double nx = dx / len;
-    const double ny = dy / len;
-
-    pShot->x = cx + dx * ratio + nx * (extra + vib);
-    pShot->y = cy + dy * ratio + ny * (extra + vib);
+    gHexInitialized = true;
 }
 
-// 蜂本体弾: レムニスケート(8の字)軌道 + 長軸のゆっくりした回転(すべてcountの純関数)
-static void UpdateBeeShot(sEnemyShot* pShot, double cx, double cy)
+// 新規sEnemyShotSetを生成しリストへ登録する共通処理
+static sEnemyShotSet* CreateShotSet(sEnemyShotSet::PatternFunc func)
 {
-    const double phase = pShot->param_d[0];
-    const double aScale = pShot->param_d[1];
-    const int c = pShot->count;
+    sEnemyShotSet* pSet = new sEnemyShotSet;
+    pSet->count = 0;
+    pSet->patternFunc = func;
+    pSet->x = NEST_CENTER_X;
+    pSet->y = NEST_CENTER_Y;
 
-    double growRatio = (c < BEE_GROW_FRAME) ? (double)c / BEE_GROW_FRAME : 1.0;
-    double a = BEE_A * aScale * growRatio;
+    pSet->pEnemyShotHead = new sEnemyShot;
+    pSet->pEnemyShotHead->prev = pSet->pEnemyShotHead;
+    pSet->pEnemyShotHead->next = pSet->pEnemyShotHead;
 
-    double theta = BEE_OMEGA * c + phase;
-    double s = sin(theta), co = cos(theta);
-    double denom = 1.0 + s * s;
+    pSet->prev = enemyShotSetHead.prev;
+    pSet->next = &enemyShotSetHead;
+    enemyShotSetHead.prev->next = pSet;
+    enemyShotSetHead.prev = pSet;
 
-    double lx = a * co / denom;
-    double ly = a * s * co / denom;
-
-    // 長軸方向の回転(次の花粉散布方向を予告する)
-    double phi = BEE_ROT_OMEGA * c;
-    double rx = lx * cos(phi) - ly * sin(phi);
-    double ry = lx * sin(phi) + ly * cos(phi);
-
-    // フェーズ終盤: 軌道半径そのものを膨らませて自然に画面外へ退場させる
-    if (c > BEE_DISPERSE_START) {
-        double t = (double)(c - BEE_DISPERSE_START);
-        double disperse = 1.0 + BEE_DISPERSE_ACCEL * t * t / (a + 1.0);
-        rx *= disperse;
-        ry *= disperse;
-    }
-
-    pShot->x = cx + rx;
-    pShot->y = cy + ry;
-
-    // 交差点(原点付近)通過の瞬間だけ明滅させ、羽音の振動を演出
-    bool blinking = (fabs(co) < 0.12);
-    pShot->kind = blinking ? img_enemyShotMediumBall[6] : img_enemyShotMediumBall[8];
-
-    // 花粉散布時に使う長軸方向をここに保存しておく
-    pShot->param_d[2] = phi;
+    return pSet;
 }
 
-// 花粉弾・針弾 共通: 発生時の位置・方向・速度から直線飛翔(countの純関数、速度積分はしない)
-static void UpdateStraightShot(sEnemyShot* pShot)
+// リンクリストへ1発追加する共通処理
+static sEnemyShot* AppendShot(sEnemyShotSet* pEnemyShotSet)
 {
-    const double sx = pShot->param_d[0];
-    const double sy = pShot->param_d[1];
-    const int c = pShot->count;
-
-    pShot->x = sx + pShot->speed * cos(pShot->muki) * c;
-    pShot->y = sy + pShot->speed * sin(pShot->muki) * c;
+    sEnemyShot* pEnemyShot = new sEnemyShot;
+    pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+    pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+    pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+    pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+    return pEnemyShot;
 }
 
-// 弾幕本体: 羽音の八の字舞
-static void ShotHaneotoHachinojiMai(sEnemyShotSet* pEnemyShotSet)
+// ============================================================
+//  フェーズ1: 巣の輪郭(常駐・全フェーズを通して残り続ける)
+//  各セルの六角形輪郭を頂点6発x19セル=114発で描く。
+//  リングごとに時間差で中心から展開(営巣)し、
+//  毒針発射直後(PH4_EXPLODE_START)に中心から放射状に加速崩壊する。
+// ============================================================
+static void ShotNestOutline(sEnemyShotSet* pEnemyShotSet)
 {
-    sEnemyShot* pShot;
-    const double cx = pEnemyShotSet->x;
-    const double cy = pEnemyShotSet->y;
-
     if (pEnemyShotSet->count == 0) {
-        // 使える効果音一覧: sound_enemyShot_light/medium/heavy/extreme, sound_enemyCharge(予告音)
-        if (CheckSoundMem(sound_enemyCharge)) StopSoundMem(sound_enemyCharge);
-        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
-
-        // --- フェーズ1: 巣房(ハニカム) 内側リング ---
-        for (int i = 0; i < HONEY_RING1_NUM; i++) {
-            pShot = new sEnemyShot;
-            double ang = DX_PI / 180.0 * (60.0 * i);
-            pShot->param_i[0] = SHOT_ROLE_HONEY;
-            pShot->param_d[0] = HONEY_R1 * cos(ang);
-            pShot->param_d[1] = HONEY_R1 * sin(ang);
-            pShot->param_d[2] = GetRand(628) / 100.0; // 振動位相をばらけさせる
-            pShot->kind = img_enemyShotMediumOval[1];  // 黄: 巣房
-            pShot->x = cx;
-            pShot->y = cy;
-
-            pShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pShot;
-        }
-
-        // --- フェーズ1: 巣房(ハニカム) 外側リング ---
-        for (int i = 0; i < HONEY_RING2_NUM; i++) {
-            pShot = new sEnemyShot;
-            double ang = DX_PI / 180.0 * (60.0 * i + 30.0);
-            pShot->param_i[0] = SHOT_ROLE_HONEY;
-            pShot->param_d[0] = HONEY_R2 * cos(ang);
-            pShot->param_d[1] = HONEY_R2 * sin(ang);
-            pShot->param_d[2] = GetRand(628) / 100.0;
-            pShot->kind = img_enemyShotMediumOval[8]; // 橙: 外側の巣房
-            pShot->x = cx;
-            pShot->y = cy;
-
-            pShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pShot;
-        }
-
-        // --- フェーズ2: 働き蜂(8の字ダンス本体) ---
-        for (int i = 0; i < BEE_NUM; i++) {
-            pShot = new sEnemyShot;
-            pShot->param_i[0] = SHOT_ROLE_BEE;
-            pShot->param_d[0] = 2.0 * DX_PI / BEE_NUM * i; // 位相
-            pShot->param_d[1] = 0.9 + GetRand(20) / 100.0; // aのばらつき(0.90〜1.09)
-            pShot->kind = img_enemyShotMediumBall[8];       // 橙: 蜂本体
-            pShot->x = cx;
-            pShot->y = cy;
-            pShot->margin = 480;
-
-            pShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pShot;
-        }
-    }
-
-    // --- フェーズ2: 針弾(蜂の一撃) — 自機を直接狙う高速弾を周期的に放つ ---
-    if (pEnemyShotSet->count >= STINGER_START_FRAME &&
-        pEnemyShotSet->count <= STINGER_END_FRAME &&
-        (pEnemyShotSet->count - STINGER_START_FRAME) % STINGER_INTERVAL == 0) {
-
-        if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
-        PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
-
-        pShot = pEnemyShotSet->pEnemyShotHead->next;
-        while (pShot != pEnemyShotSet->pEnemyShotHead) {
-            if (pShot->param_i[0] == SHOT_ROLE_BEE) {
-                sEnemyShot* stinger = new sEnemyShot;
-                stinger->param_i[0] = SHOT_ROLE_STINGER;
-                stinger->param_d[0] = pShot->x; // 発生時座標をスナップショット
-                stinger->param_d[1] = pShot->y;
-                stinger->muki = atan2(player.y - pShot->y, player.x - pShot->x); // 自機を直接狙う
-                stinger->speed = STINGER_SPEED;
-                stinger->kind = img_enemyShotBullet[7]; // 黒: 針
-                stinger->x = pShot->x;
-                stinger->y = pShot->y;
-
-                stinger->prev = pEnemyShotSet->pEnemyShotHead->prev;
-                stinger->next = pEnemyShotSet->pEnemyShotHead;
-                pEnemyShotSet->pEnemyShotHead->prev->next = stinger;
-                pEnemyShotSet->pEnemyShotHead->prev = stinger;
-            }
-            pShot = pShot->next;
-        }
-    }
-
-    // --- フェーズ3: 花粉散布 (蜂本体の現在位置から自機を狙って一定間隔で発生) ---
-    if (pEnemyShotSet->count >= POLLEN_START_FRAME &&
-        pEnemyShotSet->count <= POLLEN_END_FRAME &&
-        (pEnemyShotSet->count - POLLEN_START_FRAME) % POLLEN_INTERVAL == 0) {
-
         if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
         PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
 
-        pShot = pEnemyShotSet->pEnemyShotHead->next;
-        while (pShot != pEnemyShotSet->pEnemyShotHead) {
-            if (pShot->param_i[0] == SHOT_ROLE_BEE) {
-                // 自機を狙う方向を基準に、扇状にばら撒く
-                double baseDir = atan2(player.y - pShot->y, player.x - pShot->x);
+        for (int c = 0; c < HEX_CELL_COUNT; c++) {
+            for (int v = 0; v < HEX_VERTS; v++) {
+                double ang = DX_PI / 3.0 * v - DX_PI / 6.0;
+                double vx = gCellOx[c] + HEX_VERT_R * cos(ang);
+                double vy = gCellOy[c] + HEX_VERT_R * sin(ang);
 
-                for (int k = 0; k < POLLEN_PER_BURST; k++) {
-                    sEnemyShot* pollen = new sEnemyShot;
-                    double spread = (GetRand(200) / 100.0 - 1.0) * POLLEN_SPREAD_HALF;
+                sEnemyShot* pEnemyShot = AppendShot(pEnemyShotSet);
+                pEnemyShot->x = pEnemyShotSet->x;
+                pEnemyShot->y = pEnemyShotSet->y;
+                pEnemyShot->speed = 0.0; // 位置はcountからの数式で決めるため未使用
 
-                    pollen->param_i[0] = SHOT_ROLE_POLLEN;
-                    pollen->param_d[0] = pShot->x; // 発生時座標をスナップショット
-                    pollen->param_d[1] = pShot->y;
-                    pollen->muki = baseDir + spread;
-                    pollen->speed = POLLEN_SPEED_MIN + GetRand(100) / 100.0 * POLLEN_SPEED_RANGE;
-                    pollen->kind = img_enemyShotSmallBall[1]; // 黄: 花粉
-                    pollen->x = pShot->x;
-                    pollen->y = pShot->y;
+                pEnemyShot->param_d[0] = vx; // 完成位置(中心からのオフセット)X
+                pEnemyShot->param_d[1] = vy; // 完成位置(中心からのオフセット)Y
+                pEnemyShot->param_i[0] = gCellRing[c];               // リング番号(営巣の遅延用)
+                pEnemyShot->param_i[1] = c;                          // 所属セル番号
+                pEnemyShot->param_i[2] = (v % 2 == 0) ? 1 : 7;       // 縞模様の基本色(黄/黒)
 
-                    pollen->prev = pEnemyShotSet->pEnemyShotHead->prev;
-                    pollen->next = pEnemyShotSet->pEnemyShotHead;
-                    pEnemyShotSet->pEnemyShotHead->prev->next = pollen;
-                    pEnemyShotSet->pEnemyShotHead->prev = pollen;
-                }
+                pEnemyShot->kind = img_enemyShotSmallBall[pEnemyShot->param_i[2]];
             }
-            pShot = pShot->next;
         }
     }
 
-    // --- 全弾の位置更新(役割ごとに分岐) ---
-    pShot = pEnemyShotSet->pEnemyShotHead->next;
+    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
     while (pShot != pEnemyShotSet->pEnemyShotHead) {
-        switch (pShot->param_i[0]) {
-        case SHOT_ROLE_HONEY:
-            UpdateHoneycombShot(pShot, cx, cy);
-            break;
-        case SHOT_ROLE_BEE:
-            UpdateBeeShot(pShot, cx, cy);
-            break;
-        case SHOT_ROLE_POLLEN:
-        case SHOT_ROLE_STINGER:
-            UpdateStraightShot(pShot);
-            break;
+        int    t = pShot->count; // このセットが生成されてからの経過フレーム
+        int    ring = pShot->param_i[0];
+        int    cellIdx = pShot->param_i[1];
+        int    stripeColor = pShot->param_i[2];
+        double tx = pShot->param_d[0];
+        double ty = pShot->param_d[1];
+
+        int emergeDelay = ring * 25; // リングが外側ほど遅れて展開
+        int emergeDur = 20;
+        int et = t - emergeDelay;
+
+        double px, py;
+        if (et < 0) {
+            // まだ中心に折り畳まれた状態
+            px = 0.0;
+            py = 0.0;
         }
+        else if (et < emergeDur) {
+            double frac = (double)et / (double)emergeDur;
+            frac = 1.0 - (1.0 - frac) * (1.0 - frac); // イーズアウト
+            px = tx * frac;
+            py = ty * frac;
+        }
+        else {
+            px = tx;
+            py = ty;
+        }
+
+        // フェーズ4: 毒針発射直後に放射状加速崩壊
+        if (t >= PH4_EXPLODE_START) {
+            double et2 = (double)(t - PH4_EXPLODE_START);
+            double burstDist = 2.5 * et2 + 0.06 * et2 * et2;
+            double len = sqrt(tx * tx + ty * ty);
+            double dx = (len > 0.001) ? tx / len : 1.0;
+            double dy = (len > 0.001) ? ty / len : 0.0;
+            px = tx + dx * burstDist;
+            py = ty + dy * burstDist;
+        }
+
+        pShot->x = NEST_CENTER_X + px;
+        pShot->y = NEST_CENTER_Y + py;
+
+        // 色演出: 警戒セルの点滅 / 全体の赤点滅予告
+        int colorIdx = stripeColor;
+        if (t >= PH4_TELEGRAPH_START && t < PH4_NEEDLE_FRAME) {
+            colorIdx = ((t / 4) % 2 == 0) ? 0 : stripeColor; // 赤点滅で総予告
+        }
+        else if (t >= PH2_START && t < PH4_TELEGRAPH_START && gMarkedCell[cellIdx]) {
+            colorIdx = ((t / 8) % 2 == 0) ? 8 : 1; // 橙/黄点滅で警戒セルを強調
+        }
+        pShot->kind = img_enemyShotSmallBall[colorIdx];
+
         pShot = pShot->next;
     }
 }
 
-// 敵本体のパターン
+// ============================================================
+//  フェーズ2: 偵察羽音
+//  警戒セル(gMarkedCellがtrueのセル)から小刻みに振動する
+//  スカウト弾を一定間隔で漏らす。
+// ============================================================
+static void ShotReconLeak(sEnemyShotSet* pEnemyShotSet)
+{
+    const int PHASE_DUR = PH3_START - PH2_START; // このセットの活動期間
+
+    if (pEnemyShotSet->count < PHASE_DUR && pEnemyShotSet->count % 10 == 0) {
+        int pick = GetRand(MARKED_CELL_COUNT - 1);
+        int idx = -1, cnt = -1;
+        for (int c = 0; c < HEX_CELL_COUNT; c++) {
+            if (gMarkedCell[c]) {
+                cnt++;
+                if (cnt == pick) { idx = c; break; }
+            }
+        }
+
+        if (idx >= 0) {
+            double ox = NEST_CENTER_X + gCellOx[idx];
+            double oy = NEST_CENTER_Y + gCellOy[idx];
+            double ang = atan2(gCellOy[idx], gCellOx[idx]); // 巣の中心から外向き
+
+            sEnemyShot* pEnemyShot = AppendShot(pEnemyShotSet);
+            pEnemyShot->x = ox;
+            pEnemyShot->y = oy;
+            pEnemyShot->muki = ang;
+            pEnemyShot->speed = 0.6;
+            pEnemyShot->param_d[0] = ox;
+            pEnemyShot->param_d[1] = oy;
+            pEnemyShot->param_d[2] = ang;
+            pEnemyShot->kind = img_enemyShotSmallBall[1]; // 黄
+        }
+    }
+
+    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
+    while (pShot != pEnemyShotSet->pEnemyShotHead) {
+        double t = (double)pShot->count;
+        double ox = pShot->param_d[0];
+        double oy = pShot->param_d[1];
+        double ang = pShot->param_d[2];
+
+        double dist = 0.6 * t;
+        double wob = 6.0 * sin(t * 0.35); // 羽音の微振動
+        double perpAng = ang + DX_PI / 2.0;
+
+        pShot->x = ox + cos(ang) * dist + cos(perpAng) * wob;
+        pShot->y = oy + sin(ang) * dist + sin(perpAng) * wob;
+
+        pShot = pShot->next;
+    }
+}
+
+// ============================================================
+//  フェーズ3: 群飛乱舞
+//  警戒セルから螺旋バーストを継続的にパルス発射しつつ、
+//  一定間隔で自機狙い3wayを織り交ぜる。
+//  speed==0を螺旋弾、speed>0を自機狙い弾の判別フラグとして流用。
+// ============================================================
+static void ShotSwarmBurst(sEnemyShotSet* pEnemyShotSet)
+{
+    const int PHASE_DUR = PH4_TELEGRAPH_START - PH3_START;
+
+    // 螺旋バースト: 6フレーム毎に警戒セル全てから発射(パルス継続)
+    if (pEnemyShotSet->count < PHASE_DUR && pEnemyShotSet->count % 6 == 0) {
+        if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
+        PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
+
+        for (int c = 0; c < HEX_CELL_COUNT; c++) {
+            if (!gMarkedCell[c]) continue;
+
+            double dirSign = (c % 2 == 0) ? 1.0 : -1.0; // セルごとに回転方向を互い違いに
+            double baseAng = atan2(gCellOy[c], gCellOx[c]);
+            double ox = NEST_CENTER_X + gCellOx[c];
+            double oy = NEST_CENTER_Y + gCellOy[c];
+
+            for (int i = 0; i < 3; i++) {
+                sEnemyShot* pEnemyShot = AppendShot(pEnemyShotSet);
+                pEnemyShot->x = ox;
+                pEnemyShot->y = oy;
+                pEnemyShot->speed = 0.0; // 螺旋弾フラグ
+                pEnemyShot->param_d[0] = ox;
+                pEnemyShot->param_d[1] = oy;
+                pEnemyShot->param_d[2] = baseAng + i * (2.0 * DX_PI / 3.0);
+                pEnemyShot->param_d[3] = dirSign;
+                pEnemyShot->kind = img_enemyShotSmallBall[(i % 2 == 0) ? 1 : 7];
+            }
+        }
+    }
+
+    // 自機狙い3way: 40フレーム毎に警戒セルから2箇所選んで発射
+    if (pEnemyShotSet->count < PHASE_DUR && pEnemyShotSet->count % 40 == 0) {
+        if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
+        PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
+
+        int fired = 0;
+        for (int c = 0; c < HEX_CELL_COUNT && fired < 2; c++) {
+            if (!gMarkedCell[c]) continue;
+            fired++;
+
+            double ox = NEST_CENTER_X + gCellOx[c];
+            double oy = NEST_CENTER_Y + gCellOy[c];
+            double aimAng = atan2(player.y - oy, player.x - ox);
+
+            for (int w = -1; w <= 1; w++) {
+                sEnemyShot* pEnemyShot = AppendShot(pEnemyShotSet);
+                pEnemyShot->x = ox;
+                pEnemyShot->y = oy;
+                pEnemyShot->speed = 2.6; // 自機狙い弾フラグ(>0)
+                pEnemyShot->param_d[0] = ox;
+                pEnemyShot->param_d[1] = oy;
+                pEnemyShot->param_d[2] = aimAng + w * (DX_PI / 10.0);
+                pEnemyShot->kind = img_enemyShotBullet[0]; // 赤
+                pEnemyShot->muki = aimAng;
+            }
+        }
+    }
+
+    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
+    while (pShot != pEnemyShotSet->pEnemyShotHead) {
+        double t = (double)pShot->count;
+        double ox = pShot->param_d[0];
+        double oy = pShot->param_d[1];
+        double ang = pShot->param_d[2];
+
+        if (pShot->speed > 0.0) {
+            // 自機狙い3way: 直進
+            pShot->x = ox + cos(ang) * pShot->speed * t;
+            pShot->y = oy + sin(ang) * pShot->speed * t;
+        }
+        else {
+            // 螺旋バースト: 回転しながら外側へ加速
+            double dirSign = pShot->param_d[3];
+            double curAng = ang + dirSign * t * 0.05;
+            double dist = 0.015 * t * t + 0.3 * t;
+            pShot->x = ox + cos(curAng) * dist;
+            pShot->y = oy + sin(curAng) * dist;
+        }
+
+        pShot = pShot->next;
+    }
+}
+
+// ============================================================
+//  フェーズ4: 毒針一閃
+//  全19セルから同時に自機狙いの高速針弾を放つ(一度きり)。
+// ============================================================
+static void ShotNeedle(sEnemyShotSet* pEnemyShotSet)
+{
+    if (pEnemyShotSet->count == 0) {
+        if (CheckSoundMem(sound_enemyShot_extreme)) StopSoundMem(sound_enemyShot_extreme);
+        PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+
+        for (int c = 0; c < HEX_CELL_COUNT; c++) {
+            double ox = NEST_CENTER_X + gCellOx[c];
+            double oy = NEST_CENTER_Y + gCellOy[c];
+            double ang = atan2(player.y - oy, player.x - ox);
+
+            sEnemyShot* pEnemyShot = AppendShot(pEnemyShotSet);
+            pEnemyShot->x = ox;
+            pEnemyShot->y = oy;
+            pEnemyShot->muki = ang;
+            pEnemyShot->speed = 6.5;
+            pEnemyShot->param_d[0] = ox;
+            pEnemyShot->param_d[1] = oy;
+            pEnemyShot->param_d[2] = ang;
+            pEnemyShot->kind = img_enemyShotBullet[7]; // 黒い毒針
+        }
+    }
+
+    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
+    while (pShot != pEnemyShotSet->pEnemyShotHead) {
+        double t = (double)pShot->count;
+        double ox = pShot->param_d[0];
+        double oy = pShot->param_d[1];
+        double ang = pShot->param_d[2];
+
+        pShot->x = ox + cos(ang) * pShot->speed * t;
+        pShot->y = oy + sin(ang) * pShot->speed * t;
+
+        pShot = pShot->next;
+    }
+}
+
+// ============================================================
+//  敵本体
+// ============================================================
 void EnemyPat_Bee_Claude()
 {
-    static int sway;
-    constexpr int CYCLE = 480; // ダンス1サイクルの長さ(この間隔で新しい舞を開始)
-
     if (count == 1) {
-        // ゲーム画面は 480x480
-        enemy.x = 240.0;
-        enemy.y = 60.0;
-        enemy.maxHp = enemy.hp = 200; // 200で固定
-        sway = 1;
+        InitHexGrid();
+        enemy.x = NEST_CENTER_X;
+        enemy.y = 45.0;
+        enemy.maxHp = enemy.hp = 200;
+        for (int c = 0; c < HEX_CELL_COUNT; c++) gMarkedCell[c] = false;
     }
     else {
-        enemy.x += 0.5 * (double)sway;
-        if (count % 180 == 90) sway *= -1;
+        enemy.x = NEST_CENTER_X + 14.0 * sin(count * 0.02);
+        enemy.y = 45.0 + 4.0 * sin(count * 0.05);
     }
 
-    if (count % CYCLE == 1) {
-        sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
-        pEnemyShotSet->count = 0;
-        pEnemyShotSet->patternFunc = ShotHaneotoHachinojiMai;
-        pEnemyShotSet->x = 240.0;
-        pEnemyShotSet->y = 220.0; // 8の字舞の中心(画面中央よりやや上)
-        pEnemyShotSet->kind = 0;
+    int local = (count - 1) % LOOP_LEN;
 
-        pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
-        pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
-        pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
+    // フェーズ1開始: 巣の輪郭セットを生成(ループの先頭で1回だけ)
+    if (local == 0) {
+        CreateShotSet(ShotNestOutline);
+    }
 
-        pEnemyShotSet->prev = enemyShotSetHead.prev;
-        pEnemyShotSet->next = &enemyShotSetHead;
-        enemyShotSetHead.prev->next = pEnemyShotSet;
-        enemyShotSetHead.prev = pEnemyShotSet;
+    // フェーズ2開始: 警戒セルを決定し、偵察羽音セットを生成
+    if (local == PH2_START) {
+        for (int c = 0; c < HEX_CELL_COUNT; c++) gMarkedCell[c] = false;
+        int marked = 0;
+        while (marked < MARKED_CELL_COUNT) {
+            int c = GetRand(HEX_CELL_COUNT - 1);
+            if (!gMarkedCell[c]) { gMarkedCell[c] = true; marked++; }
+        }
+        CreateShotSet(ShotReconLeak);
+    }
+
+    // フェーズ3開始: 群飛乱舞セットを生成
+    if (local == PH3_START) {
+        CreateShotSet(ShotSwarmBurst);
+    }
+
+    // フェーズ4予告: 全セル赤点滅のための合図音のみ(点滅描画はShotNestOutline側で処理)
+    if (local == PH4_TELEGRAPH_START) {
+        if (CheckSoundMem(sound_enemyCharge)) StopSoundMem(sound_enemyCharge);
+        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
+    }
+
+    // フェーズ4: 毒針発射セットを生成(この直後、ShotNestOutline側が自動で崩壊演出に入る)
+    if (local == PH4_NEEDLE_FRAME) {
+        CreateShotSet(ShotNeedle);
     }
 }

@@ -123,7 +123,7 @@ void enemyShotDisp()
 						int py2 = cy + (int)(lx2 * s + ly2 * c);
 
 						// 三角形を描画して塗りつぶす
-						DrawTriangle(GAME_AREA_X + cx, cy, px1, py1, px2, py2, tasColor, TRUE);
+						DrawTriangle(GAME_AREA_X + cx, cy, GAME_AREA_X + px1, py1, GAME_AREA_X + px2, py2, tasColor, TRUE);
 					}
 				}
 			}
