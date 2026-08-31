@@ -14,6 +14,10 @@ static void ShotCloseCombat(sEnemyShotSet* pEnemyShotSet)
     // 1セット目：接近時に放つ、短い扇状の弾列
     if (pEnemyShotSet->kind == 0) {
         if (pEnemyShotSet->count == 0) {
+            if (CheckSoundMem(sound_enemyShot_heavy))
+                StopSoundMem(sound_enemyShot_heavy);
+            PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
+            
             for (int i = 0; i < 7; i++) {
                 sEnemyShot* pEnemyShot = new sEnemyShot;
 
@@ -36,6 +40,10 @@ static void ShotCloseCombat(sEnemyShotSet* pEnemyShotSet)
     // 2セット目：接近点でプレイヤーを囲む円弧状の弾
     else {
         if (pEnemyShotSet->count == 0) {
+            if (CheckSoundMem(sound_enemyShot_extreme))
+                StopSoundMem(sound_enemyShot_extreme);
+            PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+
             for (int i = 0; i < 18; i++) {
                 sEnemyShot* pEnemyShot = new sEnemyShot;
 
@@ -67,7 +75,7 @@ static void ShotCloseCombat(sEnemyShotSet* pEnemyShotSet)
 // ============================================================
 // 敵本体
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_CloseCombat_ChatGPT()
 {
     static int phase;
     static double dir;
@@ -83,6 +91,10 @@ void EnemyPat_Tmp()
         dir = 1.0;
         targetX = player.x;
         targetY = player.y;
+
+        if (CheckSoundMem(sound_enemyCharge))
+            StopSoundMem(sound_enemyCharge);
+        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
     }
 
     // --------------------------------------------------------
@@ -177,6 +189,10 @@ void EnemyPat_Tmp()
         enemy.x += -dir * 0.8;
 
         if (enemy.y < 70.0) {
+            if (CheckSoundMem(sound_enemyCharge))
+                StopSoundMem(sound_enemyCharge);
+            PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
+
             enemy.y = 70.0;
             phase = 0;
         }
