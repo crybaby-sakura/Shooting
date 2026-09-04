@@ -1,6 +1,7 @@
 #pragma once
 
 extern bool g_isTasMode;
+extern int rollbackFrames;
 
 void iniGameForTas();
 

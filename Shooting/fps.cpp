@@ -1,8 +1,7 @@
 #include "DxLib.h"
-#include "gv.h"
 #include "fps.h"
-#include "gameScreen.h"
-#include "imgSoundLoad.h"
+
+int frameDurationMs;
 
 void fpsTimeFunction()
 {
