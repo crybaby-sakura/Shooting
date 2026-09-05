@@ -844,3 +844,4 @@ extern void EnemyPat_HilbertCurve_Claude();
 extern void EnemyPat_HilbertCurve_Qwen();
 extern void EnemyPat_HilbertCurve_MetaAI();
 extern void EnemyPat_HilbertCurve_Zai();
+extern void EnemyPat_Chimatagram();

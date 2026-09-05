@@ -147,12 +147,19 @@ static void DeleteGroupShots(sEnemyShotSet* pEnemyShotSet, const std::vector<int
 }
 
 // 文字のピクセル弾を生成する
-static void SpawnTextShots(sEnemyShotSet* pEnemyShotSet, const std::wstring& text, double baseY, int colorKind, int groupId, bool isAnagram = false, const std::vector<int>& matchIndices = {}, double targetY = 0) {
+// targetLen: 移動先（アナグラム先）のセンタリングに使う文字数。
+//            答え(a_str)は問題の読み(q_yomi)より1文字少ないなど、text自体の文字数と
+//            移動先の文字数が異なる場合に指定する。省略時(-1)はtextの文字数をそのまま使う。
+static void SpawnTextShots(sEnemyShotSet* pEnemyShotSet, const std::wstring& text, double baseY, int colorKind, int groupId, bool isAnagram = false, const std::vector<int>& matchIndices = {}, double targetY = 0, int targetLen = -1) {
     const double SCALE = 2.0; // 文字の大きさを従来の2倍に拡大 (0.8 -> 1.6)
 
     int len = (int)text.length();
     // 文字数に応じて画面幅(480px)に収まるよう間隔を自動調整
     double SPACE = (len > 8) ? (460.0 / len) : 48.0;
+
+    // 移動先（答え側）は文字数がtextと異なることがあるため、センタリング基準を別に持つ
+    int tlen = (targetLen >= 0) ? targetLen : len;
+    double TARGET_SPACE = (tlen > 8) ? (460.0 / tlen) : 48.0;
 
     for (int i = 0; i < len; ++i) {
         std::wstring singleChar(1, text[i]);
@@ -163,7 +170,8 @@ static void SpawnTextShots(sEnemyShotSet* pEnemyShotSet, const std::wstring& tex
 
         double targetX = charX;
         if (isAnagram && i < (int)matchIndices.size() && matchIndices[i] != -1) {
-            targetX = 240.0 + (matchIndices[i] - (len - 1) / 2.0) * SPACE - (16.0 * SCALE / 2.0);
+            // 答えの文字数(tlen)を基準にセンタリングした移動先座標
+            targetX = 240.0 + (matchIndices[i] - (tlen - 1) / 2.0) * TARGET_SPACE - (16.0 * SCALE / 2.0);
         }
 
         for (auto& p : pixels) {
@@ -175,6 +183,7 @@ static void SpawnTextShots(sEnemyShotSet* pEnemyShotSet, const std::wstring& tex
             shot->kind = colorKind;
 
             shot->param_i[0] = groupId;
+            shot->param_i[1] = i;  // 文字インデックスを記録
             shot->param_d[0] = targetX + p.first * SCALE;
             shot->param_d[1] = targetY + p.second * SCALE;
             shot->param_d[2] = 0.0;
@@ -204,26 +213,62 @@ static void ShotFormationAnagram(sEnemyShotSet* pEnemyShotSet)
         std::wstring q_str = StrToWStr(anagram_data[q_idx][0]);
         std::wstring q_yomi = StrToWStr(anagram_data[q_idx][1]);
         std::wstring a_str = StrToWStr(anagram_data[q_idx][2]);
-        std::wstring a_yomi = StrToWStr(anagram_data[q_idx][3]);
+        std::wstring extra_char = StrToWStr(anagram_data[q_idx][3]);
 
         if (state == 0) {
-            // [問題] を画面上部やや上 (Y: 50.0) にシアン小弾で表示
+            // [問題] を画面上部やや上 (Y: 90.0) にシアン小弾で表示
             if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
             PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
             SpawnTextShots(pEnemyShotSet, q_str, 90.0, img_enemyShotSmallBall[0], 1);
         }
         else if (state == 1) {
-            // [問題の読み] を画面上部 (Y: 50.0) に白小弾で表示。移動先を画面最下部 (Y: 430.0) に設定
+            // [問題の読み] を画面上部 (Y: 90.0) に白小弾で表示。移動先を画面最下部 (Y: 460.0) に設定
+            // 答え(a_str)は問題の読みより1文字少ないため、移動先のセンタリングはa_strの文字数基準で行う
             if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
             PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
-            std::vector<int> match = GetAnagramMatch(q_yomi, a_yomi);
-            SpawnTextShots(pEnemyShotSet, q_yomi, 90.0, img_enemyShotSmallBall[5], 2, true, match, 460.0);
-        }
-        else if (state == 2) {
-            // [移動開始] 150フレームかけて画面最下部へ動かす
+            std::vector<int> match = GetAnagramMatch(q_yomi, a_str);
+            SpawnTextShots(pEnemyShotSet, q_yomi, 90.0, img_enemyShotSmallBall[5], 2, true, match, 460.0, (int)a_str.length());
+
+            // 余り文字のインデックスを特定
+            int extra_index = -1;
+            for (size_t i = 0; i < match.size(); ++i) {
+                if (match[i] == -1) {
+                    extra_index = (int)i;
+                    break;
+                }
+            }
+
+            // 余り文字のバウンディングボックス（形状を保ったまま中央へ移動させるために使う）を求める
+            double exMinX = 1e18, exMaxX = -1e18, exMinY = 1e18, exMaxY = -1e18;
+            sEnemyShot* pScan = pEnemyShotSet->pEnemyShotHead->next;
+            while (pScan != pEnemyShotSet->pEnemyShotHead) {
+                if (pScan->param_i[0] == 2 && pScan->param_i[1] == extra_index) {
+                    exMinX = min(exMinX, pScan->x);
+                    exMaxX = max(exMaxX, pScan->x);
+                    exMinY = min(exMinY, pScan->y);
+                    exMaxY = max(exMaxY, pScan->y);
+                }
+                pScan = pScan->next;
+            }
+            double exShiftX = 240.0 - (exMinX + exMaxX) / 2.0;  // 画面中央Xへ寄せる平行移動量
+            double exShiftY = 240.0 - (exMinY + exMaxY) / 2.0;  // 画面中央Yへ寄せる平行移動量
+
+            // 余り文字の弾をグループ5に変更し、各ピクセルの相対位置（文字の形）を保ったまま画面中央へ
             sEnemyShot* p = pEnemyShotSet->pEnemyShotHead->next;
             while (p != pEnemyShotSet->pEnemyShotHead) {
-                if (p->param_i[0] == 2) {
+                if (p->param_i[0] == 2 && p->param_i[1] == extra_index) {
+                    p->param_i[0] = 5;
+                    p->param_d[0] = p->x + exShiftX;  // 形を崩さず平行移動した移動先X
+                    p->param_d[1] = p->y + exShiftY;  // 形を崩さず平行移動した移動先Y
+                }
+                p = p->next;
+            }
+        }
+        else if (state == 2) {
+            // [移動開始] 150フレームかけて目的地へ動かす
+            sEnemyShot* p = pEnemyShotSet->pEnemyShotHead->next;
+            while (p != pEnemyShotSet->pEnemyShotHead) {
+                if (p->param_i[0] == 2 || p->param_i[0] == 5) {
                     p->param_d[2] = 1.0;
                     p->param_d[3] = (p->param_d[0] - p->x) / 150.0;
                     p->param_d[4] = (p->param_d[1] - p->y) / 150.0;
@@ -232,7 +277,7 @@ static void ShotFormationAnagram(sEnemyShotSet* pEnemyShotSet)
             }
         }
         else if (state == 3) {
-            // [答え] を画面最下部 (Y: 430.0) に白小弾で表示
+            // [答え] を画面最下部 (Y: 460.0) に白小弾で表示
             if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
             PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
             SpawnTextShots(pEnemyShotSet, a_str, 460.0, img_enemyShotSmallBall[0], 4);
@@ -242,7 +287,10 @@ static void ShotFormationAnagram(sEnemyShotSet* pEnemyShotSet)
     // 毎フレームの移動・軌跡処理
     sEnemyShot* p = pEnemyShotSet->pEnemyShotHead->next;
     while (p != pEnemyShotSet->pEnemyShotHead) {
-        if (p->param_i[0] == 2 && p->param_d[2] == 1.0) {
+        sEnemyShot* nextP = p->next;
+
+        // グループ2または5がターゲットへ移動中
+        if ((p->param_i[0] == 2 || p->param_i[0] == 5) && p->param_d[2] == 1.0) {
             if (timer <= 150) {
                 p->x += p->param_d[3];
                 p->y += p->param_d[4];
@@ -252,8 +300,8 @@ static void ShotFormationAnagram(sEnemyShotSet* pEnemyShotSet)
                 p->y = p->param_d[1];
             }
 
-            // 軌跡として低速の青小弾をばら撒く
-            if (GetRand(300) == 0) {
+            // 軌跡（グループ2のみ従来通り）
+            if ((p->param_i[0] == 2 || p->param_i[0] == 5) && GetRand(1000) == 0) {
                 sEnemyShot* traj = new sEnemyShot;
                 traj->x = p->x;
                 traj->y = p->y;
@@ -268,12 +316,18 @@ static void ShotFormationAnagram(sEnemyShotSet* pEnemyShotSet)
                 pEnemyShotSet->pEnemyShotHead->prev = traj;
             }
         }
-        else if (p->param_i[0] == 10) {
-            // ばら撒き弾は消さずに画面外まで慣性移動
+        // グループ5が破裂後（ランダム方向へ飛翔）
+        else if (p->param_i[0] == 5 && p->param_d[2] == 2.0) {
             p->x += p->speed * cos(p->muki);
             p->y += p->speed * sin(p->muki);
         }
-        p = p->next;
+        // グループ10（ばらまき弾）
+        else if (p->param_i[0] == 10) {
+            p->x += p->speed * cos(p->muki);
+            p->y += p->speed * sin(p->muki);
+        }
+
+        p = nextP;
     }
 
     // タイマー更新とフェーズ遷移
@@ -289,15 +343,41 @@ static void ShotFormationAnagram(sEnemyShotSet* pEnemyShotSet)
         state = 2; timer = 0;
     }
     else if (state == 2 && timer > 180) {
-        // バラマキ弾(10)は消去対象から除外（画面外判定で消えるまで残る）
+        // グループ2のみ削除（グループ5は残す）
         DeleteGroupShots(pEnemyShotSet, { 2 });
+        sEnemyShot* p2 = pEnemyShotSet->pEnemyShotHead->next;
+        while (p2 != pEnemyShotSet->pEnemyShotHead) {
+            if (p2->param_i[0] == 5) {
+                p2->speed = 0.0;
+                p2->param_d[2] = 1.5;
+                p2->kind = img_enemyShotSmallBall[1];
+            }
+            p2 = p2->next;
+        }
         state = 3; timer = 0;
     }
+    else if (state == 3 && timer == 90) {
+        // 答えを赤くすると同時に、余り文字を破裂させる
+        sEnemyShot* p2 = pEnemyShotSet->pEnemyShotHead->next;
+        while (p2 != pEnemyShotSet->pEnemyShotHead) {
+            if (p2->param_i[0] == 4) {
+                p2->kind = img_enemyShotSmallBall[0]; // 答えを赤色に変更（要: 実際の赤弾インデックスに合わせて調整）
+            }
+            else if (p2->param_i[0] == 5) {
+                p2->muki = (double)GetRand(360) * DX_PI / 180.0;
+                p2->speed = 2.0 + (double)GetRand(100) / 100.0;
+                p2->param_d[2] = 2.0;  // 破裂（発射状態へ）
+            }
+            p2 = p2->next;
+        }
+    }
     else if (state == 3 && timer > 120) {
+        // 答え（赤変後のグループ4）を削除。余り文字（グループ5）は消さず画面外消去に任せる
         DeleteGroupShots(pEnemyShotSet, { 4 });
         state = 4; timer = 0;
     }
     else if (state == 4 && timer > 30) {
+        // 余り文字弾はここでは削除しない（画面外に出た時点で自然に消去される）
         q_idx++;
         state = 0; timer = 0;
     }
@@ -306,7 +386,7 @@ static void ShotFormationAnagram(sEnemyShotSet* pEnemyShotSet)
 // ============================================================
 //  敵本体のパターン
 // ============================================================
-void EnemyPat_Anagram()
+void EnemyPat_Chimatagram()
 {
     static int muki;
 
@@ -317,22 +397,14 @@ void EnemyPat_Anagram()
         muki = 1;
 
         anagram_data = {
-            {{"清楚系描きたい", "せいそけいかきたい", "形態素解析", "けいたいそかいせき"}},
-            {{"早よカキコしたれ", "はよかきこしたれ", "高橋是清", "たかはしこれきよ"}},
-            {{"ヘソの意味、無い", "へそのいみない", "磯野波平", "いそのなみへい"}},
-            {{"龍舞し、勝つ", "りゅうまいしかつ", "対馬海流", "つしまかいりゅう"}},
-            {{"破格の三塁打", "はかくのさんるいだ", "春の大三角", "はるのだいさんかく"}},
-            {{"臭すぎた歯間", "くさすぎたしかん", "高杉晋作", "たかすぎしんさく"}},
-            {{"再三の誤ＢＡＮ", "さいさんのごばん", "最後の晩餐", "さいごのばんさん"}},
-            {{"湿り気があった愛", "しめりけがあったあい", "雨上がり決死隊", "あめあがりけっしたい"}},
-            {{"蚊、どうにかしたい", "かどうにかしたい", "二階堂高嗣", "にかいどうたかし"}},
-            {{"麻生が艦これ", "あそうがかんこれ", "赤レンガ倉庫", "あかれんがそうこ"}},
-            {{"吸い物、冷めへんかい？", "すいものさめへんかい", "かもめの水兵さん", "かもめのすいへいさん"}},
-            {{"げ、先端臭い", "げせんたんくさい", "減反政策", "げんたんせいさく"}},
-            {{"山に監禁、泣く", "やまにかんきんなく", "なかやまきんに君", "なかやまきんにくん"}},
-            {{"四連着信", "よんれんちゃくしん", "クレヨンしんちゃん", "くれよんしんちゃん"}},
-            {{"痛いし喘いどるん？", "いたいしあえいどるん", "アイドル新鋭隊", "あいどるしんえいたい"}},
-            {{"おサボり禁止で描く", "おさぼりきんしでかく", "デオキシリボ核酸", "でおきしりぼかくさん"}}
+            {{"マムシ居るじゃんか！", "マムシイルジャンカ", "マジカルシャイン", "ム"}},
+            {{"知るか！タイマンじゃ！", "シルカタイマンジャ", "マジカルシャイン", "タ"}},
+            {{"神社閉まる回", "ジンジャシマルカイ", "マジカルシャイン", "ジ"}},
+            {{"邪神居る魔界", "ジャシンイルマカイ", "マジカルシャイン", "イ"}},
+            {{"今しゃべる時間", "イマシャベルジカン", "マジカルシャイン", "ベ"}},
+            {{"謝辞ほんま要るか？", "シャジホンマイルカ", "マジカルシャイン", "ホ"}},
+            {{"会社自慢する", "カイシャジマンスル", "マジカルシャイン", "ス"}},
+            {{"やかましいジャンル", "ヤカマシイジャンル", "マジカルシャイン", "ヤ"}}
         };
 
         // シャッフル
@@ -342,7 +414,7 @@ void EnemyPat_Anagram()
         }
 
         sEnemyShotSet* pSet = new sEnemyShotSet;
-        pSet->alive = 99999; // 指示通り設定
+        pSet->alive = 99999;
         pSet->count = 0;
         pSet->patternFunc = ShotFormationAnagram;
         pSet->x = enemy.x;

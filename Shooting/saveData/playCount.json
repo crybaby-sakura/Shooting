@@ -749,7 +749,7 @@
     "Vibe7": 2,
     "Vibe8": 3,
     "Vibe9": 2,
-    "Zai100": 25,
+    "Zai100": 26,
     "Zai42": 2,
     "Zai43": 20,
     "Zai44": 5,
@@ -813,6 +813,7 @@
     "handmade11": 13,
     "handmade12": 18,
     "handmade13": 15,
+    "handmade14": 1,
     "handmade2": 0,
     "handmade3": 0,
     "handmade4": 0,
@@ -822,5 +823,5 @@
     "handmade8": 32,
     "handmade9": 35,
     "sample": 754,
-    "tmp": 3731
+    "tmp": 3746
 }
