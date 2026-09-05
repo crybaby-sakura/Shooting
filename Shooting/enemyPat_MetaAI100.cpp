@@ -76,7 +76,7 @@ static void ShotHilbert(sEnemyShotSet* pSet)
     // param_d [0] fieldSize初期値 / [1] cx / [2] cy
 
     if (pSet->count == 0) {
-        int order = (pSet->kind % 2 == 0) ? 3 : 4; // 3:64発で易、4:256発で難
+        int order = (pSet->kind == 0) ? 3 : 4; // 3:64発で易、4:256発で難
         int total = 1 << (2 * order); // 4^order
         pSet->param_i[0] = 0;
         pSet->param_i[1] = order;
@@ -162,7 +162,7 @@ static void ShotHilbert(sEnemyShotSet* pSet)
             pShot = pShot->next;
         }
         pSet->param_i[4]++;
-        if (pSet->param_i[4] > 120) {
+        if (pSet->param_i[4] > 90) {
             pSet->param_i[0] = 2;
             if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
             PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
@@ -170,7 +170,7 @@ static void ShotHilbert(sEnemyShotSet* pSet)
     }
     else if (phase == 2) { // 圧縮フェーズ
         int ct = pSet->param_i[5];
-        double t = ct / 120.0;
+        double t = ct / 90.0;
         if (t > 1.0) t = 1.0;
         double curField = 360.0 * (1.0 - 0.30 * t); // 360 -> 252
 
@@ -187,7 +187,7 @@ static void ShotHilbert(sEnemyShotSet* pSet)
             pShot = pShot->next;
         }
         pSet->param_i[5]++;
-        if (ct > 120) {
+        if (ct > 90) {
             pSet->param_i[0] = 3;
             sEnemyShot* s = pSet->pEnemyShotHead->next;
             while (s != pSet->pEnemyShotHead) {
@@ -211,7 +211,7 @@ static void ShotHilbert(sEnemyShotSet* pSet)
 }
 
 // ========= 敵本体 =========
-void EnemyPat_Tmp()
+void EnemyPat_HilbertCurve_MetaAI()
 {
     static int muki;
     static int shot_count;
@@ -229,7 +229,7 @@ void EnemyPat_Tmp()
     }
 
     // 7秒おきにヒルベルト迷宮を生成。重ならないように1つずつ
-    if (count % 300 == 1) {
+    if (count % 240 == 1) {
         sEnemyShotSet* pSet = new sEnemyShotSet;
         pSet->count = 0;
         pSet->patternFunc = ShotHilbert;
