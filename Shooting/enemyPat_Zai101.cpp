@@ -249,7 +249,7 @@ static void ShotPhalanxSkirmish(sEnemyShotSet* pSet)
 // ============================================================
 //  敵本体のパターン
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_Phalanx_Zai()
 {
     static int muki;
     static int gap1, gap2; // 現在の盾の壁の隙間列(槍と共有)
