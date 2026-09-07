@@ -406,7 +406,7 @@ static void ShotPopupWindow(sEnemyShotSet* pEnemyShotSet)
 // ============================================================
 //  敵本体のパターン
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_PopUpAds_Zai()
 {
     static int spawnTimer;
     static int giantPending;

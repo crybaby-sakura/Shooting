@@ -110,6 +110,7 @@
       <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\nlohmann;D:\tools\midifile\include;</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -146,6 +147,7 @@
       <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\nlohmann;D:\tools\midifile\include;</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -156,6 +158,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="effectRand.cpp" />
+    <ClCompile Include="enemyPat_DeepSeek102.cpp" />
+    <ClCompile Include="enemyPat_ChatGPT102.cpp" />
+    <ClCompile Include="enemyPat_Gemini102.cpp" />
+    <ClCompile Include="enemyPat_Grok102.cpp" />
+    <ClCompile Include="enemyPat_Claude102.cpp" />
+    <ClCompile Include="enemyPat_Qwen102.cpp" />
+    <ClCompile Include="enemyPat_MetaAI102.cpp" />
+    <ClCompile Include="enemyPat_Zai102.cpp" />
     <ClCompile Include="gameScreen.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="enemyPat_DeepSeek101.cpp" />
