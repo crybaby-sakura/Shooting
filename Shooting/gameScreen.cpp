@@ -1,7 +1,5 @@
 ﻿// gameScreen.cpp
 
-#define _CRT_SECURE_NO_WARNINGS
-
 #include "DxLib.h"
 #include "stateManager.h"
 #include "gameScreen.h"

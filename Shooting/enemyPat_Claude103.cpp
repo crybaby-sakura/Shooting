@@ -13,7 +13,7 @@
 //                         初速方向として放射状に加速飛散。同時に壁の残存弾も左右へ加速排出し、
 //                         中心から自機狙い5wayフィニッシュを発射して①へループする
 //
-// 敵本体の関数名は指定により void EnemyPat_Tmp() とする。
+// 敵本体の関数名は指定により void EnemyPat_KuruKuruKururin_Claude() とする。
 
 #include "DxLib.h"
 #include "gv.h"
@@ -180,7 +180,7 @@ static void ShotRodTrail(sEnemyShotSet* pEnemyShotSet)
 {
     int local = count % CYCLE_LEN;
 
-    if (local >= PHASE2_END && local < PHASE3_END && (local - PHASE2_END) % 6 == 0) {
+    if (local >= PHASE2_END && local < PHASE3_END && (local - PHASE2_END) % 12 == 0) {
         double angle = RodAngle(local);
         double tipR = ROD_SEG_PER_SIDE * ROD_SEG_SPACING;
         for (int side = -1; side <= 1; side += 2) {
@@ -358,7 +358,7 @@ static sEnemyShotSet* CreateShotSet(sEnemyShotSet::PatternFunc func)
     return pEnemyShotSet;
 }
 
-void EnemyPat_Tmp() // 新しく作成する場合、名前は void EnemyPat_Tmp() にすること。
+void EnemyPat_KuruKuruKururin_Claude() // 新しく作成する場合、名前は void EnemyPat_KuruKuruKururin_Claude() にすること。
 {
     if (count == 1) {
         // ゲーム画面は 480x480
