@@ -15,11 +15,6 @@
 //   画面外へ出た弾の消去もメインルーチン側。
 //   GetRand(x) は 0..x の整数を返す。
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 static void AddPopupShot(
     sEnemyShotSet* set,
     double x, double y, int kind,

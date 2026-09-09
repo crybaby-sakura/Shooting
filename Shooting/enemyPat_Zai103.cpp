@@ -19,11 +19,6 @@
 //   - 棒の弾は寿命まで画面内に留まるため、寿命時に遠心放出して
 //     「画面外→自動消去」のルートに乗せている。
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // ---------------- チューニングパラメータ ----------------
 static const int    GATE_INTERVAL = 180;                 // 回転棒ゲートの発生間隔
 static const int    BAR_LIFE = 360;                 // 棒が回転し続けるフレーム数

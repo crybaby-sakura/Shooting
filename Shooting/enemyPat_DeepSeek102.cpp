@@ -1,11 +1,6 @@
 ﻿// enemyPat_tmp.cpp
 // ポップアップ広告風弾幕パターン
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // 弾種別・色の定数
 #define SHOT_SMALL_RED      img_enemyShotSmallBall[0]
 #define SHOT_SMALL_YELLOW   img_enemyShotSmallBall[1]

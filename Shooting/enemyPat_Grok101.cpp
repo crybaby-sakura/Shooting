@@ -1,9 +1,5 @@
 ﻿// enemyPat_Tmp.cpp
 // ファランクスをモチーフにした密集方陣弾幕
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
 
 // 弾幕：密集方陣（ファランクス・ウォール）
 // 小型弾で硬い盾壁を作り、ゆっくり前進＋左右揺れ。最前列から定期的に中型弾の「槍」を突き出す。

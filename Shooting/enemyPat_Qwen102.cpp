@@ -1,11 +1,6 @@
 ﻿// enemyPat_Tmp.cpp
 // ポップアップ広告をモチーフにした弾幕パターン「スパムウィンドウ・バースト」
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // 弾幕：スパムウィンドウ・バースト
 static void ShotPopupWindow(sEnemyShotSet* pEnemyShotSet)
 {

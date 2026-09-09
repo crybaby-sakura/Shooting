@@ -2,11 +2,6 @@
 // 弾幕名: くるくるヘリリン迷宮
 // モチーフ: くるくるくるりん
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 static void ShotKururin(sEnemyShotSet* pEnemyShotSet)
 {
     // pEnemyShotSet->param_d の使い方

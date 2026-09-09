@@ -1,8 +1,4 @@
 ﻿// EnemyPat_PopUpAds_MetaAI.cpp - ポップアップ広告弾幕
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
 
 // ==========================================
 // ポップアップ1枚の挙動

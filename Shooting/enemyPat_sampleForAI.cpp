@@ -1,10 +1,5 @@
 ﻿// enemyPat_sampleForAI.cpp
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // 弾幕：ばら撒き
 static void ShotScatter(sEnemyShotSet* pEnemyShotSet)
 {

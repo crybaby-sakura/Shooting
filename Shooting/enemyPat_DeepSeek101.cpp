@@ -1,10 +1,4 @@
-﻿// enemyPat_tmp.cpp
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
-// 弾幕：ファランクス・プッシュ
+﻿// 弾幕：ファランクス・プッシュ
 static void PhalanxMove(sEnemyShotSet* pEnemyShotSet)
 {
     const int COLS = 10 * 2;

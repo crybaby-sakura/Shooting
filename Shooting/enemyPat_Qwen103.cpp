@@ -1,11 +1,6 @@
 ﻿// enemyPat_Tmp.cpp
 // 「くるくるくるりん」モチーフ：回転する迷宮の螺旋
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // 弾幕：回転する迷宮の螺旋
 static void ShotRotatingMaze(sEnemyShotSet* pEnemyShotSet)
 {

@@ -1,9 +1,5 @@
 ﻿// enemyPat_Tmp.cpp
 // ポップアップ広告モチーフ弾幕「強制重ね表示ウィンドウ」
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
 
 // 矩形枠・内部埋め・偽×ボタンを生成するポップアップウィンドウ用パターン
 // param_i[0] : 発動済みフラグ (0=未発動, 1=増殖済み)

@@ -1,10 +1,5 @@
-﻿#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <windows.h>
+﻿#include <windows.h>
 #include <gdiplus.h>
-#include <vector>
-#include <string>
 #include <array>
 #include <map>
 #include <cmath>

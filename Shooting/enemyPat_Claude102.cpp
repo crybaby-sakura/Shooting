@@ -31,11 +31,6 @@
 //   PatCloseButton の弾: param_d[0..1]=ボタン中心からの相対オフセット(バツ印の形)
 //   PatBannerScroll の弾: param_i[0]=行(0:上段/1:下段), param_d[0]=初期位相(0〜1)
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 const int T = 800;
 static int countT;
 

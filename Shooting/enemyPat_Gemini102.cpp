@@ -1,10 +1,5 @@
 ﻿// enemyPat_Tmp.cpp
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // 弾を生成してリストに登録するヘルパー関数
 static void AddPopupShot(sEnemyShotSet* pSet, double dx, double dy, int kind, int type, double muki = 0.0)
 {

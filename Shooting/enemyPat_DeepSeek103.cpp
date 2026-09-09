@@ -1,11 +1,6 @@
 ﻿// enemyPat_Tmp.cpp
 // 回転バー「クルクルリン・スティック」パターン
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // 回転バーのパターン関数
 // 小玉を直線状に並べた棒を回転させ、棒に空いた隙間をすり抜ける弾幕。
 // pEnemyShotSet->param_d[0] : 回転速度（度/フレーム）

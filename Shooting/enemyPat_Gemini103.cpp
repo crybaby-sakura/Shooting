@@ -1,10 +1,5 @@
 ﻿// enemyPat_rotatingBar.cpp
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // 弾幕：回転棒弾（ローテーティング・バー）
 static void ShotRotatingBar(sEnemyShotSet* pEnemyShotSet)
 {

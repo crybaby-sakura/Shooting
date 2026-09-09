@@ -141,7 +141,7 @@ static void ShotBrazilianWax(sEnemyShotSet* pEnemyShotSet)
 // ============================================================
 // 敵本体のパターン
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_BrazilianWax_Zai()
 {
     static int shot_count; // 周回カウンタ(リプレイ再現性のため GetRand は弾側のみで使用)
 

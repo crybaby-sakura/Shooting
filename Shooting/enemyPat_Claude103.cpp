@@ -15,11 +15,6 @@
 //
 // 敵本体の関数名は指定により void EnemyPat_KuruKuruKururin_Claude() とする。
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 namespace {
 
     // ---- 全体サイクル設定 ----

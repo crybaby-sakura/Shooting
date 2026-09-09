@@ -6,11 +6,6 @@
 //  合図 = 小玉(2.5x2.5) 白 ... 自機狙いの1発で「突け！」の掛け声を可視化
 // 効果音：突撃前に sound_enemyCharge、突き出し時に heavy、引っ込める時に light
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 static void ShotPhalanx(sEnemyShotSet* pEnemyShotSet)
 {
     const int SHIELD_NUM = 16 * 2;

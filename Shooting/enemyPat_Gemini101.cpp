@@ -1,10 +1,5 @@
 ﻿// enemyPat_phalanx.cpp
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // 弾幕：ファランクス・チャージ（重装方陣の突撃）
 static void ShotPhalanx(sEnemyShotSet* pEnemyShotSet)
 {

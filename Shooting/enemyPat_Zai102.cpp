@@ -15,11 +15,6 @@
 //   大玉: 黄(当選マーク) 赤(撃り返し)
 //   SE  : 出現=light / 閉じた=medium / 暴発=heavy / 撃り返し・巨大出現=extreme / 巨大予告=charge
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // ---- 弾の役割 (sEnemyShot::param_i[0]) ----
 enum {
     ROLE_FRAME = 0,   // 窓の枠

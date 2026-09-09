@@ -1,9 +1,5 @@
 ﻿// enemyPat_Tmp.cpp
 // くるくるくるりん風・回転棒弾パターン
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
 
 // 弾幕：くるりん風回転棒
 // 小型弾で棒本体、両端だけ中型弾。一定時間剛体回転した後に分解して飛散する。
