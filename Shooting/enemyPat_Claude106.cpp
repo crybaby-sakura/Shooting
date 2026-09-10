@@ -22,7 +22,7 @@
 // img_enemyShotSmallBall[0]/[4] と sound_enemyCharge/sound_enemyShot_extreme は
 // このシールド演出専用とし、他の用途では使用しない。
 //
-// ※60FPS想定（FPSが異なる場合はEnemyPat_Tmp内のFPS定数を調整してください）。
+// ※60FPS想定（FPSが異なる場合はEnemyPat_Ikaruga_Claude内のFPS定数を調整してください）。
 
 // 色定義（param_i[0]に格納。このファイル内のみで使用）
 enum { PATCOLOR_RED = 0, PATCOLOR_BLUE = 1 };
@@ -128,7 +128,7 @@ static void SpawnBurst(double x, double y, int color, int way, int mode, double 
 }
 
 // 弾幕：自機を取り囲む色替わり小玉シールド
-// param_i[0] = 現在の色（EnemyPat_Tmp側から書き換えられる）
+// param_i[0] = 現在の色（EnemyPat_Ikaruga_Claude側から書き換えられる）
 static void ShotShield(sEnemyShotSet* pEnemyShotSet)
 {
     const int    SHIELD_NUM = 8;
@@ -229,7 +229,7 @@ static void BossFire(double x, double y, int color, int phaseShift)
     }
     else if (phase == 1) {
         // 拡散フェーズ：広い自機狙い9wayを1回、速度にばらつきを持たせる
-        if (tInPhase % 20 == 0) {
+        if (tInPhase == 0) {
             SpawnBurst(x, y, color, 9, 0, 70.0 / 180.0 * DX_PI, 2.0, 20);
         }
     }
@@ -242,7 +242,7 @@ static void BossFire(double x, double y, int color, int phaseShift)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_Ikaruga_Claude()
 {
     // 60FPS想定（FPSが異なる場合はここを調整）
     const int FPS = 60;

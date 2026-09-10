@@ -3,8 +3,9 @@
 
 // •W€ƒ‰ƒCƒuƒ‰ƒŠ
 #include <vector>
-#include <math.h>
 #include <string>
+#include <math.h>
+#include <cmath>
 
 // DxLib
 #include "DxLib.h"
