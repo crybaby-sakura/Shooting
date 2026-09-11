@@ -30,7 +30,7 @@ static const int    BURST_NUM = 8;     // 着雷時の放射弾数
 static void ShotRain(sEnemyShotSet* pEnemyShotSet)
 {
     // 降らせ期間中は毎フレーム雨粒を生成
-    if (pEnemyShotSet->count % 2 == 0 && pEnemyShotSet->count <= RAIN_LIFE) {
+    if (pEnemyShotSet->count % 6 == 0 && pEnemyShotSet->count <= RAIN_LIFE) {
         // HP半分以下(雷鳴ラッシュ期)は雨も強める
         int num = (enemy.hp <= enemy.maxHp / 2) ? 2 : 1;
 
@@ -39,7 +39,7 @@ static void ShotRain(sEnemyShotSet* pEnemyShotSet)
 
             pEnemyShot->x = (double)(GetRand(500) - 10); // -10 ～ 490
             pEnemyShot->y = -10.0;
-            pEnemyShot->speed = 2.0 + GetRand(100) / 100.0;
+            pEnemyShot->speed = 2.0 + GetRand(100) / 100.0 - 0.5;
             pEnemyShot->param_d[0] = GetRand(628) / 100.0; // 揺れの位相 0～6.28
             pEnemyShot->param_d[1] = pEnemyShot->speed;    // 基本速度を保持
 
@@ -144,7 +144,7 @@ static void ShotLightning(sEnemyShotSet* pEnemyShotSet)
 // ============================================================
 //  敵本体のパターン
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_ThunderInRain_Zai()
 {
     static int muki;
 
@@ -181,7 +181,7 @@ void EnemyPat_Tmp()
 
     // ---- 落雷：プレイヤーの現在地(少しブレて)へ予兆→落雷 ----
     // HP半分以下は「雷鳴ラッシュ」：間隔を詰めて連続落雷
-    int interval = (enemy.hp <= enemy.maxHp / 2) ? 100 : 160;
+    int interval = (enemy.hp <= enemy.maxHp / 2) ? 120 : 160;
     if (count > 60 && count % interval == 0) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
         pEnemyShotSet->count = 0;
