@@ -315,7 +315,7 @@ void imgSoundLoad()
 // 遅延ロード用の関数
 void loadStageBGM(int stageIndex)
 {
-    if (stageIndex < 0 || stageIndex >= (int)stageData.size()) return;
+    if (stageIndex < 0 || stageIndex >= stageDataSize) return;
 
     // すでにロード済みなら何もしない
     if (stageData[stageIndex].bgmHandle != -1) return;

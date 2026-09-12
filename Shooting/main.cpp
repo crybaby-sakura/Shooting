@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     loadCursorPos();                     // カーソル位置を復元（先に読み込む）   
     if (recordingMode) {
         // ステージ名が recordingStageTitle であるステージにカーソルを合わせる
-        for (int i = 0; i < (int)stageData.size(); ++i) {
+        for (int i = 0; i < stageDataSize; ++i) {
             if (strcmp(stageData[i].stageId, recordingStageTitle) == 0) {
                 cursor.page = i / 100;
                 cursor.y = (i % 100) / 10;
@@ -91,8 +91,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         int waitEnd = startTime + SPLASH_MIN_TIME;
         int preloadStage = stageNum;                    // stageNum からロード開始
         int loadedCount = 0;                            // 読み込んだステージ数
-        const int totalStages = (int)stageData.size();
-
+        
         while (GetNowCount() < waitEnd) {
             if (ProcessMessage() == -1) break;
 
@@ -102,11 +101,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             ScreenFlip();
 
             // 未読込のステージがあれば1つロード
-            if (loadedCount < totalStages) {
+            if (loadedCount < stageDataSize) {
                 loadStageBGM(preloadStage);
                 ++loadedCount;
                 // 次のステージへ（循環）
-                preloadStage = (preloadStage + 1) % totalStages;
+                preloadStage = (preloadStage + 1) % stageDataSize;
             }
 
             WaitTimer(frameDurationMs);   // CPU負荷軽減 & 約60fps維持
@@ -251,7 +250,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
                 }
                 else if (key[KEY_INPUT_N] == 1) {
                     int nextStage = stageNum + 1;
-                    if (nextStage < (int)stageData.size()) {
+                    if (nextStage < stageDataSize) {
                         stageNum = nextStage;
                         cursor.page = stageNum / 100;
                         cursor.y = (stageNum % 100) / 10;

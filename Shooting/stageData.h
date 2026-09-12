@@ -1,6 +1,5 @@
 ﻿// stageData.h
 #pragma once
-#include <vector> 
 
 // ステージ情報をまとめた構造体
 struct StageInfo {
@@ -15,8 +14,9 @@ struct StageInfo {
     unsigned int playCount = 0;    // プレイ回数（後で代入）
 };
 
-// サイズは初期化リストから自動決定
-extern std::vector<StageInfo> stageData;
+// 外部参照用の宣言
+extern StageInfo stageData[];
+extern const int stageDataSize;
 
 // 各敵パターン関数の宣言（ステージ数分）
 extern void EnemyPat_SampleForAI();

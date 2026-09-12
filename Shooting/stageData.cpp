@@ -1,7 +1,7 @@
 ﻿// stageData.cpp
 #include "stageData.h"
 
-std::vector<StageInfo> stageData = {
+StageInfo stageData[] = {
 	// stageId, description, stageTitle, stageDescription, bgmFileName, patternFunc
 	{ "sample", "AIに渡すためのサンプル。使える素材の一覧を教える", "", "", "field", EnemyPat_SampleForAI },
 	{ "handmade1", "3WAY自機狙い", "", "", "Torpedo_Hymn2", EnemyPat_3Way },
@@ -10,8 +10,8 @@ std::vector<StageInfo> stageData = {
 	{ "handmade4", "波と粒の境界（目コピ）", "", "", "Torpedo_Hymn2", EnemyPat_Namitsubu },
 	{ "handmade5", "ドーブルをモチーフにした弾幕。くろいまなざし→キノコのほうし→ロックオン→つのドリル", "画符「スケッチ・オブ・デス」", "", "Torpedo_Hymn2", EnemyPat_Smeargle },
 	{ "handmade6", "世界のナベアツをモチーフにした弾幕", "数符「デジタル・アホリズム」", "", "Flying Futon Frenzy 2", EnemyPat_Nabeatsu },
-	{ "handmade7", "トルコ行進曲を演奏する弾幕", "鍵符「七彩のレーザーキーボード」", "", "Turkish March", EnemyPat_TurkishMarch },
-	{ "handmade8", "サーカス・ギャロップを演奏する弾幕", "奏符「フォーリング・スケール」", "", "Circus Galop", EnemyPat_CircusGalop },
+	{ "handmade7", "トルコ行進曲を演奏する弾幕（リプレイ利用不可）", "鍵符「七彩のレーザーキーボード」", "", "Turkish March", EnemyPat_TurkishMarch },
+	{ "handmade8", "サーカス・ギャロップを演奏する弾幕（リプレイ利用不可）", "奏符「フォーリング・スケール」", "", "Circus Galop", EnemyPat_CircusGalop },
 	{ "handmade9", "オセロの棋譜並べをする弾幕", "盤符「リバーシブル・リバース」", "", "Moonlit Danmaku Run", EnemyPat_Othello },
 	{ "handmade10", "自機と戦える弾幕", "鏡像「ファントム・スラスター」", "自機の姿を精密に模したドット絵風の弾幕を生成し、自機に向けて突撃させます。機体後部から噴射弾幕を常時撒き散らしながら迫り来る、ドッペルゲンガーのような迫力と虚像感を兼ね備えた弾幕パターンです。", "Locrian Barrage", EnemyPat_PlayerIMG },
 	{ "handmade11", "おっぱい弾幕", "乳符「揺蕩う双丘と甘き雫」", "敵は時間と共に緩やかに形を変える豊満な曲線を弾で描き出し、その頂から重力に引かれる雫のような弾を間歇的に噴出させる。曲線は左右対称に反転して現れ、空間を柔らかく埋め尽くしていく。", "Tidal Ascend", EnemyPat_Oppai },
@@ -885,3 +885,4 @@ std::vector<StageInfo> stageData = {
     { "Zai107", "雨下のかみなりをモチーフにした弾幕", "雨述符 『雷鳴恵みの豪雨』", "青と白の小玉がS字に揺れながら降り続く雨で画面全体を覆い、プレイヤーの視界を圧迫する二層構造の弾幕。雨は弾速が遅く、それ自体より見通しを悪くする障害物として機能する。そこへ定期的に、プレイヤーの位置を狙った落雷が発生する。落雷はまず目標地点の真上に白い中玉の縦列を静止表示して予兆を見せ、上から順に時差発射することで一本の光柱が地面に落ちるように演出。着弾の瞬間に黄の中玉が放射状に飛び散る。敵のHPが半分を切ると雷鳴ラッシュに移行し、雨が強まり落下の予兆時間も短くなり、連続落雷が読み合いを生む。じっくり雨を見極めながら落ち着いて避けるか、焦って動いて雨に引っかかるかというジレンマを狙った構成。", "Thundercloud Overdrive", EnemyPat_ThunderInRain_Zai },
 	{ "tmp", "ここに弾幕の短い説明が入る", "ここに弾幕タイトルが入る", "ここにAIによる弾幕の長ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーい説明が入る", "Torpedo_Hymn", EnemyPat_Tmp },
 };
+const int stageDataSize = (int)(sizeof(stageData) / sizeof(stageData[0]));

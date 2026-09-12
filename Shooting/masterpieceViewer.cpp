@@ -85,7 +85,7 @@ int masterpieceMain() {
     int wait = 120; // メニュー画面で 2 秒待機
 
     // 最初の傑作選ステージの stageNum を探す
-    for (size_t i = 0; i < stageData.size(); i++) {
+    for (size_t i = 0; i < stageDataSize; i++) {
         if (stageData[i].stageId == masterpieceList[masterpieceIndex].stageId) {
             stageNum = (int)i;
             cursor.page = stageNum / 100;
@@ -163,7 +163,7 @@ int masterpieceMain() {
                 }
                 else {
                     // 次の傑作選ステージの stageNum を探す
-                    for (size_t i = 0; i < stageData.size(); i++) {
+                    for (size_t i = 0; i < stageDataSize; i++) {
                         if (stageData[i].stageId == masterpieceList[masterpieceIndex].stageId) {
                             stageNum = (int)i;
                             cursor.page = stageNum / 100;

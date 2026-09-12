@@ -63,7 +63,7 @@ bool StateManager::ChangeState(Joutai newState)
 		startNewGame(); // iniGame + 乱数シード（joutaiFlag 代入は削除済み）
 
 		// ここでプレイ回数を増やす（リプレイでない場合のみ）
-		if (!replayActive && stageNum >= 0 && stageNum < (int)stageData.size()) {
+		if (!replayActive && stageNum >= 0 && stageNum < stageDataSize) {
 			stageData[stageNum].playCount++;
 			savePlayCount();   // 異常終了に備えてすぐ保存
 		}
