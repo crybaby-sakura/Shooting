@@ -236,7 +236,7 @@ static void ShotSeekers(sEnemyShotSet* pSet)
         PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
 
         for (int i = 0; i < 3; i++) {
-            sEnemyShot* pShot = AddShot(pSet, enemy.x, enemy.y, 2.0 + i * 0.3, img_enemyShotMediumBall[0]);
+            sEnemyShot* pShot = AddShot(pSet, enemy.x, enemy.y, 2.0 + i * 0.3, img_enemyShotLargeBall[0]);
             pShot->param_i[0] = MZ_W - 1;            // 現在セル(右下=敵の位置)
             pShot->param_i[1] = MZ_H - 1;
             int d = ChooseDir(MZ_W - 1, MZ_H - 1, -1);
@@ -256,12 +256,12 @@ static void ShotSeekers(sEnemyShotSet* pSet)
 // ============================================================
 //  敵本体のパターン(ボス・右下固定)
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_FixedMaze_Zai()
 {
     if (count == 1) {
         enemy.x = CellCX(MZ_W - 1);      // 450.0 右下で完全固定
         enemy.y = CellCY(MZ_H - 1);      // 450.0
-        enemy.maxHp = enemy.hp = 200;    // 200で固定
+        enemy.maxHp = enemy.hp = 30;    // 200で固定
         player.x = CellCX(0);
         player.y = CellCX(0);
 
@@ -273,7 +273,7 @@ void EnemyPat_Tmp()
     }
 
     // 敵は動かない。迷路が完成したら一定間隔で追尾弾の部隊を送り込む
-    if (mazeDone && (count - mazeDoneAt) % 180 == 0) {
+    if (mazeDone && (count - mazeDoneAt) % 180 == 30) {
         AddShotSet(ShotSeekers, 1);
     }
 }
