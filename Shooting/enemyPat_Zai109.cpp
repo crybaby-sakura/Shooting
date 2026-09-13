@@ -13,7 +13,7 @@ namespace Rose {
     const int    TOTAL_FRAMES = FORM_FRAMES + ROTATE_FRAMES;
     const int    PER_FRAME = 6;     // 1フレームあたりの弾の生成数
     const double RADIUS = 150.0; // 花の大きさ a
-    const double SPIN = 0.02;  // 開花時の回転角速度(ラジアン/フレーム)
+    const double SPIN = 0.02/2;  // 開花時の回転角速度(ラジアン/フレーム)
 
     // sEnemyShotSet のパラメータ使用箇所
     //   param_i[0]    : 散華(放出)済みフラグ
@@ -143,7 +143,7 @@ static void ShotRose(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_RoseCurve_Zai()
 {
     static int muki;
     static int shot_count;
