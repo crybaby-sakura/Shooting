@@ -149,7 +149,7 @@ static void ShotTargetRingHard(sEnemyShotSet* pEnemyShotSet)
 // ============================================================
 // 敵本体のパターン
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_RingToss_Gemini()
 {
     static int muki;
 
