@@ -257,7 +257,7 @@ static void ShotWashingMachine(sEnemyShotSet* pSet)
 // ============================================================
 // 敵本体のパターン
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_Inbachi_Zai()
 {
     static int phase;      // 1:螺旋 2:追尾+波 3:発狂
     static int dir;        // 移動方向

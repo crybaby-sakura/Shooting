@@ -799,8 +799,14 @@ void drawSidePanel()
             || stageData[stageNum].stageId == "Gemini85"
             || stageData[stageNum].stageId == "Grok98"
             || stageData[stageNum].stageId == "Claude98"
-            || stageData[stageNum].stageId == "Kimi98")
-            {
+            || stageData[stageNum].stageId == "Kimi98"
+            || stageData[stageNum].stageId == "ChatGPT115"
+            || stageData[stageNum].stageId == "Gemini115"
+            || stageData[stageNum].stageId == "Grok115"
+            || stageData[stageNum].stageId == "MetaAI115"
+            || stageData[stageNum].stageId == "Qwen115"
+            || stageData[stageNum].stageId == "Zai115"
+            ) {
             DrawString(panelLeftScreen, y, "人力では無理！", GetColor(255, 255, 128));
             y += lineHeight;
             DrawString(panelLeftScreen, y, "TAS プレイです", GetColor(255, 255, 128));
