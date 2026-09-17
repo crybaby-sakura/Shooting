@@ -13,7 +13,6 @@ static void AddShot(sEnemyShotSet* pSet, double x, double y, double muki, double
     p->speed = speed;
     p->kind = kind;
     p->param_i[0] = color; // 爆発時の大玉の色として保持
-    p->margin = 120;
 
     p->prev = pSet->pEnemyShotHead->prev;
     p->next = pSet->pEnemyShotHead;
@@ -149,7 +148,7 @@ static void ShotNightSkyCarpet(sEnemyShotSet* pEnemyShotSet)
 // ------------------------------------------------------------
 // 敵本体のパターン
 // ------------------------------------------------------------
-void EnemyPat_Tmp()
+void EnemyPat_NightCarpet_Zai()
 {
     if (count == 1) {
         // ゲーム画面は 480x480
