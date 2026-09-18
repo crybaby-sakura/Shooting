@@ -206,7 +206,7 @@ static void ShotCloudChamber(sEnemyShotSet* pEnemyShotSet)
 // ============================================================
 // 敵本体のパターン
 // ============================================================
-void EnemyPat_Tmp()
+void EnemyPat_CloudChamber_Zai()
 {
     static int sourceCount;
 
