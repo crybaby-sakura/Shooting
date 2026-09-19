@@ -107,7 +107,7 @@ static void ShotBalloon(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_Balloon_Grok()
 {
     static int muki;
     static int shot_count;
