@@ -18,7 +18,7 @@ static constexpr int ST_SPARK = 4;  // 火の粉:竹を駆け上がる
 static constexpr int ST_EMBER = 5;  // 散り火:減速して漂う小弾
 static constexpr int ST_RING = 6;  // 中玉リング:等速直線
 
-static constexpr int    BAMBOO_NUM = 12;    // 竹の本数
+static constexpr int    BAMBOO_NUM = 12-4;    // 竹の本数
 static constexpr int    STAND_TIME = 20;    // 竹が止まってから燃えるまでの時間
 static constexpr int    BURN_TIME = 30;    // 燃焼時間
 static constexpr double SPARK_SPEED = 2.7;   // 火の粉が竹を上る速さ
@@ -187,7 +187,7 @@ static void ShotBambooFire(sEnemyShotSet* pEnemyShotSet)
 }
 
 // 敵本体のパターン
-void EnemyPat_Tmp()
+void EnemyPat_TakeyabuYaketa_Zai()
 {
     static int muki;
 
@@ -207,7 +207,7 @@ void EnemyPat_Tmp()
 
     // 240フレームごとに「竹林火災」を起こす
     // (1ウェーブ約230フレーム:竹の成長→延焼→燃え殻→リング、でループ)
-    if (count % 300 == 1) {
+    if (count % 360 == 1) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
         pEnemyShotSet->count = 0;
         pEnemyShotSet->patternFunc = ShotBambooFire;
