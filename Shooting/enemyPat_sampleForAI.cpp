@@ -1,10 +1,5 @@
 ﻿// enemyPat_sampleForAI.cpp
 
-#include "DxLib.h"
-#include "gv.h"
-#include "imgSoundLoad.h"
-#include <math.h>
-
 // 弾幕：ばら撒き
 static void ShotScatter(sEnemyShotSet* pEnemyShotSet)
 {
@@ -22,7 +17,7 @@ static void ShotScatter(sEnemyShotSet* pEnemyShotSet)
             pEnemyShot->x = pEnemyShotSet->x + GetRand(480) - 240;
             pEnemyShot->y = pEnemyShotSet->y + GetRand(40) - 20;
             pEnemyShot->muki = pEnemyShotSet->muki + (GetRand(120) - 60) / 180.0 * DX_PI;
-            pEnemyShot->speed = (200 + GetRand(200)) / 100.0;
+            pEnemyShot->speed = 2.0 + GetRand(200) / 100.0;
 
             // 弾の種類一覧: 小玉(2.5x2.5)、中玉(7.0x7.0)、大玉(20.0x20.0)、銃弾(5.0x2.0)、鱗弾(4.0x3.0)、菱形弾(4.5x2.5)、中楕円弾(10.5x7.0)、短レーザー(64.0x4.0)
             // 弾の色一覧:   0:赤、1:黄、2:緑、3:シアン、4:青、5:マゼンタ、6:白、7:黒、8:橙

@@ -1,7 +1,5 @@
 // fileOpenClose.cpp
 
-#define _CRT_SECURE_NO_WARNINGS
-
 #include "DxLib.h"
 #include "gv.h"
 #include "fileOpenClose.h"

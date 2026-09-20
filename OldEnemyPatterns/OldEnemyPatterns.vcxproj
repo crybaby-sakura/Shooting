@@ -1,0 +1,981 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{73f84abc-46bc-486c-8a92-637948bd084f}</ProjectGuid>
+    <RootNamespace>OldEnemyPatterns</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\include;D:\workspace\Visual_Cpp\Shooting\Shooting;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\include;D:\workspace\Visual_Cpp\Shooting\Shooting;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\include;D:\workspace\Visual_Cpp\Shooting\Shooting;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\include;D:\workspace\Visual_Cpp\Shooting\Shooting;</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT10.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT100.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT11.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT12.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT13.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT14.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT15.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT16.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT17.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT18.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT19.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT20.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT21.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT22.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT23.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT24.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT25.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT26.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT27.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT28.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT29.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT30.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT31.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT32.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT33.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT34.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT35.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT36.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT37.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT38.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT39.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT4.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT40.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT41.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT42.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT43.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT44.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT45.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT46.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT47.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT48.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT49.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT5.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT50.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT51.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT52.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT53.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT54.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT55.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT56.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT57.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT58.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT59.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT6.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT60.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT61.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT62.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT63.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT64.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT65.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT66.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT67.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT68.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT69.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT7.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT70.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT71.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT72.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT73.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT74.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT75.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT76.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT77.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT78.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT79.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT8.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT80.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT81.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT82.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT83.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT84.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT85.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT86.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT87.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT88.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT89.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT9.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT90.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT91.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT92.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT93.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT94.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT95.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT96.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT97.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT98.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPT99.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ChatGPTEx1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude10.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude100.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude11.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude12.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude13.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude14.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude15.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude16.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude17.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude18.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude19.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude20.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude21.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude22.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude23.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude24.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude25.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude26.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude27.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude28.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude29.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude30.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude31.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude32.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude33.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude34.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude35.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude36.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude37.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude38.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude39.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude4.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude40.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude41.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude42.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude43.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude44.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude45.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude46.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude47.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude48.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude49.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude5.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude50.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude51.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude52.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude53.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude54.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude55.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude56.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude57.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude58.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude59.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude6.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude60.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude61.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude62.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude63.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude64.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude65.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude66.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude67.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude68.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude69.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude7.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude70.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude71.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude72.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude73.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude74.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude75.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude76.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude77.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude78.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude79.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude8.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude80.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude81.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude82.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude83.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude84.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude85.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude86.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude87.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude88.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude89.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude9.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude90.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude91.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude92.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude93.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude94.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude95.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude96.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude97.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude98.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Claude99.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ClaudeEx1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ClaudeEx2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ClaudeEx3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_ClaudeEx4.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek10.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek100.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek11.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek12.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek13.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek14.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek15.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek16.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek17.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek18.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek19.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek20.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek21.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek22.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek23.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek24.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek25.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek26.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek27.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek28.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek29.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek30.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek31.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek32.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek33.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek34.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek35.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek36.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek37.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek38.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek39.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek4.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek40.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek41.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek42.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek43.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek44.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek45.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek46.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek47.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek48.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek49.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek5.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek50.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek51.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek52.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek53.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek54.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek55.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek56.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek57.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek58.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek59.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek6.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek60.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek61.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek62.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek63.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek64.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek65.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek66.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek67.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek68.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek69.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek7.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek70.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek71.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek72.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek73.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek74.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek75.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek76.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek77.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek78.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek79.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek8.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek80.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek81.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek82.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek83.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek84.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek85.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek86.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek87.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek88.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek89.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek9.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek90.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek91.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek92.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek93.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek94.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek95.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek96.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek97.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek98.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeek99.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_DeepSeekEx2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini10.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini100.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini11.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini12.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini13.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini14.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini15.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini16.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini17.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini18.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini19.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini20.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini21.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini22.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini23.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini24.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini25.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini26.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini27.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini28.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini29.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini30.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini31.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini32.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini33.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini34.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini35.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini36.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini37.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini38.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini39.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini4.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini40.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini41.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini42.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini43.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini44.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini45.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini46.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini47.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini48.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini49.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini5.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini50.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini51.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini52.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini53.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini54.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini55.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini56.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini57.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini58.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini59.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini6.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini60.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini61.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini62.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini63.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini64.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini65.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini66.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini67.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini68.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini69.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini7.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini70.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini71.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini72.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini73.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini74.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini75.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini76.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini77.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini78.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini79.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini8.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini80.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini81.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini82.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini83.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini84.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini85.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini86.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini87.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini88.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini89.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini9.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini90.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini91.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini92.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini93.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini94.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini95.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini96.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini97.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini98.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Gemini99.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_GeminiEx1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_GeminiEx2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_geminiEx3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok10.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok100.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok11.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok12.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok13.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok14.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok15.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok16.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok17.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok18.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok19.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok20.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok21.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok22.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok23.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok24.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok25.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok26.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok27.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok28.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok29.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok30.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok31.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok32.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok33.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok34.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok35.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok36.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok37.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok38.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok39.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok4.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok40.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok41.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok42.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok43.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok44.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok45.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok46.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok47.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok48.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok49.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok5.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok50.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok51.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok52.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok53.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok54.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok55.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok56.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok57.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok58.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok59.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok6.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok60.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok61.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok62.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok63.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok64.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok65.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok66.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok67.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok68.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok69.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok7.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok70.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok71.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok72.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok73.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok74.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok75.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok76.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok77.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok78.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok79.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok8.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok80.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok81.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok82.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok83.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok84.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok85.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok86.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok87.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok88.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok89.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok9.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok90.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok91.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok92.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok93.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok94.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok95.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok96.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok97.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok98.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Grok99.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_GrokEX1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade10.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade11.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade12.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade13.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade4.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade5.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade6.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade7.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade8.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_handmade9.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi30.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi31.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi32.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi33.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi34.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi35.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi36.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi37.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi38.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi39.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi40.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi41.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi42.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi43.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi44.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi45.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi46.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi47.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi49.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi50.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi51.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi52.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi53.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi54.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi55.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi56.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi57.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi58.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi59.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi60.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi61.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi62.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi63.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi64.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi65.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi66.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi67.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi68.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi69.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi70.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi71.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi72.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi73.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi74.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi75.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi76.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi77.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi78.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi79.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi80.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi81.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi82.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi83.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi84.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi85.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi86.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi87.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi88.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi89.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi90.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi91.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi93.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi94.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi95.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi96.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi97.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Kimi98.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_MetaAI100.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_MetaAI99.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen10.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen100.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen11.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen12.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen13.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen14.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen15.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen16.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen17.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen18.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen19.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen20.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen21.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen22.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen23.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen24.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen25.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen26.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen27.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen28.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen29.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen30.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen31.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen32.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen33.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen34.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen35.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen36.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen37.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen38.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen39.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen4.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen40.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen41.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen42.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen43.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen44.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen45.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen46.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen47.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen48.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen49.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen5.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen50.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen51.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen52.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen53.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen54.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen55.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen56.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen57.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen58.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen59.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen6.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen60.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen61.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen62.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen63.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen64.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen65.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen66.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen67.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen68.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen69.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen7.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen70.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen71.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen72.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen73.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen74.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen75.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen76.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen77.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen78.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen79.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen8.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen80.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen81.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen82.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen83.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen84.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen85.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen86.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen87.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen88.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen89.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen9.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen90.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen91.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen92.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen93.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen94.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen95.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen96.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen97.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen98.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Qwen99.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana10.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana11.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana12.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana13.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana14.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana15.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana16.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana17.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana18.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana19.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana20.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana21.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana22.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana23.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana24.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana25.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana26.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana27.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana28.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana29.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana30.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana31.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana32.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana33.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana34.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana35.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana36.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana37.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana38.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana39.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana4.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana40.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana41.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana48.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana5.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana6.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana7.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana8.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana9.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Sakana92.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe1.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe10.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe11.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe12.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe13.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe14.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe15.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe16.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe17.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe18.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe19.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe2.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe20.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe21.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe22.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe23.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe24.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe25.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe26.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe27.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe28.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe29.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe3.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe4.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe5.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe6.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe7.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe8.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Vibe9.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai100.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai42.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai43.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai44.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai45.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai46.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai47.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai48.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai49.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai50.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai51.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai52.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai53.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai54.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai55.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai56.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai57.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai58.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai59.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai60.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai61.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai62.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai63.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai64.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai65.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai66.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai67.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai68.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai69.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai70.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai71.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai72.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai73.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai74.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai75.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai76.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai77.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai78.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai79.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai80.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai81.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai82.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai83.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai84.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai85.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai86.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai87.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai88.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai89.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai90.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai91.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai92.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai93.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai94.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai95.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai96.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai97.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai98.cpp" />
+    <ClCompile Include="..\Shooting\enemyPat_Zai99.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
