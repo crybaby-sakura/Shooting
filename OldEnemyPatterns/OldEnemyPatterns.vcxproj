@@ -79,9 +79,10 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\include;D:\workspace\Visual_Cpp\Shooting\Shooting;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;E:\_Drive_N\program\vc2022\_tool\midifile\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -100,9 +101,10 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\include;D:\workspace\Visual_Cpp\Shooting\Shooting;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;E:\_Drive_N\program\vc2022\_tool\midifile\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -119,9 +121,10 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\include;D:\workspace\Visual_Cpp\Shooting\Shooting;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;E:\_Drive_N\program\vc2022\_tool\midifile\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -140,9 +143,10 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>D:\tools\DxLib_VC\include;D:\tools\midifile\include;D:\workspace\Visual_Cpp\Shooting\Shooting;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\_Drive_N\program\vc2022\_tool\DxLib_VC\include;E:\_Drive_N\program\vc2022\_tool\midifile\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
