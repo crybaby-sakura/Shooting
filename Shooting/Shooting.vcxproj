@@ -171,6 +171,14 @@
   <ItemGroup>
     <ClCompile Include="effectRand.cpp" />
     <ClCompile Include="enemy.cpp" />
+    <ClCompile Include="enemyPat_DeepSeek128.cpp" />
+    <ClCompile Include="enemyPat_ChatGPT128.cpp" />
+    <ClCompile Include="enemyPat_Gemini128.cpp" />
+    <ClCompile Include="enemyPat_Grok128.cpp" />
+    <ClCompile Include="enemyPat_Claude128.cpp" />
+    <ClCompile Include="enemyPat_Qwen128.cpp" />
+    <ClCompile Include="enemyPat_MetaAI128.cpp" />
+    <ClCompile Include="enemyPat_Zai128.cpp" />
     <ClCompile Include="enemyPat_DeepSeek127.cpp" />
     <ClCompile Include="enemyPat_ChatGPT127.cpp" />
     <ClCompile Include="enemyPat_Gemini127.cpp" />
