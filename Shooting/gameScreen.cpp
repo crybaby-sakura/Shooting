@@ -300,7 +300,7 @@ static void createRightSidePanelBG() {
 
     // 最終ステージの stageDescription より長い場合は小さめにする
     if (strlen(stageData[stageNum].stageDescription) >
-        strlen(stageData[stageData.size() - 1].stageDescription)) {
+        strlen(stageData[stageDataSize - 1].stageDescription)) {
         SetFontSize(defaultFontSize - 2);
         lineHeight -= 1;
     }

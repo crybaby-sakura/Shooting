@@ -72,6 +72,102 @@
     <ClCompile Include="enemyPat_tmp.cpp">
       <Filter>ソース ファイル\enemyPat</Filter>
     </ClCompile>
+    <ClCompile Include="enemyPat_DeepSeek110.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_ChatGPT110.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Gemini110.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Grok110.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Claude110.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Qwen110.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_MetaAI110.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Zai110.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_DeepSeek109.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_ChatGPT109.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Gemini109.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Grok109.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Claude109.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Qwen109.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_MetaAI109.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Zai109.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_DeepSeek108.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_ChatGPT108.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Gemini108.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Grok108.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Claude108.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Qwen108.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_MetaAI108.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Zai108.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_DeepSeek107.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_ChatGPT107.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Gemini107.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Grok107.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Claude107.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Qwen107.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_MetaAI107.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
+    <ClCompile Include="enemyPat_Zai107.cpp">
+      <Filter>ソース ファイル\enemyPat</Filter>
+    </ClCompile>
     <ClCompile Include="enemyPat_DeepSeek106.cpp">
       <Filter>ソース ファイル\enemyPat</Filter>
     </ClCompile>

@@ -1,6 +1,5 @@
 ﻿// stageData.h
 #pragma once
-#include <vector> 
 
 // ステージ情報をまとめた構造体
 struct StageInfo {
@@ -15,8 +14,9 @@ struct StageInfo {
     unsigned int playCount = 0;    // プレイ回数（後で代入）
 };
 
-// サイズは初期化リストから自動決定
-extern std::vector<StageInfo> stageData;
+// 外部参照用の宣言
+extern StageInfo stageData[];
+extern const int stageDataSize;
 
 // 各敵パターン関数の宣言（ステージ数分）
 extern void EnemyPat_SampleForAI();
@@ -893,3 +893,35 @@ extern void EnemyPat_Ikaruga_Claude();
 extern void EnemyPat_Ikaruga_Qwen();
 extern void EnemyPat_Ikaruga_MetaAI();
 extern void EnemyPat_Ikaruga_Zai();
+extern void EnemyPat_ThunderInRain_DeepSeek();
+extern void EnemyPat_ThunderInRain_ChatGPT();
+extern void EnemyPat_ThunderInRain_Gemini();
+extern void EnemyPat_ThunderInRain_Grok();
+extern void EnemyPat_ThunderInRain_Claude();
+extern void EnemyPat_ThunderInRain_Qwen();
+extern void EnemyPat_ThunderInRain_MetaAI();
+extern void EnemyPat_ThunderInRain_Zai();
+extern void EnemyPat_FixedMaze_DeepSeek();
+extern void EnemyPat_FixedMaze_ChatGPT();
+extern void EnemyPat_FixedMaze_Gemini();
+extern void EnemyPat_FixedMaze_Grok();
+extern void EnemyPat_FixedMaze_Claude();
+extern void EnemyPat_FixedMaze_Qwen();
+extern void EnemyPat_FixedMaze_MetaAI();
+extern void EnemyPat_FixedMaze_Zai();
+extern void EnemyPat_RoseCurve_DeepSeek();
+extern void EnemyPat_RoseCurve_ChatGPT();
+extern void EnemyPat_RoseCurve_Gemini();
+extern void EnemyPat_RoseCurve_Grok();
+extern void EnemyPat_RoseCurve_Claude();
+extern void EnemyPat_RoseCurve_Qwen();
+extern void EnemyPat_RoseCurve_MetaAI();
+extern void EnemyPat_RoseCurve_Zai();
+extern void EnemyPat_RingToss_DeepSeek();
+extern void EnemyPat_RingToss_ChatGPT();
+extern void EnemyPat_RingToss_Gemini();
+extern void EnemyPat_RingToss_Grok();
+extern void EnemyPat_RingToss_Claude();
+extern void EnemyPat_RingToss_Qwen();
+extern void EnemyPat_RingToss_MetaAI();
+extern void EnemyPat_RingToss_Zai();

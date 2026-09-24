@@ -227,12 +227,12 @@ void menuDraw()
         x = gridLeft + col * cellW + (cellW - TEXT_W) / 2;  // セル内で中央揃え
         y = GRID_TOP + row * CELL_H + (CELL_H - TEXT_H) / 2 - 30;
 
-        unsigned int color = (idx < (int)stageData.size()) ? GetColor(255, 255, 255) : GetColor(127, 127, 127);
+        unsigned int color = (idx < stageDataSize) ? GetColor(255, 255, 255) : GetColor(127, 127, 127);
         DrawFormatString(x, y, color, "%3d", idx);
     }
 
     // ---------- 説明文エリア（変更なし） ----------
-    if (stageNum >= 0 && stageNum < (int)stageData.size()) {
+    if (stageNum >= 0 && stageNum < stageDataSize) {
         const int descAreaLeft = MARGIN_X;
         const int descAreaRight = GAME_W - MARGIN_X;
         const int descAreaWidth = descAreaRight - descAreaLeft;
@@ -300,7 +300,7 @@ void moveCursor()
 {
     stageNum = cursor.page * 100 + cursor.y * 10 + cursor.x;
 
-    if (key[KEY_INPUT_V] == 1 && stageNum < (int)stageData.size()) {
+    if (key[KEY_INPUT_V] == 1 && stageNum < stageDataSize) {
         if (g_isAutoTasMode) {
             TAS_AutoSearchStart();
             return;
@@ -310,7 +310,7 @@ void moveCursor()
         return;
     }
 
-    if (key[KEY_INPUT_R] == 1 && stageNum < (int)stageData.size()) {
+    if (key[KEY_INPUT_R] == 1 && stageNum < stageDataSize) {
         if (!StateManager::ChangeState(Joutai::Replay)) {
             showReplayError = true;
             replayErrorTimer = 120;
@@ -349,11 +349,11 @@ void moveCursor()
     }
 
     if (key[KEY_INPUT_NUMPAD7] == 1) {
-        cursor.page = (cursor.page == 0) ? ((int)stageData.size() - 1) / 100 : cursor.page - 1;
+        cursor.page = (cursor.page == 0) ? (stageDataSize - 1) / 100 : cursor.page - 1;
         PlaySoundMem(sound_menuCursor, DX_PLAYTYPE_BACK);
     }
     if (key[KEY_INPUT_NUMPAD9] == 1) {
-        cursor.page = (cursor.page == ((int)stageData.size() - 1) / 100) ? 0 : cursor.page + 1;
+        cursor.page = (cursor.page == (stageDataSize - 1) / 100) ? 0 : cursor.page + 1;
         PlaySoundMem(sound_menuCursor, DX_PLAYTYPE_BACK);
     }
 

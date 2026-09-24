@@ -74,6 +74,7 @@ void startNewGame()
 	// 現在時刻をシードとして使用
 	gameSeed = GetNowCount();
 	SRand((int)gameSeed);
+	LogFileFmtAdd("%d", gameSeed);
 
 	iniGame();
 }

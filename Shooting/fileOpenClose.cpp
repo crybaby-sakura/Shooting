@@ -19,7 +19,7 @@ using json = nlohmann::json;
 void fileOpen()
 {
     // まず全ステージのベストタイムをデフォルト値（59999）で初期化
-    for (int i = 0; i < (int)stageData.size(); i++)
+    for (int i = 0; i < stageDataSize; i++)
     {
         stageData[i].bestTime = 59999;
     }
@@ -42,7 +42,7 @@ void fileOpen()
                 unsigned int value = it.value();
 
                 // stageData から該当するステージIDを探す
-                for (int i = 0; i < (int)stageData.size(); i++)
+                for (int i = 0; i < stageDataSize; i++)
                 {
                     if (key == stageData[i].stageId)
                     {
@@ -67,7 +67,7 @@ void fileClose()
 {
     json j = json::object();
 
-    for (int i = 0; i < (int)stageData.size(); i++)
+    for (int i = 0; i < stageDataSize; i++)
     {
         j[stageData[i].stageId] = stageData[i].bestTime;
     }
@@ -188,7 +188,7 @@ void saveWindowSettings()
 void loadPlayCount()
 {
     // デフォルトは0
-    for (int i = 0; i < (int)stageData.size(); i++)
+    for (int i = 0; i < stageDataSize; i++)
         stageData[i].playCount = 0;
 
     std::ifstream ifs("saveData/playCount.json");
@@ -201,7 +201,7 @@ void loadPlayCount()
             for (auto it = j.begin(); it != j.end(); ++it) {
                 std::string key = it.key();
                 unsigned int value = it.value();
-                for (int i = 0; i < (int)stageData.size(); i++) {
+                for (int i = 0; i < stageDataSize; i++) {
                     if (key == stageData[i].stageId) {
                         stageData[i].playCount = value;
                         break;
@@ -216,7 +216,7 @@ void loadPlayCount()
 void savePlayCount()
 {
     json j = json::object();
-    for (int i = 0; i < (int)stageData.size(); i++)
+    for (int i = 0; i < stageDataSize; i++)
         j[stageData[i].stageId] = stageData[i].playCount;
 
     std::ofstream ofs("saveData/playCount.json");
