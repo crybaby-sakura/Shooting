@@ -14,7 +14,7 @@ void playerShotControl()
 
 	pPlayerShot = playerShotHead.next;
 	while (pPlayerShot != &playerShotHead) {
-		pPlayerShot->y -= 10.0;
+		pPlayerShot->y -= 15.0;
 		pPlayerShot = pPlayerShot->next;
 	}
 }
@@ -27,7 +27,7 @@ void playerShotCalc()
 		pPlayerShot = new sPlayerShot;
 
 		pPlayerShot->x = player.x;
-		pPlayerShot->y = player.y - 20;
+		pPlayerShot->y = player.y - 25.0;
 
 		pPlayerShot->prev = playerShotHead.prev;
 		pPlayerShot->next = &playerShotHead;
@@ -37,8 +37,6 @@ void playerShotCalc()
 
 	pPlayerShot = playerShotHead.next;
 	while (pPlayerShot != &playerShotHead) {
-		pPlayerShot->y -= 5.0;
-
 		pNextPlayerShot = pPlayerShot->next;
 
 		if (pPlayerShot->y < -18.0) {
