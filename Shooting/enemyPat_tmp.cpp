@@ -1,234 +1,206 @@
-﻿#include "DxLib.h"
+﻿//---------------------------------------------------------------
+// enemyPat_Tmp.cpp
+// 弾幕: 焼き栗「いがぐり開殻」
+//
+// 既存弾の組み合わせで焼き栗を表現する
+//   大玉(橙)   = 焼いた栗の実
+//   小玉(黒)   = いが(鬼板)のトゲ
+//   鱗弾(黄)   = 開殻時にこぼれる中身
+//   中楕円弾(黄) = 加熱中に殻の隙間から覗く実
+//
+// 流れ:
+//   [形成]  栗の実+トゲを円形に静止配置(いがぐり)
+//   [加熱]  実が脈動し、中身がゆっくりこぼれはじめる(予告)
+//   [開殻]  実が2つに割れて飛び、トゲが波状で飛散、
+//           中身が全方位に放出される
+//---------------------------------------------------------------
+#include "DxLib.h"
 #include "gv.h"
 #include "imgSoundLoad.h"
 #include <math.h>
 
-// 弾幕：バブルソート・アセンション
-static void ShotBubbleSort(sEnemyShotSet* pEnemyShotSet)
+static const double TOGE_RADIUS = 30.0;   // いが(トゲ)の配置半径
+
+// 弾を生成してセットの弾リストへ追加
+static void AddShot(sEnemyShotSet* pSet, double x, double y,
+    double muki, double speed, int kind, int role)
 {
-    // 初期化フラグとして param_i[15] を使用 (0:未初期化, 1:初期化済み)
-    if (pEnemyShotSet->param_i[15] == 0) {
-        pEnemyShotSet->param_i[15] = 1;
+    sEnemyShot* p = new sEnemyShot;
+    p->x = x;
+    p->y = y;
+    p->muki = muki;
+    p->speed = speed;
+    p->kind = kind;
+    p->param_i[0] = role;   // 0=栗の本体 1=トゲ 2=中身 3=殻の半分
+    p->prev = pSet->pEnemyShotHead->prev;
+    p->next = pSet->pEnemyShotHead;
+    pSet->pEnemyShotHead->prev->next = p;
+    pSet->pEnemyShotHead->prev = p;
+}
 
-        // 予告音
-        if (CheckSoundMem(sound_enemyCharge)) StopSoundMem(sound_enemyCharge);
-        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
+// 効果音再生(二重再生防止付き)
+static void PlayShotSound(int soundHandle)
+{
+    if (CheckSoundMem(soundHandle)) StopSoundMem(soundHandle);
+    PlaySoundMem(soundHandle, DX_PLAYTYPE_BACK);
+}
 
-        // 5つの泡を生成（5列の配列に見立てる）
-        for (int i = 0; i < 5; i++) {
-            sEnemyShot* pShot = new sEnemyShot;
-            pShot->x = 120.0 + i * 60.0;       // 列: 120, 180, 240, 300, 360
-            pShot->y = 480.0 + i * 10.0;       // 画面下部から少しずらして発生
+// ------------------------------------------------------------
+// 弾幕本体: いがぐり開殻
+// ------------------------------------------------------------
+static void ShotChestnut(sEnemyShotSet* pSet)
+{
+    sEnemyShot* pShot;
+    sEnemyShot* pNext;
 
-            pShot->param_i[0] = GetRand(8) + 1; // 値: 1〜9
-            pShot->param_i[1] = i;              // 現在の列インデックス 0〜4
+    // ---- 形成フェーズ: いがぐりを作る ----
+    if (pSet->count == 0) {
+        PlayShotSound(sound_enemyCharge);   // 予告音
 
-            // 値に応じて色を変更
-            int val = pShot->param_i[0];
-            int color = 4; // デフォルト青
-            if (val == 1) color = 4;
-            else if (val == 2) color = 3;
-            else if (val == 3) color = 2;
-            else if (val == 4) color = 1;
-            else if (val == 5) color = 8;
-            else if (val == 6) color = 0;
-            else if (val == 7) color = 5;
-            else if (val == 8) color = 6;
-            else if (val == 9) color = 7;
+        int togeNum = (12 + (pSet->kind % 3) * 2)*2;   // 12/14/16個が巡回
 
-            // 値が大きいほど泡も大きくする
-            if (val >= 7) {
-                pShot->kind = img_enemyShotLargeBall[color];
-            }
-            else {
-                pShot->kind = img_enemyShotMediumBall[color];
-            }
+        // 栗の実(大玉・橙)を中心に配置
+        AddShot(pSet, pSet->x, pSet->y, 0.0, 0.0, img_enemyShotLargeBall[8], 0);
 
-            pShot->speed = 2.5 / 2; // 上昇速度
-            pShot->margin = 100.0; // 画面外消去マージン
-
-            // リンクリストに追加
-            pShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pShot;
+        // いがのトゲ(小玉・黒)を円形に静止配置
+        for (int i = 0; i < togeNum; i++) {
+            double angle = i / (double)togeNum * 2.0 * DX_PI;
+            AddShot(pSet,
+                pSet->x + cos(angle) * TOGE_RADIUS,
+                pSet->y + sin(angle) * TOGE_RADIUS,
+                0.0, 0.0, img_enemyShotSmallBall[7], 1);
+            // 放射方向と発射遅延を記録(遅延で波状に飛び散らせる)
+            sEnemyShot* pToge = pSet->pEnemyShotHead->prev;
+            pToge->param_d[0] = angle;
+            pToge->param_i[1] = i;
+            pToge->margin = 80;
         }
-
-        // バブルソートの状態初期化
-        pEnemyShotSet->param_i[0] = 0; // pass (比較ラウンド)
-        pEnemyShotSet->param_i[1] = 0; // j (比較インデックス)
-        pEnemyShotSet->param_i[2] = 0; // 状態 (0:ソート中, 1:完了)
-        pEnemyShotSet->param_i[3] = 0; // レーザー発射フラグ
     }
 
-    // ==========================================
-    // ソート完了後の処理（泡の破裂とレーザー発射）
-    // ==========================================
-    if (pEnemyShotSet->param_i[2] == 1) {
-        if (pEnemyShotSet->param_i[3] == 0) {
-            pEnemyShotSet->param_i[3] = 1;
+    // ---- 加熱開始(焼き始め) ----
+    if (pSet->count == 120) {
+        PlayShotSound(sound_enemyShot_light);
+    }
 
-            // 整列された値の最大値を取得し、泡をすべて削除
-            sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-            int max_val = 0;
-            while (pShot != pEnemyShotSet->pEnemyShotHead) {
-                if (pShot->param_i[0] > max_val) max_val = pShot->param_i[0];
+    // ---- 加熱中: 実がこぼれはじめる(開殻の予告を兼ねる) ----
+    if (pSet->count >= 120 && pSet->count < 200 && pSet->count % 4 == 0) {
+        double a = GetRand(360) / 180.0 * DX_PI;
+        AddShot(pSet, pSet->x, pSet->y, a, 0.8, img_enemyShotMediumOval[1], 2);
+    }
 
-                // 泡をリンクリストから外して削除
+    // ---- 開殻: パカッと割れる ----
+    if (pSet->count == 200) {
+        PlayShotSound(sound_enemyShot_heavy);
+
+        double diff = pSet->param_d[0];   // 難易度倍率
+
+        // 栗の本体(役割0)を削除
+        pShot = pSet->pEnemyShotHead->next;
+        while (pShot != pSet->pEnemyShotHead) {
+            pNext = pShot->next;
+            if (pShot->param_i[0] == 0) {
                 pShot->prev->next = pShot->next;
                 pShot->next->prev = pShot->prev;
                 delete pShot;
-
-                pShot = pEnemyShotSet->pEnemyShotHead->next;
             }
-
-            // 完了時のレーザー発射
-            if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
-            PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
-
-            int laser_count = max_val; // 最大値の本数だけ発射
-            pEnemyShotSet->y = 0.0;
-            double base_muki = atan2(player.y - pEnemyShotSet->y, player.x - pEnemyShotSet->x);
-            for (int i = 0; i < laser_count; i++) {
-                sEnemyShot* pLaser = new sEnemyShot;
-                pLaser->x = pEnemyShotSet->x;
-                pLaser->y = pEnemyShotSet->y;
-                // 扇状に広がるように角度を調整
-                pLaser->muki = base_muki + (i - (laser_count - 1) / 2.0) * (DX_PI / 16.0);
-                pLaser->speed = 4.0;
-                pLaser->kind = img_enemyShotLaser[6]; // 白レーザー
-                pLaser->margin = 100.0;
-
-                pLaser->prev = pEnemyShotSet->pEnemyShotHead->prev;
-                pLaser->next = pEnemyShotSet->pEnemyShotHead;
-                pEnemyShotSet->pEnemyShotHead->prev->next = pLaser;
-                pEnemyShotSet->pEnemyShotHead->prev = pLaser;
-            }
+            pShot = pNext;
         }
 
-        // レーザーの移動処理
-        sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-        while (pShot != pEnemyShotSet->pEnemyShotHead) {
-            pShot->x += pShot->speed * cos(pShot->muki);
-            pShot->y += pShot->speed * sin(pShot->muki);
-            pShot = pShot->next;
+        // 殻が左右2つに割れてはじけ飛ぶ(大玉)
+        AddShot(pSet, pSet->x - 8.0, pSet->y,
+            -DX_PI / 2.0 - 0.5, 1.5 * diff, img_enemyShotLargeBall[8], 3);
+        AddShot(pSet, pSet->x + 8.0, pSet->y,
+            -DX_PI / 2.0 + 0.5, 1.5 * diff, img_enemyShotLargeBall[8], 3);
+
+        // 中身(鱗弾・黄)が全方位にこぼれる(放射状なので避け道あり)
+        for (int i = 0; i < 12*3; i++) for (int j = 0; j < 3; j++) {
+            double a = i / 12.0/3 * 2.0 * DX_PI
+                + (GetRand(20) - 10) / 180.0 * DX_PI;
+            AddShot(pSet, pSet->x, pSet->y, a,
+                (2.2 + GetRand(100) / 100.0) * diff + j,
+                img_enemyShotScale[1], 2);
         }
-        return;
     }
 
-    // ==========================================
-    // ソート中の処理（上昇と比較・交換）
-    // ==========================================
-    // 泡の上昇処理
-    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-    while (pShot != pEnemyShotSet->pEnemyShotHead) {
-        pShot->y -= pShot->speed;
-        pShot = pShot->next;
-    }
-
-    // バブルソートの比較・交換処理 (30フレームごとに1ステップ進行)
-    if (pEnemyShotSet->count % 30 == 0) {
-        int pass = pEnemyShotSet->param_i[0];
-        int j = pEnemyShotSet->param_i[1];
-
-        if (pass < 5) {
-            if (j < 4 - pass) {
-                // j 番目と j+1 番目の泡をリンクリストから探す
-                sEnemyShot* shot_j = nullptr;
-                sEnemyShot* shot_j1 = nullptr;
-
-                pShot = pEnemyShotSet->pEnemyShotHead->next;
-                while (pShot != pEnemyShotSet->pEnemyShotHead) {
-                    if (pShot->param_i[1] == j) shot_j = pShot;
-                    if (pShot->param_i[1] == j + 1) shot_j1 = pShot;
-                    pShot = pShot->next;
+    // ---- 各弾の挙動 ----
+    pShot = pSet->pEnemyShotHead->next;
+    while (pShot != pSet->pEnemyShotHead) {
+        pNext = pShot->next;   // ループ中に削除するため先に保存
+        switch (pShot->param_i[0]) {
+        case 0:     // 栗の本体: 加熱中に脈動(焼けている演出&開殻予告)
+            if (pSet->count >= 120) {
+                double pulse = sin((pSet->count - 120) * 0.25);
+                pShot->x = pSet->x + pulse * 4.0;
+                pShot->y = pSet->y - pulse * 4.0;
+            }
+            break;
+        case 1:     // いがのトゲ: 予告→波状で飛散
+            if (pShot->speed == 0.0) {
+                if (pSet->count >= 200 + pShot->param_i[1]) {
+                    // 飛び散る! 角度に±15°のランダム幅
+                    pShot->speed = (3.5 + GetRand(150) / 100.0) * pSet->param_d[0]+1;
+                    pShot->muki = pShot->param_d[0]
+                        + (GetRand(30) - 15) / 180.0 * DX_PI;
                 }
-
-                if (shot_j && shot_j1) {
-                    // 左 > 右 なら交換（スワップ）
-                    if (shot_j->param_i[0] > shot_j1->param_i[0]) {
-                        int tmp_col = shot_j->param_i[1];
-                        shot_j->param_i[1] = shot_j1->param_i[1];
-                        shot_j1->param_i[1] = tmp_col;
-
-                        // 2. x座標を即時交換（視覚的な位置入れ替え）
-                        double tmp_x = shot_j->x;
-                        shot_j->x = shot_j1->x;
-                        shot_j1->x = tmp_x;
-
-                        // 3. 交換ノイズ弾（自機狙い）を発生させて「反発」を表現
-                        if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
-                        PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
-
-                        double mid_x = (shot_j->x + shot_j1->x) / 2.0;
-                        double mid_y = (shot_j->y + shot_j1->y) / 2.0;
-                        double noise_muki = atan2(player.y - mid_y, player.x - mid_x);
-
-                        for (int k = 0; k < 3; k++) {
-                            sEnemyShot* pNoise = new sEnemyShot;
-                            pNoise->x = mid_x;
-                            pNoise->y = mid_y;
-
-                            pNoise->param_i[0] = 0;  // ソート完了時の最大値判定に影響させない
-                            pNoise->param_i[1] = -1; // バブルソートの列検索(j)対象から除外
-
-                            pNoise->muki = noise_muki + (k - 1) * (DX_PI / 8.0);
-                            pNoise->speed = 3.0;
-                            pNoise->kind = img_enemyShotSmallBall[1]; // 黄色小玉
-                            pNoise->margin = 50.0;
-
-                            pNoise->prev = pEnemyShotSet->pEnemyShotHead->prev;
-                            pNoise->next = pEnemyShotSet->pEnemyShotHead;
-                            pEnemyShotSet->pEnemyShotHead->prev->next = pNoise;
-                            pEnemyShotSet->pEnemyShotHead->prev = pNoise;
-                        }
-                    }
+                else if (pSet->count >= 160) {
+                    // 開殻直前の微振動(明滅予告)
+                    pShot->x = pSet->x + cos(pShot->param_d[0]) * TOGE_RADIUS
+                        + (GetRand(3) - 1);
+                    pShot->y = pSet->y + sin(pShot->param_d[0]) * TOGE_RADIUS
+                        + (GetRand(3) - 1);
                 }
-                pEnemyShotSet->param_i[1]++; // j++
             }
             else {
-                // 1ラウンド終了。次のpassへ
-                pEnemyShotSet->param_i[0]++; // pass++
-                pEnemyShotSet->param_i[1] = 0; // j = 0
+                pShot->kind = img_enemyShotLaser[7];
+                pShot->x += pShot->speed * cos(pShot->muki);
+                pShot->y += pShot->speed * sin(pShot->muki);
             }
+            break;
+        default:    // 中身(2)・殻の半分(3): 等速直進
+            pShot->x += pShot->speed * cos(pShot->muki);
+            pShot->y += pShot->speed * sin(pShot->muki);
+            break;
         }
-        else {
-            // 全てのpassが完了 = ソート完了
-            pEnemyShotSet->param_i[2] = 1;
-        }
+        pShot = pNext;
     }
 }
 
+// ------------------------------------------------------------
 // 敵本体のパターン
+// ------------------------------------------------------------
 void EnemyPat_Tmp()
 {
-    static int shot_count;
+    static int muki;
+    static int shotCount;
 
     if (count == 1) {
         // ゲーム画面は 480x480
         enemy.x = 240.0;
-        enemy.y = 80.0;
-        enemy.maxHp = enemy.hp = 200; // HPは300で固定
-        shot_count = 0;
+        enemy.y = 60.0;
+        enemy.maxHp = enemy.hp = 200;   // 200で固定
+        muki = 1;
+        shotCount = 0;
     }
     else {
-        // 敵は左右にゆっくりと正弦波移動
-        enemy.x += 0.5 * sin(count * 0.02);
+        enemy.x += 0.98 * (double)muki;
+        if (count % 120 == 60) muki *= -1;
     }
 
-    if (count % 100 == 1) {
+    // いがぐりを定期的に生成(発生位置は左・中央・右を巡回)
+    if (count >= 30 && count % 180 == 30) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
         pEnemyShotSet->count = 0;
-        pEnemyShotSet->patternFunc = ShotBubbleSort;
-        pEnemyShotSet->x = enemy.x;
-        pEnemyShotSet->y = 480.0; // 画面下部から泡が発生する起点
-        pEnemyShotSet->kind = shot_count++;
-        pEnemyShotSet->param_i[15] = 0; // 初期化フラグを明示的にリセット
-
+        pEnemyShotSet->patternFunc = ShotChestnut;
+        pEnemyShotSet->x = 120.0 + (shotCount % 3) * 120.0;
+        pEnemyShotSet->y = 120.0;
+        pEnemyShotSet->muki = 0.0;
+        pEnemyShotSet->kind = shotCount++;
+        // ループごとに弾速が上がる(難易度上昇) 上限1.5倍
+        double diff = 1.0 + (pEnemyShotSet->kind % 5) * 0.125;
+        pEnemyShotSet->param_d[0] = diff;
         pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
         pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
         pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
-
         pEnemyShotSet->prev = enemyShotSetHead.prev;
         pEnemyShotSet->next = &enemyShotSetHead;
         enemyShotSetHead.prev->next = pEnemyShotSet;
