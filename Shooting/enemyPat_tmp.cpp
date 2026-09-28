@@ -1,228 +1,164 @@
 ﻿// enemyPat_Tmp.cpp
-// 弾幕:バックドラフト
-//
-//  [Phase 0 燻り]   : 画面全域に停滞弾(暗い赤)をばら撒く
-//  [Phase 1 酸素流入]: 画面外周から加速弾(シアン)が風となって吹き込み、
-//                      停滞弾がボス方向へ引き寄せられ、橙に点滅して着火を予告する
-//  [Phase 2 引火]   : ボスからレーザーを一斉照射。停滞弾は時間差で
-//                      炎色(橙/黄)の高速弾となり、自機方向へ飛来する
-//
-//  1サイクル終了後、少し間を空けて次のサイクルへ。
-//  サイクルを重ねるごとに停滞弾が増加し、炎弾も高速化していく。
+// 弾幕「噴水 -カルーセル・スプラッシュ-」
+// ・噴水口から水柱(中玉シアン)を放物線で打ち上げ、頂点で飛沫(小玉白)に分裂
+// ・着水した水柱は波紋(小玉青)に変化して左右へ流れる
+// ・カウント・画面外消去はメインルーチン側の仕様に委ねる
 
 #include "DxLib.h"
 #include "gv.h"
 #include "imgSoundLoad.h"
 #include <math.h>
 
-// ============================================================
-//  定数
-// ============================================================
-static const int SMOLDER_END = 240;   // 燻り終了フレーム
-static const int INFLOW_END = 360;   // 酸素流入終了=引火開始フレーム
-static const int IGNITE_DELAY = 18;   // 引火の時間差(最大フレーム数)
-static const int CYCLE_FRAMES = 510-40;  // 1サイクルの長さ(引火後の余裕を含む)
+// ---- 噴水弾幕の調整用定数 ----
+static const double FOUNTAIN_GRAVITY = 0.12;   // 重力加速度(大きいほど水柱が低い)
+static const double FOUNTAIN_GROUND_Y = 440.0;  // 着水ライン(波紋が走る高さ)
+static const int    FOUNTAIN_CYCLE = 150;    // 噴水の1周期(フレーム)
+static const int    FOUNTAIN_SPRAY_END = 60;     // 吹き上げを止めるフレーム(周期の前半のみ噴射)
 
-// 弾の役割(param_i[0] に格納)
-static const int ROLE_SMOLDER = 0;  // 停滞弾(燻り)
-static const int ROLE_WIND = 1;  // 風(酸素流入)弾
-static const int ROLE_LASER = 2;  // 引火用レーザー
-static const int ROLE_FLAME = 3;  // 引火後の炎弾
+// 弾の状態 param_i[0] の意味
+//  0:水柱(頂点で分裂し、着水で波紋になる)
+//  1:根元の飛沫(分裂しない。画面外でメインルーチンが消去)
+//  2:頂点で分裂した飛沫(重力で落下し、画面外で消去)
+//  3:着水後の波紋(水面に沿って水平移動)
+static const int STATE_JET = 0;
+static const int STATE_MIST = 1;
+static const int STATE_SPLASH = 2;
+static const int STATE_RIPPLE = 3;
 
-// 色インデックス(画像配列の添字 = 色)
-static const int COLOR_RED = 0;
-static const int COLOR_YELLOW = 1;
-static const int COLOR_CYAN = 3;
-static const int COLOR_ORANGE = 8;
-
-// ============================================================
-//  弾の生成ヘルパー
-//  ballType: 0=小玉 1=中玉 2=大玉 3=レーザー
-// ============================================================
-static sEnemyShot* AddShot(sEnemyShotSet* pSet, double x, double y,
-    double muki, double speed, int color, int ballType)
+// 弾を1発生成してセットの弾リストに繋げる
+static sEnemyShot* SpawnFountainShot(sEnemyShotSet* pEnemyShotSet,
+    double x, double y,
+    double angle, double speed, int kind)
 {
-    sEnemyShot* pShot = new sEnemyShot;
-    pShot->x = x;
-    pShot->y = y;
-    pShot->muki = muki;
-    pShot->speed = speed;
-    pShot->margin = 120;
-    switch (ballType) {
-    case 0:  pShot->kind = img_enemyShotSmallBall[color];  break;
-    case 1:  pShot->kind = img_enemyShotMediumBall[color]; break;
-    case 2:  pShot->kind = img_enemyShotLargeBall[color];  break;
-    default: pShot->kind = img_enemyShotLaser[color];      break;
-    }
-    pShot->prev = pSet->pEnemyShotHead->prev;
-    pShot->next = pSet->pEnemyShotHead;
-    pSet->pEnemyShotHead->prev->next = pShot;
-    pSet->pEnemyShotHead->prev = pShot;
-    return pShot;
+    sEnemyShot* pEnemyShot = new sEnemyShot;
+    pEnemyShot->x = x;
+    pEnemyShot->y = y;
+    pEnemyShot->muki = angle;
+    pEnemyShot->speed = speed;
+    pEnemyShot->kind = kind;
+    pEnemyShot->param_d[0] = speed * cos(angle); // vx
+    pEnemyShot->param_d[1] = speed * sin(angle); // vy(上向きは負)
+    pEnemyShot->param_i[0] = STATE_JET;
+    pEnemyShot->param_i[1] = 0;                  // 頂点分裂済みフラグ
+    // リストの末尾に追加
+    pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+    pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+    pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+    pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+    return pEnemyShot;
 }
 
-// ============================================================
-//  バックドラフト弾幕本体
-//  pSet->kind = サイクル数(難易度)
-// ============================================================
-static void ShotBackdraft(sEnemyShotSet* pSet)
+// 噴水の弾幕パターン(セットごとに1周期分を自動運転)
+static void ShotFountain(sEnemyShotSet* pEnemyShotSet)
 {
-    int loop = pSet->kind; // 何周目か
-    int c = pSet->count;
+    int cycle = pEnemyShotSet->count ;
 
-    // 効果音(燻り開始)
-    if (c == 0) {
+    // 効果音:周期の先頭で発射音、次の噴射の20フレーム前に予告音
+    if (cycle == 0) {
         if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
         PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
     }
+    else if (cycle == FOUNTAIN_CYCLE - 20) {
+        if (CheckSoundMem(sound_enemyCharge)) StopSoundMem(sound_enemyCharge);
+        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
+    }
 
-    // ---- Phase 0:燻り(停滞弾を画面全域にばら撒く) ----
-    if (c < SMOLDER_END && c % 6 == 0) {
-        int tick = c / 6; // 0..39
-        // 基本の停滞弾
-        double sx = 0.0, sy = 0.0;
-        while (true) {
-            sx = 20.0-40 + GetRand(440+80);
-            sy = 60.0-80 + GetRand(380+160);
-            if (hypot(sx - player.x, sy - player.y) > 30) break;
+    // ---- 吹き上げ(周期の前半のみ) ----
+    if (cycle < FOUNTAIN_SPRAY_END) {
+        // 噴水口が左右に揺れる(0.35rad ≒ 20°)
+        double sway = sin(pEnemyShotSet->count * 0.03) * 0.35;
+
+        // 水柱:中玉シアンを2フレームに1発
+        if (cycle % 2 == 0) {
+            double angle = -DX_PI / 2.0 + sway + (GetRand(22) - 11) / 180.0 * DX_PI;
+            SpawnFountainShot(pEnemyShotSet, pEnemyShotSet->x, pEnemyShotSet->y,
+                angle, 4.0 + GetRand(60) / 100.0,
+                img_enemyShotMediumBall[3]); // シアン
         }
-        double m = GetRand(360) / 180.0 * DX_PI;
-        sEnemyShot* pShot = AddShot(pSet, sx, sy, m, 0.25, COLOR_RED, 0);
-        pShot->param_i[0] = ROLE_SMOLDER;
-        pShot->param_i[2] = GetRand(9); // 点滅の位相ずらし用
-        // ループが進むごとに停滞弾が増える(+5発/周、最大+25発)
-        int extra = loop;
-        if (extra > 5) extra = 5;
-        for (int i = 0; i < extra; i++) {
-            if (tick % 8 == 7 - i) {
-                double sx2 = 0.0, sy2 = 0.0;
-                while (true) {
-                    sx2 = 20.0 - 40 + GetRand(440 + 80);
-                    sy2 = 60.0 - 80 + GetRand(380 + 160);
-                    if (hypot(sx2 - player.x, sy2 - player.y) > 30) break;
-                }
-                double m2 = GetRand(360) / 180.0 * DX_PI;
-                sEnemyShot* pShot2 = AddShot(pSet, sx2, sy2, m2, 0.25, COLOR_RED, 0);
-                pShot2->param_i[0] = ROLE_SMOLDER;
-                pShot2->param_i[2] = GetRand(9);
+        // 根元の飛沫:小玉白を4フレームに2発
+        if (cycle % 4 == 0) {
+            for (int j = 0; j < 2; j++) {
+                double angle = -DX_PI / 2.0 + (GetRand(80) - 40) / 180.0 * DX_PI;
+                sEnemyShot* pMist = SpawnFountainShot(pEnemyShotSet,
+                    pEnemyShotSet->x, pEnemyShotSet->y,
+                    angle, 2.0 + GetRand(150) / 100.0,
+                    img_enemyShotSmallBall[6]); // 白
+                pMist->param_i[0] = STATE_MIST; // 分裂しない飛沫
             }
         }
     }
 
-    // ---- Phase 1:酸素流入(画面外周から風が吹き込む) ----
-    if (c >= SMOLDER_END && c < INFLOW_END && c % 15 == 0) {
-        if (c == SMOLDER_END) PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK); // 予告音
-        for (int i = 0; i < 6; i++) {
-            double sx, sy;
-            switch (GetRand(2)) { // 0..2 の3択
-            case 0:  sx = GetRand(480) * 1.0; sy = -10.0;  break; // 上から
-            case 1:  sx = -10.0;  sy = GetRand(480) * 1.0; break; // 左から
-            default: sx = 490.0;  sy = GetRand(480) * 1.0; break; // 右から
-            }
-            double m = atan2(enemy.y - sy, enemy.x - sx);
-            sEnemyShot* pShot = AddShot(pSet, sx, sy, m, 1.0, COLOR_CYAN, 0);
-            pShot->param_i[0] = ROLE_WIND;
-        }
-    }
+    // ---- 既存弾の更新(放物線運動・分裂・着水) ----
+    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
+    while (pShot != pEnemyShotSet->pEnemyShotHead) {
+        sEnemyShot* pNext = pShot->next; // ループ中に新弾を追加するため先に保存
 
-    // ---- Phase 2:引火(レーザー照射) ----
-    if (c == INFLOW_END) {
-        if (CheckSoundMem(sound_enemyShot_extreme)) StopSoundMem(sound_enemyShot_extreme);
-        PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
-        for (int i = 0; i < 3; i++) {
-            double m = atan2(player.y - enemy.y, player.x - enemy.x);
-            sEnemyShot* pShot = AddShot(pSet, enemy.x, enemy.y, m, 14.0, COLOR_ORANGE, 3);
-            pShot->param_i[0] = ROLE_LASER;
-        }
-    }
-
-    // ---- 各弾の更新 ----
-    sEnemyShot* pShot = pSet->pEnemyShotHead->next;
-    while (pShot != pSet->pEnemyShotHead) {
-        switch (pShot->param_i[0]) {
-        case ROLE_SMOLDER:
-            if (c < SMOLDER_END) {
-                // 燻り:ほぼ停止して漂う
-                pShot->x += pShot->speed * cos(pShot->muki);
-                pShot->y += pShot->speed * sin(pShot->muki);
-            }
-            else if (c < INFLOW_END) {
-                // 酸素流入:ボス方向へゆっくり引き寄せられ、橙に点滅(着火予告)
-                double m = atan2(enemy.y - pShot->y, enemy.x - pShot->x);
-                pShot->x += 0.5 * cos(m);
-                pShot->y += 0.5 * sin(m);
-                int blink = ((c / 8) + pShot->param_i[2]) % 2;
-                pShot->kind = img_enemyShotSmallBall[blink ? COLOR_ORANGE : COLOR_RED];
-            }
-            else {
-                // 引火待ち:時間差で発火(炎が燃え広がるように見せる)
-                if (pShot->param_i[1] == 0) {
-                    pShot->param_i[1] = c + GetRand(IGNITE_DELAY);
-                    pShot->kind = img_enemyShotSmallBall[COLOR_ORANGE];
-                }
-                if (c >= pShot->param_i[1]) {
-                    // 炎弾化:自機方向へ急加速
-                    pShot->param_i[0] = ROLE_FLAME;
-                    pShot->muki = atan2(player.y - pShot->y, player.x - pShot->x);
-                    pShot->speed = 4.0 + GetRand(100) / 100.0 + loop * 0.15;
-                    if (pShot->speed > 6.0) pShot->speed = 6.0;
-                    int col = (pShot->param_i[2] % 2) ? COLOR_ORANGE : COLOR_YELLOW;
-                    pShot->kind = img_enemyShotMediumBall[col]; // 中玉に変えて視認性アップ
-                }
-            }
-            break;
-
-        case ROLE_WIND:
-            // 風:ボス目掛けて加速していく
-            pShot->speed += 0.06;
-            if (pShot->speed > 6.0) pShot->speed = 6.0;
+        if (pShot->param_i[0] == STATE_RIPPLE) {
+            // 波紋:着水ラインに沿って左右へ流れる
             pShot->x += pShot->speed * cos(pShot->muki);
-            pShot->y += pShot->speed * sin(pShot->muki);
-            break;
-
-        case ROLE_LASER:
-        case ROLE_FLAME:
-            // 直進するだけ(画面外に出たらメインルーチンが消去)
-            pShot->x += pShot->speed * cos(pShot->muki);
-            pShot->y += pShot->speed * sin(pShot->muki);
-            break;
         }
-        pShot = pShot->next;
+        else {
+            // 重力を加えて放物線移動
+            pShot->param_d[1] += FOUNTAIN_GRAVITY;
+            pShot->x += pShot->param_d[0];
+            pShot->y += pShot->param_d[1];
+            pShot->muki = atan2(pShot->param_d[1], pShot->param_d[0]);
+            pShot->speed = sqrt(pShot->param_d[0] * pShot->param_d[0]
+                + pShot->param_d[1] * pShot->param_d[1]);
+
+            // 頂点で分裂(水柱のみ・1回だけ)
+            if (pShot->param_i[0] == STATE_JET
+                && pShot->param_i[1] == 0
+                && pShot->param_d[1] >= 0.0) {
+                pShot->param_i[1] = 1;
+                for (int j = 0; j < 2; j++) {
+                    // 下方向中心にランダム散開する飛沫(小玉白)
+                    sEnemyShot* pSplash = SpawnFountainShot(pEnemyShotSet,
+                        pShot->x, pShot->y,
+                        DX_PI / 2.0 + (GetRand(120) - 60) / 180.0 * DX_PI,
+                        1.5 + GetRand(100) / 100.0,
+                        img_enemyShotSmallBall[6]); // 白
+                    pSplash->param_i[0] = STATE_SPLASH;
+                }
+            }
+
+            // 着水したら波紋に変化(水柱のみ)
+            if (pShot->param_i[0] == STATE_JET
+                && pShot->y >= FOUNTAIN_GROUND_Y) {
+                pShot->y = FOUNTAIN_GROUND_Y;
+                pShot->kind = img_enemyShotSmallBall[4]; // 青
+                pShot->muki = (pShot->x < pEnemyShotSet->x) ? 0.0 : DX_PI; // 噴水口から遠ざかる方向
+                pShot->speed = 1.8 + GetRand(80) / 100.0;
+                pShot->param_i[0] = STATE_RIPPLE;
+            }
+        }
+        pShot = pNext;
     }
 }
 
-// ============================================================
-//  敵本体のパターン
-// ============================================================
+// 敵本体のパターン
 void EnemyPat_Tmp()
 {
-    static int muki;
-    static int cycle;   // サイクル内の経過フレーム
-    static int loopNum; // サイクル数(難易度)
-
     if (count == 1) {
         // ゲーム画面は 480x480
         enemy.x = 240.0;
-        enemy.y = 40.0;
+        enemy.y = 90.0;
         enemy.maxHp = enemy.hp = 200; // 200から変更しないこと
-        muki = 1;
-        cycle = 0;
-        loopNum = 0;
     }
     else {
-        enemy.x += 0.98 * (double)muki;
-        if (count % 120 == 60) muki *= -1;
+        // 噴水本体は左右に動かず、ゆっくり上下に浮遊する
+        enemy.y = 90.0 + sin(count * 0.03) * 8.0;
     }
 
-    // サイクル管理:周期ごとに新しいバックドラフトを開始する
-    if (cycle == 0) {
+    // 周期の先頭で噴水セットを1つ生成(以降はセット側で自動運転)
+    if (count % FOUNTAIN_CYCLE == 1) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
         pEnemyShotSet->count = 0;
-        pEnemyShotSet->patternFunc = ShotBackdraft;
+        pEnemyShotSet->patternFunc = ShotFountain;
         pEnemyShotSet->x = enemy.x;
-        pEnemyShotSet->y = enemy.y;
+        pEnemyShotSet->y = enemy.y + 20.0; // 噴水口の位置
         pEnemyShotSet->muki = 0.0;
-        pEnemyShotSet->kind = loopNum++; // サイクル数=難易度を記録
+        pEnemyShotSet->kind = 0;
         pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
         pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
         pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
@@ -231,7 +167,4 @@ void EnemyPat_Tmp()
         enemyShotSetHead.prev->next = pEnemyShotSet;
         enemyShotSetHead.prev = pEnemyShotSet;
     }
-
-    cycle++;
-    if (cycle >= CYCLE_FRAMES) cycle = 0;
 }
