@@ -1,170 +1,249 @@
 ﻿// enemyPat_Tmp.cpp
-// 弾幕「噴水 -カルーセル・スプラッシュ-」
-// ・噴水口から水柱(中玉シアン)を放物線で打ち上げ、頂点で飛沫(小玉白)に分裂
-// ・着水した水柱は波紋(小玉青)に変化して左右へ流れる
-// ・カウント・画面外消去はメインルーチン側の仕様に委ねる
-
 #include "DxLib.h"
 #include "gv.h"
 #include "imgSoundLoad.h"
 #include <math.h>
 
-// ---- 噴水弾幕の調整用定数 ----
-static const double FOUNTAIN_GRAVITY = 0.12;   // 重力加速度(大きいほど水柱が低い)
-static const double FOUNTAIN_GROUND_Y = 440.0;  // 着水ライン(波紋が走る高さ)
-static const int    FOUNTAIN_CYCLE = 150;    // 噴水の1周期(フレーム)
-static const int    FOUNTAIN_SPRAY_END = 60;     // 吹き上げを止めるフレーム(周期の前半のみ噴射)
+// 10分 = 60fps * 600秒 = 36000フレーム
+static const int TOTAL_FRAMES = 36000/20;
+// 最後の1秒 = 60フレーム
+static const int FINAL_FRAMES = 60;
 
-// 弾の状態 param_i[0] の意味
-//  0:水柱(頂点で分裂し、着水で波紋になる)
-//  1:根元の飛沫(分裂しない。画面外でメインルーチンが消去)
-//  2:頂点で分裂した飛沫(重力で落下し、画面外で消去)
-//  3:着水後の波紋(水面に沿って水平移動)
-static const int STATE_JET = 0;
-static const int STATE_MIST = 1;
-static const int STATE_SPLASH = 2;
-static const int STATE_RIPPLE = 3;
+// 敵出現時の count を記録（パターン関数からも参照する）
+static int g_startCount = -1;
 
-// 弾を1発生成してセットの弾リストに繋げる
-static sEnemyShot* SpawnFountainShot(sEnemyShotSet* pEnemyShotSet,
-    double x, double y,
-    double angle, double speed, int kind)
+// 前方宣言
+static void PatternGridReflect(sEnemyShotSet* pEnemyShotSet);
+static void PatternWave(sEnemyShotSet* pEnemyShotSet);
+
+// 弾幕セットを生成するヘルパー
+static void CreateSet(sEnemyShotSet::PatternFunc func, double x, double y, double muki, int kind)
 {
-    sEnemyShot* pEnemyShot = new sEnemyShot;
-    pEnemyShot->x = x;
-    pEnemyShot->y = y;
-    pEnemyShot->muki = angle;
-    pEnemyShot->speed = speed;
-    pEnemyShot->kind = kind;
-    pEnemyShot->param_d[0] = speed * cos(angle); // vx
-    pEnemyShot->param_d[1] = speed * sin(angle); // vy(上向きは負)
-    pEnemyShot->param_i[0] = STATE_JET;
-    pEnemyShot->param_i[1] = 0;                  // 頂点分裂済みフラグ
-    // リストの末尾に追加
-    pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-    pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-    pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-    pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
-    return pEnemyShot;
+    sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
+    pEnemyShotSet->count = 0;
+    pEnemyShotSet->patternFunc = func;
+    pEnemyShotSet->x = x;
+    pEnemyShotSet->y = y;
+    pEnemyShotSet->muki = muki;
+    pEnemyShotSet->kind = kind;
+
+    pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
+    pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
+    pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
+
+    pEnemyShotSet->prev = enemyShotSetHead.prev;
+    pEnemyShotSet->next = &enemyShotSetHead;
+    enemyShotSetHead.prev->next = pEnemyShotSet;
+    enemyShotSetHead.prev = pEnemyShotSet;
 }
 
-// 噴水の弾幕パターン(セットごとに1周期分を自動運転)
-static void ShotFountain(sEnemyShotSet* pEnemyShotSet)
+// ------------------------------------------------------------
+// 格子弾パターン：反射・追尾・巨大化・最終収束
+// ------------------------------------------------------------
+static void PatternGridReflect(sEnemyShotSet* pEnemyShotSet)
 {
-    int cycle = pEnemyShotSet->count ;
+    if (pEnemyShotSet->count == 0) {
+        // 効果音（予告・生成）
+        if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
+        PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
 
-    // 効果音:周期の先頭で発射音、次の噴射の20フレーム前に予告音
-    if (cycle == 0) {
-        if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
-        PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
-    }
-    else if (cycle == FOUNTAIN_CYCLE - 20) {
-        if (CheckSoundMem(sound_enemyCharge)) StopSoundMem(sound_enemyCharge);
-        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
-    }
+        // プレイヤー速度記録用の初期値
+        pEnemyShotSet->param_d[0] = player.x;
+        pEnemyShotSet->param_d[1] = player.y;
 
-    // ---- 吹き上げ(周期の前半のみ) ----
-    if (cycle < FOUNTAIN_SPRAY_END) {
-        // 噴水口が左右に揺れる(0.35rad ≒ 20°)
-        double sway = sin(pEnemyShotSet->count * 0.03) * 0.35;
+        // 16x16 = 256 発の低速格子弾
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                sEnemyShot* pEnemyShot = new sEnemyShot;
+                pEnemyShot->x = 15.0 + i * 30.0;
+                pEnemyShot->y = 15.0 + j * 30.0;
+                pEnemyShot->muki = GetRand(359) / 180.0 * DX_PI;
+                pEnemyShot->speed = 0.5 + GetRand(100) / 100.0;
+                pEnemyShot->kind = img_enemyShotSmallBall[GetRand(8)];
+                pEnemyShot->param_i[0] = 0; // 反射回数
+                pEnemyShot->param_i[1] = 0; // 巨大化段階
 
-        // 水柱:中玉シアンを2フレームに1発
-        if (cycle % 2 == 0) {
-            double angle = -DX_PI / 2.0 + sway + (GetRand(22) - 11) / 180.0 * DX_PI;
-            SpawnFountainShot(pEnemyShotSet, pEnemyShotSet->x, pEnemyShotSet->y,
-                angle, 4.0 + GetRand(60) / 100.0,
-                img_enemyShotMediumBall[3]); // シアン
-        }
-        // 根元の飛沫:小玉白を4フレームに2発
-        if (cycle % 4 == 0) {
-            for (int j = 0; j < 2; j++) {
-                double angle = -DX_PI / 2.0 + (GetRand(80) - 40) / 180.0 * DX_PI;
-                sEnemyShot* pMist = SpawnFountainShot(pEnemyShotSet,
-                    pEnemyShotSet->x, pEnemyShotSet->y,
-                    angle, 2.0 + GetRand(150) / 100.0,
-                    img_enemyShotSmallBall[6]); // 白
-                pMist->param_i[0] = STATE_MIST; // 分裂しない飛沫
+                pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+                pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+                pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+                pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
             }
         }
     }
 
-    // ---- 既存弾の更新(放物線運動・分裂・着水) ----
+    // プレイヤー速度を算出し、その逆方向へ弾を曲げる
+    double pvx = player.x - pEnemyShotSet->param_d[0];
+    double pvy = player.y - pEnemyShotSet->param_d[1];
+    pEnemyShotSet->param_d[0] = player.x;
+    pEnemyShotSet->param_d[1] = player.y;
+
+    double targetAngle = atan2(pvy, pvx) + DX_PI; // プレイヤーの移動と逆方向
+    double pvLen = sqrt(pvx * pvx + pvy * pvy);
+
+    bool finalPhase = (count - g_startCount) > (TOTAL_FRAMES - FINAL_FRAMES);
+
     sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
     while (pShot != pEnemyShotSet->pEnemyShotHead) {
-        sEnemyShot* pNext = pShot->next; // ループ中に新弾を追加するため先に保存
-
-        if (pShot->param_i[0] == STATE_RIPPLE) {
-            // 波紋:着水ラインに沿って左右へ流れる
-            pShot->x += pShot->speed * cos(pShot->muki);
+        if (finalPhase) {
+            // 最終1秒：全弾がプレイヤーへ収束
+            pShot->muki = atan2(player.y - pShot->y, player.x - pShot->x);
+            pShot->speed = 8.0 + (pShot->count % 60) * 0.1;
         }
         else {
-            // 重力を加えて放物線移動
-            pShot->param_d[1] += FOUNTAIN_GRAVITY;
-            pShot->x += pShot->param_d[0];
-            pShot->y += pShot->param_d[1];
-            pShot->muki = atan2(pShot->param_d[1], pShot->param_d[0]);
-            pShot->speed = sqrt(pShot->param_d[0] * pShot->param_d[0]
-                + pShot->param_d[1] * pShot->param_d[1]);
+            // 徐々に加速
+            if (pShot->speed < 6.0) pShot->speed += 0.001;
 
-            // 頂点で分裂(水柱のみ・1回だけ)
-            if (pShot->param_i[0] == STATE_JET
-                && pShot->param_i[1] == 0
-                && pShot->param_d[1] >= 0.0) {
-                pShot->param_i[1] = 1;
-                for (int j = 0; j < 2; j++) {
-                    // 下方向中心にランダム散開する飛沫(小玉白)
-                    sEnemyShot* pSplash = SpawnFountainShot(pEnemyShotSet,
-                        pShot->x, pShot->y,
-                        DX_PI / 2.0 + (GetRand(120) - 60) / 180.0 * DX_PI,
-                        1.5 + GetRand(100) / 100.0,
-                        img_enemyShotSmallBall[6]); // 白
-                    pSplash->param_i[0] = STATE_SPLASH;
-                }
-            }
-
-            // 着水したら波紋に変化(水柱のみ)
-            if (pShot->param_i[0] == STATE_JET
-                && pShot->y >= FOUNTAIN_GROUND_Y) {
-                pShot->y = FOUNTAIN_GROUND_Y;
-                pShot->kind = img_enemyShotSmallBall[4]; // 青
-                pShot->muki = (pShot->x < pEnemyShotSet->x) ? 0.0 : DX_PI; // 噴水口から遠ざかる方向
-                pShot->speed = 1.8 + GetRand(80) / 100.0;
-                pShot->param_i[0] = STATE_RIPPLE;
+            // プレイヤーの動きと逆方向へゆっくり旋回
+            if (pvLen > 0.1) {
+                double diff = targetAngle - pShot->muki;
+                while (diff > DX_PI) diff -= 2 * DX_PI;
+                while (diff < -DX_PI) diff += 2 * DX_PI;
+                pShot->muki += diff * 0.01;
             }
         }
-        pShot = pNext;
+
+        // 移動
+        pShot->x += pShot->speed * cos(pShot->muki);
+        pShot->y += pShot->speed * sin(pShot->muki);
+
+        // 壁反射（最終1秒は反射しない）
+        if (!finalPhase) {
+            if (pShot->x < 0.0) {
+                pShot->x = 0.0;
+                pShot->muki = DX_PI - pShot->muki;
+                pShot->speed *= 1.03;
+                pShot->param_i[0]++;
+            }
+            if (pShot->x > 480.0) {
+                pShot->x = 480.0;
+                pShot->muki = DX_PI - pShot->muki;
+                pShot->speed *= 1.03;
+                pShot->param_i[0]++;
+            }
+            if (pShot->y < 0.0) {
+                pShot->y = 0.0;
+                pShot->muki = -pShot->muki;
+                pShot->speed *= 1.03;
+                pShot->param_i[0]++;
+            }
+            if (pShot->y > 480.0) {
+                pShot->y = 480.0;
+                pShot->muki = -pShot->muki;
+                pShot->speed *= 1.03;
+                pShot->param_i[0]++;
+            }
+
+            // 反射回数に応じて弾を巨大化
+            if (pShot->param_i[0] > 5 && pShot->param_i[1] == 0) {
+                pShot->param_i[1] = 1;
+                pShot->kind = img_enemyShotMediumBall[GetRand(8)];
+            }
+            else if (pShot->param_i[0] > 10 && pShot->param_i[1] == 1) {
+                pShot->param_i[1] = 2;
+                pShot->kind = img_enemyShotLargeBall[GetRand(8)];
+            }
+        }
+
+        pShot = pShot->next;
     }
 }
 
-// 敵本体のパターン
-void EnemyPat_Tmp()
+// ------------------------------------------------------------
+// 波パターン：30秒ごとにプレイヤー位置から放射状に射出
+// ------------------------------------------------------------
+static void PatternWave(sEnemyShotSet* pEnemyShotSet)
 {
-    if (count == 1) {
-        // ゲーム画面は 480x480
-        enemy.x = 240.0;
-        enemy.y = 90.0;
-        enemy.maxHp = enemy.hp = 200; // 200から変更しないこと
-    }
-    else {
-        // 噴水本体は左右に動かず、ゆっくり上下に浮遊する
-        enemy.y = 90.0 + sin(count * 0.03) * 8.0;
+    if (pEnemyShotSet->count == 0) {
+        if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
+        PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
+
+        int num = 64;
+        for (int i = 0; i < num; i++) {
+            sEnemyShot* pEnemyShot = new sEnemyShot;
+            pEnemyShot->x = pEnemyShotSet->x;
+            pEnemyShot->y = pEnemyShotSet->y;
+            double angle = (double)i / num * 2.0 * DX_PI;
+            pEnemyShot->muki = angle;
+            pEnemyShot->speed = 2.0 + GetRand(100) / 100.0;
+            pEnemyShot->kind = img_enemyShotMediumBall[GetRand(8)];
+            pEnemyShot->param_i[0] = 0;
+
+            pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+            pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+            pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+            pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+        }
     }
 
-    // 周期の先頭で噴水セットを1つ生成(以降はセット側で自動運転)
-    if (count % FOUNTAIN_CYCLE == 1) {
-        sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
-        pEnemyShotSet->count = 0;
-        pEnemyShotSet->patternFunc = ShotFountain;
-        pEnemyShotSet->x = enemy.x;
-        pEnemyShotSet->y = enemy.y + 20.0; // 噴水口の位置
-        pEnemyShotSet->muki = 0.0;
-        pEnemyShotSet->kind = 0;
-        pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
-        pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
-        pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
-        pEnemyShotSet->prev = enemyShotSetHead.prev;
-        pEnemyShotSet->next = &enemyShotSetHead;
-        enemyShotSetHead.prev->next = pEnemyShotSet;
-        enemyShotSetHead.prev = pEnemyShotSet;
+    bool finalPhase = (count - g_startCount) > (TOTAL_FRAMES - FINAL_FRAMES);
+
+    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
+    while (pShot != pEnemyShotSet->pEnemyShotHead) {
+        if (finalPhase) {
+            pShot->muki = atan2(player.y - pShot->y, player.x - pShot->x);
+            pShot->speed = 8.0;
+        }
+        else {
+            if (pShot->speed < 5.0) pShot->speed += 0.002;
+        }
+
+        pShot->x += pShot->speed * cos(pShot->muki);
+        pShot->y += pShot->speed * sin(pShot->muki);
+
+        pShot = pShot->next;
+    }
+}
+
+// ------------------------------------------------------------
+// 敵本体パターン
+// ------------------------------------------------------------
+void EnemyPat_Tmp()
+{
+    static bool initialized = false;
+    static int muki = 1;
+    static bool finalStarted = false;
+
+    if (!initialized) {
+        initialized = true;
+        g_startCount = count;
+
+        enemy.x = 240.0;
+        enemy.y = 40.0;
+        enemy.maxHp = 200;
+        enemy.hp = 200;
+        muki = 1;
+        finalStarted = false;
+
+        // 最初の格子弾セット
+        CreateSet(PatternGridReflect, enemy.x, enemy.y + 10.0, 0.0, 0);
+    }
+
+    // 敵の左右移動
+    enemy.x += 0.98 * muki;
+    if (count % 120 == 60) muki *= -1;
+    if (enemy.x < 20.0) { enemy.x = 20.0; muki = 1; }
+    if (enemy.x > 460.0) { enemy.x = 460.0; muki = -1; }
+
+    int localFrame = count - g_startCount;
+
+    // 最終1秒まで無敵。最終1秒に入った瞬間だけ HP を 1 にする。
+    if (localFrame < TOTAL_FRAMES - FINAL_FRAMES) {
+        enemy.hp = enemy.maxHp;
+    }
+    else {
+        if (!finalStarted) {
+            finalStarted = true;
+            enemy.hp = 1;
+        }
+    }
+
+    // 30秒ごとに波パターン
+    if (localFrame > 0 && localFrame % 180 == 0) {
+        CreateSet(PatternWave, enemy.x, enemy.y + 10.0, 0.0, 1);
+    }
+
+    // 120秒ごとに追加の格子弾セット
+    if (localFrame > 0 && localFrame % 720 == 0) {
+        CreateSet(PatternGridReflect, 240.0, 240.0, 0.0, 2);
     }
 }

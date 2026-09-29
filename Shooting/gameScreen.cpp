@@ -781,13 +781,16 @@ void drawSidePanel()
 
         int y = layout.replayY + lineHeight * 2;
 
-        if (stageData[stageNum].stageId == "Grok67") {
+        if (stageData[stageNum].stageId == "Grok67"
+            || stageData[stageNum].stageId == "Gemini137"
+            ) {
             DrawString(panelLeftScreen, y, "TAS でも無理！", GetColor(255, 255, 128));
             y += lineHeight;
             DrawString(panelLeftScreen, y, "無敵モード ON", GetColor(255, 255, 128));
             isMuteki = true;
         }
-        if (stageData[stageNum].stageId == "Claude67") {
+        if (stageData[stageNum].stageId == "Claude67"
+            || stageData[stageNum].stageId == "Grok137") {
             isMuteki = false;
         }
         if (stageData[stageNum].stageId == "DeepSeek67"
@@ -806,6 +809,11 @@ void drawSidePanel()
             || stageData[stageNum].stageId == "MetaAI115"
             || stageData[stageNum].stageId == "Qwen115"
             || stageData[stageNum].stageId == "Zai115"
+            || stageData[stageNum].stageId == "DeepSeek137"
+            || stageData[stageNum].stageId == "ChatGPT137"
+            || stageData[stageNum].stageId == "Claude137"
+            || stageData[stageNum].stageId == "Grok137"
+            || stageData[stageNum].stageId == "MetaAI137"
             ) {
             DrawString(panelLeftScreen, y, "人力では無理！", GetColor(255, 255, 128));
             y += lineHeight;

@@ -238,7 +238,7 @@ namespace {
 
         // –Ú•WFX = enemy.x, Y = 400
         float targetX = (float)enemy.x;
-        float targetY = (float)enemy.y + 100;
+        float targetY = (float)enemy.y + 230;
 
         if (stageData[stageNum].stageId == "DeepSeek85") {
             if (player.x < enemy.x - 60 && player.y > enemy.y) {
@@ -265,6 +265,18 @@ namespace {
         else if (stageData[stageNum].stageId == "ChatGPT115") {
             targetX = (float)enemy.x;
             targetY = (float)enemy.y + 320;
+        }
+        else if (stageData[stageNum].stageId == "DeepSeek137") {
+            targetX = (float)enemy.x;
+            targetY = (float)enemy.y + 200;
+        }
+        else if (stageData[stageNum].stageId == "ChatGPT137") {
+            targetX = (float)enemy.x;
+            targetY = (float)enemy.y + 200 + count % 100;
+        }
+        else if (stageData[stageNum].stageId == "Claude137") {
+            targetX = (float)enemy.x;
+            targetY = (float)enemy.y + 120;
         }
 
         // Œ»İˆÊ’u‚Æ‚Ì·
