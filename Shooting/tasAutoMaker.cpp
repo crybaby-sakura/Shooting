@@ -258,6 +258,14 @@ namespace {
                 targetY = (float)enemy.y + 100;
             }
         }
+        else if (stageData[stageNum].stageId == "Gemini115") {
+            targetX = (float)enemy.x;
+            targetY = 420.0;
+        }
+        else if (stageData[stageNum].stageId == "ChatGPT115") {
+            targetX = (float)enemy.x;
+            targetY = (float)enemy.y + 320;
+        }
 
         // 現在位置との差
         const float dx = targetX - (float)player.x;
@@ -286,10 +294,66 @@ namespace {
             c.score = dx * vx + dy * vy;
         }
 
-        // スコアが大きい順に安定ソート
+        // 停止入力の定義
+        uint8_t stopInput = makeDirInput(false, false, false, false);
+
+        // 同じ入力が何フレーム続いているかカウント
+        int sameCount = 0;
+        if (!replayKeyHistory.empty()) {
+            uint8_t lastInp = replayKeyHistory.back();
+            for (auto it = replayKeyHistory.rbegin(); it != replayKeyHistory.rend(); ++it) {
+                if (*it == lastInp) sameCount++;
+                else break;
+            }
+        }
+
+        // 直前の入力を取得
+        uint8_t prevInput = replayKeyHistory.empty()
+            ? stopInput
+            : replayKeyHistory.back();
+
+        // 目標とのX座標のズレが20以上か判定
+        bool isFar = std::abs(targetX - (float)player.x) >= 20.0f;
+
+        // ズレが閾値(20)未満で、かつ同じ入力が6フレーム以上続いている場合のみ強制停止
+        bool forceStop = (!isFar && sameCount >= 6);
+
+        // 条件に応じてソート
         std::stable_sort(cand, cand + 9,
-            [](const Cand& a, const Cand& b) {
-            return a.score > b.score;
+            [prevInput, isFar, forceStop, stopInput](const Cand& a, const Cand& b) {
+            if (isFar) {
+                // ズレが20以上：従来通りターゲットに近づく順（スコア順）
+                return a.score > b.score;
+            }
+            else {
+                // ズレが20未満の場合の処理
+
+                // 条件を満たした場合、例外的に「静止」を最優先
+                if (forceStop) {
+                    if (a.input == stopInput && b.input != stopInput) return true;
+                    if (b.input == stopInput && a.input != stopInput) return false;
+                }
+
+                // 直前からのキー切り替え数が少ない順
+                auto countChange = [](uint8_t in1, uint8_t in2) {
+                    uint8_t diff = in1 ^ in2;
+                    int count = 0;
+                    while (diff != 0) {
+                        count += diff & 1;
+                        diff >>= 1;
+                    }
+                    return count;
+                };
+
+                int diffA = countChange(a.input, prevInput);
+                int diffB = countChange(b.input, prevInput);
+
+                // 切り替え数が同じ場合は、従来のスコアが高い方を優先する
+                if (diffA == diffB) {
+                    return a.score > b.score;
+                }
+                return diffA < diffB;
+            }
         });
 
         std::vector<uint8_t> order;

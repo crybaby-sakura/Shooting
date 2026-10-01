@@ -1,10 +1,10 @@
 {
   "recordingMode": false,
-  "recordingStageTitle": "DeepSeek110",
+  "recordingStageTitle": "DeepSeek118",
   "replayLoopCount": 8,
   "is_tate": false,
   "g_isTasMode": false,
   "frameDurationMs": 17,
-  "rollbackFrames": 60,
-  "g_isAutoTasMode":  false
+  "rollbackFrames": 10,
+  "g_isAutoTasMode": false
 }
