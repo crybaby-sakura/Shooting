@@ -363,3 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 /Shooting/AI_work
 /Shooting/Log.txt
+/Shooting/saveData/bestTime.json
+/Shooting/saveData/cursor.json
+/Shooting/saveData/playCount.json
+/Shooting/saveData/recordConfig.json

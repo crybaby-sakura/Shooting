@@ -1,228 +1,180 @@
-﻿#include "gv.h"
-
-// ============================================================
-//  弾幕:竹やぶ焼けた 〜夜更けの竹林火災〜
-//
-//  フェーズ1「竹」  :緑レーザーを竹に見立て、画面下から時間差で伸びる
-//  フェーズ2「延焼」:火の粉(小玉)が竹を根元から駆け上がり、
-//                      頂上に到達する頃に竹が赤く燃え上がり散り火を撒く
-//  フェーズ3「鎮火」:燃え殻が落ちた後、敵本体から中玉のリング
-// ============================================================
-
-// 弾の状態 (sEnemyShot::param_i[0] に格納)
-static constexpr int ST_BAMBOO_RISE = 0;  // 竹:成長中(上昇)
-static constexpr int ST_BAMBOO_STAND = 1;  // 竹:成長完了(発火待ち)
-static constexpr int ST_BAMBOO_BURN = 2;  // 竹:燃焼中
-static constexpr int ST_BAMBOO_ASH = 3;  // 竹:燃え殻(落下)
-static constexpr int ST_SPARK = 4;  // 火の粉:竹を駆け上がる
-static constexpr int ST_EMBER = 5;  // 散り火:減速して漂う小弾
-static constexpr int ST_RING = 6;  // 中玉リング:等速直線
-
-static constexpr int    BAMBOO_NUM = 12;    // 竹の本数
-static constexpr int    STAND_TIME = 20;    // 竹が止まってから燃えるまでの時間
-static constexpr int    BURN_TIME = 30;    // 燃焼時間
-static constexpr double SPARK_SPEED = 2.7;   // 火の粉が竹を上る速さ
-
-// 弾を生成してリストに繋げる補助関数
-static sEnemyShot* AddShot(sEnemyShotSet* pSet, double x, double y,
-    double muki, double speed, int kind, int state)
+﻿// ----------------------------------------------------------------
+// 弾幕処理関数：ガブリエルのラッパ（立体回転体）
+// ----------------------------------------------------------------
+static void ShotGabrielTrumpet(sEnemyShotSet* pEnemyShotSet)
 {
-    sEnemyShot* p = new sEnemyShot;
-    p->x = x;
-    p->y = y;
-    p->muki = muki;
-    p->speed = speed;
-    p->kind = kind;
-    p->param_i[0] = state;
-    p->margin = 240;
-
-    p->prev = pSet->pEnemyShotHead->prev;
-    p->next = pSet->pEnemyShotHead;
-    pSet->pEnemyShotHead->prev->next = p;
-    pSet->pEnemyShotHead->prev = p;
-    return p;
-}
-
-// 弾幕本体:竹林火災
-static void ShotBambooFire(sEnemyShotSet* pEnemyShotSet)
-{
-    sEnemyShot* pEnemyShot;
-    int c = pEnemyShotSet->count;
-
-    // ---------------- 生成 ----------------
-
-    // 開始時:延焼の予告音
-    if (c == 0) {
-        if (CheckSoundMem(sound_enemyCharge)) StopSoundMem(sound_enemyCharge);
-        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
-    }
-
-    // フェーズ1:竹を1フレームに1本ずつ生やす(時間差で植わる)
-    if (c < BAMBOO_NUM) {
-        pEnemyShot = AddShot(pEnemyShotSet,
-            20.0 + GetRand(440),   // x: 20〜460
-            520.0,                 // 画面下の見えない位置から
-            -DX_PI / 2.0,          // 上向き
-            3.0,                   // 伸びる速さ
-            img_enemyShotLaser[2], // 緑レーザー = 竹
-            ST_BAMBOO_RISE);
-        // param_d[0]:竹の伸びる上限Y(130〜380)
-        pEnemyShot->param_d[0] = 130.0 + GetRand(250);
-    }
-
-    // フェーズ3:燃え尽きのリング(中玉、3連発・少しずつ回転)
-    if (c == 170 || c == 185 || c == 200) {
+    // 一定周期で環境効果音を再生
+    if (pEnemyShotSet->count % 60 == 0) {
         if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
         PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
+    }
 
-        constexpr int n = 22;
-        double base = c * 0.045;
-        for (int i = 0; i < n; i++) {
-            AddShot(pEnemyShotSet, pEnemyShotSet->x, pEnemyShotSet->y,
-                base + DX_PI * 2.0 * i / n, 2.2,
-                img_enemyShotMediumBall[(i % 2) ? 0 : 8], // 赤/橙
-                ST_RING);
+    // ============================================================
+    // 1. ラッパの断面となる「リング（楕円の輪）」の定期生成
+    // ============================================================
+    // 8フレームごとに、ボスの位置（ラッパの奥の管）から1つずつリングを射出
+    if (pEnemyShotSet->count % 28 == 0) {
+        const int RING_BULLETS = 16; // 輪を構成する弾の数
+        double base_rot = (pEnemyShotSet->count * 0.04); // 時間とともにラッパ全体が自転
+
+        for (int i = 0; i < RING_BULLETS; i++) {
+            sEnemyShot* pEnemyShot = new sEnemyShot;
+
+            double angle = base_rot + (2.0 * DX_PI / RING_BULLETS) * i;
+
+            pEnemyShot->x = pEnemyShotSet->x;
+            pEnemyShot->y = pEnemyShotSet->y;
+            pEnemyShot->muki = angle;
+            pEnemyShot->speed = 0.0; // 位置はパラメータによる二次曲線展開のため直接更新
+
+            // 弾の識別パラメータ
+            pEnemyShot->param_i[0] = 0;     // 0: ラッパの壁を構成するリング弾
+            pEnemyShot->param_d[0] = angle; // 初期角度
+
+            // 生成初期（奥にある状態）は「青の小玉」
+            pEnemyShot->kind = img_enemyShotSmallBall[4];
+
+            // 双方向リストへ挿入
+            pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+            pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+            pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+            pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
         }
     }
 
-    // ---------------- 更新 ----------------
+    // ============================================================
+    // 2. ラッパの中心を通る「赤色銃弾（直線貫通弾）」の生成
+    // ============================================================
+    // 14フレームごとに、ラッパの細い奥からプレイヤーへ向けて高速弾を吹き出させる
+    if (pEnemyShotSet->count % 28 == 0) {
+        if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
+        PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
+
+        sEnemyShot* pEnemyShot = new sEnemyShot;
+
+        pEnemyShot->x = pEnemyShotSet->x;
+        pEnemyShot->y = pEnemyShotSet->y;
+
+        // 自機狙い（わずかに精度をブレさせて弾幕感を追加）
+        double aim_angle = atan2(player.y - pEnemyShotSet->y, player.x - pEnemyShotSet->x);
+        aim_angle += (GetRand(16) - 8) * (DX_PI / 180.0); // ±8度のランダム偏差
+
+        pEnemyShot->muki = aim_angle;
+        pEnemyShot->speed = 4.2 + (GetRand(100) / 100.0); // 高速
+        pEnemyShot->kind = img_enemyShotBullet[0];        // 赤色の銃弾
+
+        pEnemyShot->param_i[0] = 1; // 1: 直線進行弾
+
+        // 双方向リストへ挿入
+        pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+        pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+        pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+        pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+    }
+
+    // ============================================================
+    // 3. 画面上の全弾の位置更新および立体表現（変形・移動）
+    // ============================================================
     sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
     while (pShot != pEnemyShotSet->pEnemyShotHead) {
-        sEnemyShot* pNext = pShot->next;
 
-        switch (pShot->param_i[0]) {
+        if (pShot->param_i[0] == 0) {
+            // 【リング構成弾の処理】
+            // メインルーチンで自動インクリメントされる pShot->count を経過時間 t として利用
+            double t = pShot->count / 2.0;
 
-        case ST_BAMBOO_RISE: // 竹が下から上へ伸びる
-            pShot->y -= pShot->speed;
-            if (pShot->y <= pShot->param_d[0]) {
-                pShot->y = pShot->param_d[0];
-                pShot->param_i[0] = ST_BAMBOO_STAND;
-                pShot->param_i[1] = c + STAND_TIME; // 発火フレームを予約
+            // ガブリエルのラッパの曲面関数 $R(t) = R_0 + A \cdot (t / T)^{2.2}$
+            // 時間経過（＝手前に進む）とともに急激に半径が広がる
+            double norm_t = t / 90.0;
+            if (norm_t > 1.4) norm_t = 1.4;
 
-                // 根元から火の粉を発生させる
-                sEnemyShot* pSpark = AddShot(pEnemyShotSet,
-                    pShot->x, pShot->y + 28.0,
-                    -DX_PI / 2.0, SPARK_SPEED,
-                    img_enemyShotSmallBall[0], ST_SPARK);
-                // param_d[0]:ここまで上がったら着火(=竹のてっぺん付近)
-                pSpark->param_d[0] = pShot->y - 26.0;
+            double radius = 10.0 + 185.0 * pow(norm_t, 2.2);
+
+            // 立体遠近感（3D見下ろし効果）の計算
+            double y_shift = t * 2.2; // 手前に押し出されてくるY軸オフセット
+            double aspect_y = 0.45;   // 縦方向に押し潰して楕円化（斜め俯瞰）
+
+            // 時間経過による回転（らせんを描くワイヤーフレーム感）
+            double current_angle = pShot->param_d[0] + t * 0.025;
+
+            // 座標更新（ボス位置を原点とした相対立体座標）
+            pShot->x = pEnemyShotSet->x + radius * cos(current_angle);
+            pShot->y = pEnemyShotSet->y + y_shift + (radius * aspect_y) * sin(current_angle);
+
+            // --------------------------------------------------------
+            // 遠近感に応じた見た目（サイズ・色）の段階的変化
+            // 奥（小・青） -> 中間（中・シアン） -> 手前（大・白）
+            // --------------------------------------------------------
+            if (t < 25) {
+                pShot->kind = img_enemyShotSmallBall[4];  // 小玉（青）
             }
-            break;
-
-        case ST_BAMBOO_STAND: // 火の粉が頂上に届く頃に燃え上がる
-            if (c >= pShot->param_i[1]) {
-                pShot->param_i[0] = ST_BAMBOO_BURN;
-                pShot->param_i[2] = c + BURN_TIME;
-                pShot->kind = img_enemyShotLaser[0]; // 緑→赤(燃焼色)
-
-                if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
-                PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
-
-                // 散り火:7方向の小弾(赤/橙)
-                for (int i = 0; i < 7; i++) {
-                    double muki = DX_PI * 2.0 * i / 7.0
-                        + (GetRand(30) - 15) / 180.0 * DX_PI;
-                    AddShot(pEnemyShotSet, pShot->x, pShot->y, muki,
-                        1.5 + GetRand(100) / 100.0,
-                        img_enemyShotSmallBall[(i % 2) ? 8 : 0],
-                        ST_EMBER);
-                }
+            else if (t < 50) {
+                pShot->kind = img_enemyShotMediumBall[3]; // 中玉（シアン）
             }
-            break;
-
-        case ST_BAMBOO_BURN: // 燃焼中:時々上に小さな火の粉
-            if (pShot->count % 8 == 0) {
-                AddShot(pEnemyShotSet,
-                    pShot->x + GetRand(20) - 10.0,
-                    pShot->y + GetRand(40) - 20.0,
-                    -DX_PI / 2.0 + (GetRand(40) - 20) / 180.0 * DX_PI,
-                    1.0 + GetRand(50) / 100.0,
-                    img_enemyShotSmallBall[8], ST_EMBER);
+            else {
+                pShot->kind = img_enemyShotLargeBall[6];  // 大玉（白）
             }
-            if (c >= pShot->param_i[2]) { // 燃え尽き→燃え殻が落ちる
-                pShot->param_i[0] = ST_BAMBOO_ASH;
-                pShot->muki = DX_PI / 2.0;  // 下向き
-                pShot->speed = 5.0;
-            }
-            break;
 
-        case ST_BAMBOO_ASH: // 燃え殻が落ちて画面外へ(消去はメインルーチン)
-            pShot->y += pShot->speed;
-            break;
-
-        case ST_SPARK: // 火の粉が竹を駆け上がる
-            pShot->y -= pShot->speed;
-            if (pShot->y <= pShot->param_d[0]) {
-                // 竹のてっぺんで小さく爆ぜる(3方向)
-                if (pEnemyShotSet->count % 10 == 0) {
-                    for (int i = 0; i < 3; i++) {
-                        double muki = -DX_PI / 2.0 + (i - 1) * 0.7;
-                        AddShot(pEnemyShotSet, pShot->x, pShot->y, muki, 2.0,
-                            img_enemyShotSmallBall[8], ST_EMBER);
-                    }
-                }
-                // 火の粉自身はそのまま飛び去り画面外で消える
-            }
-            break;
-
-        case ST_EMBER: // 散り火:減速→やがて火の粉が降り注ぐ
-            pShot->speed *= 0.985;
-            if (pShot->speed < 0.8) { // 静かに燃えさしとして降る
-                pShot->muki = DX_PI / 2.0;
-                pShot->speed = 1.5;
-            }
+        }
+        else if (pShot->param_i[0] == 1) {
+            // 【直線貫通弾の処理】
             pShot->x += pShot->speed * cos(pShot->muki);
             pShot->y += pShot->speed * sin(pShot->muki);
-            break;
-
-        case ST_RING:
-        default: // 等速直線移動
-            pShot->x += pShot->speed * cos(pShot->muki);
-            pShot->y += pShot->speed * sin(pShot->muki);
-            break;
         }
 
-        pShot = pNext;
+        pShot = pShot->next;
     }
 }
 
-// 敵本体のパターン
+// ----------------------------------------------------------------
+// 敵本体のパターン関数（エントリーポイント）
+// ----------------------------------------------------------------
 void EnemyPat_Tmp()
 {
-    static int muki;
+    static int move_dir;
 
+    // 初期化処理（1フレーム目）
     if (count == 1) {
-        // ゲーム画面は 480x480
         enemy.x = 240.0;
-        enemy.y = 60.0;
-        enemy.maxHp = enemy.hp = 200; // 200で固定
-        muki = 1;
-    }
-    else {
-        // ゆっくり左右に揺れる(リング弾の発射位置を変えるため)
-        enemy.x += 0.6 * (double)muki;
-        if (enemy.x < 100.0) { enemy.x = 100.0; muki = 1; }
-        if (enemy.x > 380.0) { enemy.x = 380.0; muki = -1; }
-    }
+        enemy.y = 70.0;
+        enemy.maxHp = enemy.hp = 200;
+        move_dir = 1;
 
-    // 240フレームごとに「竹林火災」を起こす
-    // (1ウェーブ約230フレーム:竹の成長→延焼→燃え殻→リング、でループ)
-    if (count % 300 == 1) {
+        // 弾幕管理用セットの生成
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
         pEnemyShotSet->count = 0;
-        pEnemyShotSet->patternFunc = ShotBambooFire;
+        pEnemyShotSet->patternFunc = ShotGabrielTrumpet;
         pEnemyShotSet->x = enemy.x;
-        pEnemyShotSet->y = enemy.y + 10.0;
+        pEnemyShotSet->y = enemy.y;
         pEnemyShotSet->muki = 0.0;
         pEnemyShotSet->kind = 0;
 
+        // 弾双方向リストのダミーヘッド生成
         pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
         pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
         pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
 
+        // グローバル弾セットリストへ追加
         pEnemyShotSet->prev = enemyShotSetHead.prev;
         pEnemyShotSet->next = &enemyShotSetHead;
         enemyShotSetHead.prev->next = pEnemyShotSet;
         enemyShotSetHead.prev = pEnemyShotSet;
+    }
+    else {
+        // 敵本体のゆるやかな左右移動
+        enemy.x += 0.5 * (double)move_dir;
+        if (count % 160 == 80) {
+            move_dir *= -1;
+        }
+
+        // 敵の移動に合わせて弾幕生成源の位置も追従
+        sEnemyShotSet* pSet = enemyShotSetHead.next;
+        while (pSet != &enemyShotSetHead) {
+            if (pSet->patternFunc == ShotGabrielTrumpet) {
+                pSet->x = enemy.x;
+                pSet->y = enemy.y;
+            }
+            pSet = pSet->next;
+        }
     }
 }
