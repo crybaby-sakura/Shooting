@@ -69,6 +69,8 @@ void enemyShotDisp()
 		tasColor = GetColor(255, 255, 255); // 色は好みに合わせて変更してください（ここでは赤）
 	}
 	
+	//SetDrawBlendMode(DX_BLENDMODE_ADD, 255); // 眩しくしたい場合
+
 	sEnemyShotSet* pEnemyShotSet = enemyShotSetHead.next;
 	while (pEnemyShotSet != &enemyShotSetHead) {
 		sEnemyShot* pEnemyShot = pEnemyShotSet->pEnemyShotHead->next;
@@ -148,6 +150,8 @@ void enemyShotDisp()
 
 		pEnemyShotSet = pEnemyShotSet->next;
 	}
+
+	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	// 描画が終わったらブレンドモードを元に戻す
 	if (g_isTasMode) {

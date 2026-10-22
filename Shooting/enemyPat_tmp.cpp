@@ -1,180 +1,221 @@
-﻿// ----------------------------------------------------------------
-// 弾幕処理関数：ガブリエルのラッパ（立体回転体）
-// ----------------------------------------------------------------
-static void ShotGabrielTrumpet(sEnemyShotSet* pEnemyShotSet)
+﻿#include "DxLib.h"
+#include "gv.h"
+#include "imgSoundLoad.h"
+#include <math.h>
+
+// ============================================================
+//  弾幕:ニュートンのゆりかご「慣性の伝達」
+// ------------------------------------------------------------
+//  構成:
+//    おもり ... 中玉。両端の玉(列番号0と4)が交互に振り子運動する
+//    糸 ..... 小玉(白)をアンカー〜おもり間に6分割で並べた点線
+//
+//  動作(240フレーム周期でループ):
+//    0〜 60F:右の玉が最下点→右へ減速しながら上昇
+//     60〜120F:右の玉が加速しながら下降(折り返し点でプレイヤー狙い弾)
+//    120F:最下点で衝突!衝撃波が発生し、左の玉が同じ角度まで押し出される
+//    120〜240F:今度は左の玉が同じ運動をして戻ってくる(慣性の伝達)
+//
+//  難易度展開(グローバルcountで判定):
+//    Phase1(〜600F):衝撃波+狙い弾
+//    Phase2(600〜1200F):衝突時に列中央から狙い3Way追加
+//    Phase3(1200F〜):衝撃波が12Way化、狙い5Way化、
+//                     最下点のおもりから左右へ中玉追加
+//
+//  弾の役割は sEnemyShot::param_i[0] で管理:
+//    0:自由飛翔弾(等速直線移動)  1:おもり  2:糸
+//    param_i[1]:おもり/糸のグループ番号(玉の列番号 0〜4)
+//    param_i[2]:糸の分割番号
+// ============================================================
+
+static constexpr double CRADLE_LENGTH = 100.0;        // 糸の長さ
+static constexpr double CRADLE_SPACING = 16.0;         // おもり同士の間隔
+static constexpr double CRADLE_THETA_MAX = DX_PI / 3.0;  // 振り子の最大角度
+static constexpr int    CRADLE_QUARTER = 60/2;           // 1/4周期(フレーム)
+static constexpr int    CRADLE_CYCLE = CRADLE_QUARTER * 4; // 240F
+static constexpr int    CRADLE_STRINGS = 6;            // 糸の分割数
+
+// 弾を生成してリストに登録するヘルパ
+static sEnemyShot* CradleCreateShot(sEnemyShotSet* pSet, double x, double y,
+    double muki, double speed, int kind, int role)
 {
-    // 一定周期で環境効果音を再生
-    if (pEnemyShotSet->count % 60 == 0) {
-        if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
-        PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
+    sEnemyShot* p = new sEnemyShot;
+    p->x = x;
+    p->y = y;
+    p->muki = muki;
+    p->speed = speed;
+    p->kind = kind;
+    p->param_i[0] = role;
+    p->prev = pSet->pEnemyShotHead->prev;
+    p->next = pSet->pEnemyShotHead;
+    pSet->pEnemyShotHead->prev->next = p;
+    pSet->pEnemyShotHead->prev = p;
+    return p;
+}
+
+// ゆりかご本体
+static void CradleNewton(sEnemyShotSet* pEnemyShotSet)
+{
+    // アンカーは敵(本体)の位置に追従させる
+    pEnemyShotSet->x = enemy.x;
+    pEnemyShotSet->y = enemy.y;
+    const double ax = pEnemyShotSet->x;
+    const double ay = pEnemyShotSet->y;
+
+    const int t = pEnemyShotSet->count % CRADLE_CYCLE;
+
+    // ---- 振り子の角度計算 ----
+    // 上昇は正弦(減速)、下降は余弦(加速)で釣り針のような natural な動きにする
+    double thR = 0.0, thL = 0.0;
+    if (t < CRADLE_QUARTER * 2) {
+        double s = (t < CRADLE_QUARTER)
+            ? sin(DX_PI / 2.0 * t / CRADLE_QUARTER)
+            : cos(DX_PI / 2.0 * (t - CRADLE_QUARTER) / CRADLE_QUARTER);
+        thR = CRADLE_THETA_MAX * s;
+    }
+    else {
+        double u = t - CRADLE_QUARTER * 2;
+        double s = (u < CRADLE_QUARTER)
+            ? sin(DX_PI / 2.0 * u / CRADLE_QUARTER)
+            : cos(DX_PI / 2.0 * (u - CRADLE_QUARTER) / CRADLE_QUARTER);
+        thL = -CRADLE_THETA_MAX * s;
     }
 
-    // ============================================================
-    // 1. ラッパの断面となる「リング（楕円の輪）」の定期生成
-    // ============================================================
-    // 8フレームごとに、ボスの位置（ラッパの奥の管）から1つずつリングを射出
-    if (pEnemyShotSet->count % 28 == 0) {
-        const int RING_BULLETS = 16; // 輪を構成する弾の数
-        double base_rot = (pEnemyShotSet->count * 0.04); // 時間とともにラッパ全体が自転
+    // おもり5個の位置(0=左端 〜 4=右端)
+    double ballX[5], ballY[5];
+    for (int i = 0; i < 5; i++) {
+        ballX[i] = ax + (i - 2) * CRADLE_SPACING;
+        ballY[i] = ay + CRADLE_LENGTH;
+    }
+    ballX[4] += CRADLE_LENGTH * sin(thR);
+    ballY[4] = ay + CRADLE_LENGTH * cos(thR);
+    ballX[0] += CRADLE_LENGTH * sin(thL);
+    ballY[0] = ay + CRADLE_LENGTH * cos(thL);
 
-        for (int i = 0; i < RING_BULLETS; i++) {
-            sEnemyShot* pEnemyShot = new sEnemyShot;
-
-            double angle = base_rot + (2.0 * DX_PI / RING_BULLETS) * i;
-
-            pEnemyShot->x = pEnemyShotSet->x;
-            pEnemyShot->y = pEnemyShotSet->y;
-            pEnemyShot->muki = angle;
-            pEnemyShot->speed = 0.0; // 位置はパラメータによる二次曲線展開のため直接更新
-
-            // 弾の識別パラメータ
-            pEnemyShot->param_i[0] = 0;     // 0: ラッパの壁を構成するリング弾
-            pEnemyShot->param_d[0] = angle; // 初期角度
-
-            // 生成初期（奥にある状態）は「青の小玉」
-            pEnemyShot->kind = img_enemyShotSmallBall[4];
-
-            // 双方向リストへ挿入
-            pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-            pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-            pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-            pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+    // ---- 初回のみ:おもりと糸を配置 ----
+    if (pEnemyShotSet->count == 0) {
+        for (int i = 0; i < 5; i++) {
+            // おもり(中玉・橙)
+            sEnemyShot* pBall = CradleCreateShot(pEnemyShotSet, ballX[i], ballY[i],
+                0.0, 0.0, img_enemyShotMediumBall[8], 1);
+            pBall->param_i[1] = i;
+            // 糸(小玉・白の点線)
+            for (int j = 1; j < CRADLE_STRINGS; j++) {
+                sEnemyShot* pStr = CradleCreateShot(pEnemyShotSet, ballX[i], ballY[i],
+                    0.0, 0.0, img_enemyShotSmallBall[6], 2);
+                pStr->param_i[1] = i;
+                pStr->param_i[2] = j;
+            }
         }
     }
 
-    // ============================================================
-    // 2. ラッパの中心を通る「赤色銃弾（直線貫通弾）」の生成
-    // ============================================================
-    // 14フレームごとに、ラッパの細い奥からプレイヤーへ向けて高速弾を吹き出させる
-    if (pEnemyShotSet->count % 28 == 0) {
+    // ---- 衝突イベント(最下点で玉がぶつかる瞬間) ----
+    if (t == CRADLE_QUARTER * 2 || (t == 0 && pEnemyShotSet->count > 0)) {
+        // どちら側の玉が衝突したか(t==120:右 / t==0:左)
+        int side = (t == 0) ? -1 : 1;
+        double cx = ax + side * CRADLE_SPACING * 1.5;   // 接触点
+        double cy = ay + CRADLE_LENGTH;
+
+        // 衝撃波:接触点から全周放射(ランダム回転で毎回変化)
+        int nWave = (count > 800) ? 12*2 : 10*2;
+        double base = GetRand(360) / 180.0 * DX_PI;
+        for (int k = 0; k < nWave; k++) {
+            double m = base + DX_PI * 2.0 * k / nWave;
+            CradleCreateShot(pEnemyShotSet, cx, cy, m, 2.5,
+                img_enemyShotSmallBall[3], 0);   // シアンの小玉
+        }
+
+        if (count > 400) {
+            // 列の中央からプレイヤー狙いの拡散(マゼンタの鱗弾)
+            int nAim = (count > 800) ? 5*2+1 : 3*2+1;
+            double aim = atan2(player.y - cy, player.x - ax);
+            for (int k = 0; k < nAim; k++) {
+                double m = aim + ((nAim - 1) / 2.0 - k) * 0.22;
+                CradleCreateShot(pEnemyShotSet, ax, cy, m, 3.4,
+                    img_enemyShotScale[5], 0);
+            }
+        }
+
+        if (count > 800) {
+            // 最下点に来たばかりのおもりから左右へ中玉(クッション役)
+            double bx = ax + side * 2 * CRADLE_SPACING;
+            CradleCreateShot(pEnemyShotSet, bx, cy, DX_PI, 2.0, img_enemyShotMediumBall[0], 0);
+            CradleCreateShot(pEnemyShotSet, bx, cy, 0.0, 2.0, img_enemyShotMediumBall[0], 0);
+        }
+
+        // 衝突音
+        if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
+        PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
+    }
+
+    // ---- 振り上げきわ(おもりの折り返し点):予告音+狙い弾 ----
+    if (t == CRADLE_QUARTER || t == CRADLE_QUARTER * 3) {
+        int bi = (t == CRADLE_QUARTER) ? 4 : 0;
+        double aim = atan2(player.y - ballY[bi], player.x - ballX[bi]);
+        CradleCreateShot(pEnemyShotSet, ballX[bi], ballY[bi], aim, 3.0*2,
+            img_enemyShotSmallBall[1], 0);   // 黄の小玉
+
         if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
         PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
-
-        sEnemyShot* pEnemyShot = new sEnemyShot;
-
-        pEnemyShot->x = pEnemyShotSet->x;
-        pEnemyShot->y = pEnemyShotSet->y;
-
-        // 自機狙い（わずかに精度をブレさせて弾幕感を追加）
-        double aim_angle = atan2(player.y - pEnemyShotSet->y, player.x - pEnemyShotSet->x);
-        aim_angle += (GetRand(16) - 8) * (DX_PI / 180.0); // ±8度のランダム偏差
-
-        pEnemyShot->muki = aim_angle;
-        pEnemyShot->speed = 4.2 + (GetRand(100) / 100.0); // 高速
-        pEnemyShot->kind = img_enemyShotBullet[0];        // 赤色の銃弾
-
-        pEnemyShot->param_i[0] = 1; // 1: 直線進行弾
-
-        // 双方向リストへ挿入
-        pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-        pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-        pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-        pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
     }
 
-    // ============================================================
-    // 3. 画面上の全弾の位置更新および立体表現（変形・移動）
-    // ============================================================
+    // ---- 各弾の更新 ----
     sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
     while (pShot != pEnemyShotSet->pEnemyShotHead) {
-
-        if (pShot->param_i[0] == 0) {
-            // 【リング構成弾の処理】
-            // メインルーチンで自動インクリメントされる pShot->count を経過時間 t として利用
-            double t = pShot->count / 2.0;
-
-            // ガブリエルのラッパの曲面関数 $R(t) = R_0 + A \cdot (t / T)^{2.2}$
-            // 時間経過（＝手前に進む）とともに急激に半径が広がる
-            double norm_t = t / 90.0;
-            if (norm_t > 1.4) norm_t = 1.4;
-
-            double radius = 10.0 + 185.0 * pow(norm_t, 2.2);
-
-            // 立体遠近感（3D見下ろし効果）の計算
-            double y_shift = t * 2.2; // 手前に押し出されてくるY軸オフセット
-            double aspect_y = 0.45;   // 縦方向に押し潰して楕円化（斜め俯瞰）
-
-            // 時間経過による回転（らせんを描くワイヤーフレーム感）
-            double current_angle = pShot->param_d[0] + t * 0.025;
-
-            // 座標更新（ボス位置を原点とした相対立体座標）
-            pShot->x = pEnemyShotSet->x + radius * cos(current_angle);
-            pShot->y = pEnemyShotSet->y + y_shift + (radius * aspect_y) * sin(current_angle);
-
-            // --------------------------------------------------------
-            // 遠近感に応じた見た目（サイズ・色）の段階的変化
-            // 奥（小・青） -> 中間（中・シアン） -> 手前（大・白）
-            // --------------------------------------------------------
-            if (t < 25) {
-                pShot->kind = img_enemyShotSmallBall[4];  // 小玉（青）
-            }
-            else if (t < 50) {
-                pShot->kind = img_enemyShotMediumBall[3]; // 中玉（シアン）
-            }
-            else {
-                pShot->kind = img_enemyShotLargeBall[6];  // 大玉（白）
-            }
-
-        }
-        else if (pShot->param_i[0] == 1) {
-            // 【直線貫通弾の処理】
+        switch (pShot->param_i[0]) {
+        case 0: // 自由飛翔弾:等速直線移動
             pShot->x += pShot->speed * cos(pShot->muki);
             pShot->y += pShot->speed * sin(pShot->muki);
+            break;
+        case 1: // おもり:振り子位置に直接配置
+        {
+            int i = pShot->param_i[1];
+            pShot->x = ballX[i];
+            pShot->y = ballY[i];
+            // 振れている玉は赤で強調し、主従をはっきりさせる
+            pShot->kind = ((t < CRADLE_QUARTER * 2 && i == 4) ||
+                (t >= CRADLE_QUARTER * 2 && i == 0))
+                ? img_enemyShotMediumBall[0] : img_enemyShotMediumBall[8];
+            break;
         }
-
+        case 2: // 糸:アンカー〜おもり間を分割した点に直接配置
+        {
+            int i = pShot->param_i[1];
+            double r = pShot->param_i[2] / (double)CRADLE_STRINGS;
+            pShot->x = ax + (ballX[i] - ax) * r;
+            pShot->y = ay + (ballY[i] - ay) * r;
+            break;
+        }
+        }
         pShot = pShot->next;
     }
 }
 
-// ----------------------------------------------------------------
-// 敵本体のパターン関数（エントリーポイント）
-// ----------------------------------------------------------------
+// 敵本体のパターン
 void EnemyPat_Tmp()
 {
-    static int move_dir;
-
-    // 初期化処理（1フレーム目）
     if (count == 1) {
         enemy.x = 240.0;
-        enemy.y = 70.0;
-        enemy.maxHp = enemy.hp = 200;
-        move_dir = 1;
+        enemy.y = 150.0;
+        enemy.maxHp = enemy.hp = 200; // 200から変更しないこと
+    }
+    // アンカー(敵本体)ごとゆっくり揺らして、吊り下げ感を出す
+    enemy.x = 240.0 + 14.0 * sin(count * 0.015);
 
-        // 弾幕管理用セットの生成
+    if (count == 30) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
         pEnemyShotSet->count = 0;
-        pEnemyShotSet->patternFunc = ShotGabrielTrumpet;
+        pEnemyShotSet->patternFunc = CradleNewton;
         pEnemyShotSet->x = enemy.x;
         pEnemyShotSet->y = enemy.y;
         pEnemyShotSet->muki = 0.0;
         pEnemyShotSet->kind = 0;
-
-        // 弾双方向リストのダミーヘッド生成
         pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
         pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
         pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
-
-        // グローバル弾セットリストへ追加
         pEnemyShotSet->prev = enemyShotSetHead.prev;
         pEnemyShotSet->next = &enemyShotSetHead;
         enemyShotSetHead.prev->next = pEnemyShotSet;
         enemyShotSetHead.prev = pEnemyShotSet;
-    }
-    else {
-        // 敵本体のゆるやかな左右移動
-        enemy.x += 0.5 * (double)move_dir;
-        if (count % 160 == 80) {
-            move_dir *= -1;
-        }
-
-        // 敵の移動に合わせて弾幕生成源の位置も追従
-        sEnemyShotSet* pSet = enemyShotSetHead.next;
-        while (pSet != &enemyShotSetHead) {
-            if (pSet->patternFunc == ShotGabrielTrumpet) {
-                pSet->x = enemy.x;
-                pSet->y = enemy.y;
-            }
-            pSet = pSet->next;
-        }
     }
 }
