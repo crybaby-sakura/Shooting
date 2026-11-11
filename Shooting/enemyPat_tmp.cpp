@@ -1,374 +1,252 @@
-﻿// 弾幕：平安京の悪夢
-// enemyPat_sampleForAI.cpp / gv.h / imgSoundLoad.h の構成に合わせた実装。
-// 弾・弾セットの count 加算、および画面外弾の消去はメインルーチンに任せる。
+﻿// enemyPat_tmp.cpp
+// 弾幕：超新星爆発「コア・コラプス」
+//
+// [フェーズ0] コア崩壊(150フレーム)
+//     大玉がボス中心へ渦を巻きながら収束していく(予告音あり)
+// [フェーズ1] 衝撃波+残骸の漂流(150〜480フレーム)
+//     収束完了の瞬間、全方向へ高速の細弾2リング+低速の大玉12個が放射される
+//     大玉は減速しながら不規則に振動(残骸の漂流)、一定間隔で残骸から自機狙い弾
+// [フェーズ2] 再重力(480〜660フレーム)
+//     残った弾が渦を巻きながらボス中心へ吸引され、中心を通過して画面外へ排出
+//     終了後、フェーズ0へ戻ってサイクル継続
 
 #include "DxLib.h"
 #include "gv.h"
 #include "imgSoundLoad.h"
 #include <math.h>
-#include <algorithm>
 
-namespace {
+// ---- タイミング定数 ----
+static const int COLLAPSE_FRAMES = 150; // コア崩壊の長さ(=爆発のタイミング)
+static const int NOVA_GRAVITY_START = 480; // サイクル内:再重力フェーズ開始
+static const int CYCLE_FRAMES = 660; // 1サイクルの長さ
+static const int DEBRIS_END = 300; // 爆発セット内:残骸フェーズ終了(以降は再重力)
 
-    // ゲーム画面は 480x480。弾幕は画面外 60px まで広げて配置する。
-    constexpr double FIELD_MIN = -60.0;
-    constexpr double FIELD_MAX = 540.0;
-    constexpr double FIELD_SPAN = FIELD_MAX - FIELD_MIN;
-    constexpr double GRID_W = 60.0;       // 横方向の間隔 W は全ラウンドで固定
-    constexpr int    WAIT_FRAMES = 60;    // 1 秒（60 fps 想定）
-    constexpr int    PATTERN_INTERVAL = 360;
-
-    // sEnemyShotSet をリストへ登録する。count はここでは加算しない。
-    static sEnemyShotSet* CreateShotSet(sEnemyShotSet::PatternFunc func)
-    {
-        sEnemyShotSet* set = new sEnemyShotSet;
-        set->count = 0;
-        set->patternFunc = func;
-        set->x = enemy.x;
-        set->y = enemy.y;
-        set->muki = 0.0;
-        set->kind = 0;
-
-        set->pEnemyShotHead = new sEnemyShot;
-        set->pEnemyShotHead->prev = set->pEnemyShotHead;
-        set->pEnemyShotHead->next = set->pEnemyShotHead;
-
-        set->prev = enemyShotSetHead.prev;
-        set->next = &enemyShotSetHead;
-        enemyShotSetHead.prev->next = set;
-        enemyShotSetHead.prev = set;
-        return set;
-    }
-
-    static void AppendShot(sEnemyShotSet* set, sEnemyShot* shot)
-    {
-        sEnemyShot* head = set->pEnemyShotHead;
-        shot->prev = head->prev;
-        shot->next = head;
-        head->prev->next = shot;
-        head->prev = shot;
-    }
-
-    // この弾セットに属する弾をすべて消す。count の操作は行わない。
-    static void ClearShots(sEnemyShotSet* set)
-    {
-        sEnemyShot* head = set->pEnemyShotHead;
-        sEnemyShot* shot = head->next;
-        while (shot != head) {
-            sEnemyShot* next = shot->next;
-            shot->prev->next = shot->next;
-            shot->next->prev = shot->prev;
-            delete shot;
-            shot = next;
-        }
-        head->next = head;
-        head->prev = head;
-    }
-
-    static void PlaySoundRestart(int sound)
-    {
-        if (CheckSoundMem(sound)) StopSoundMem(sound);
-        PlaySoundMem(sound, DX_PLAYTYPE_BACK);
-    }
-
-    static double LaserAngle(bool transposed)
-    {
-        // 下向きレーザーを x/y 転置すると右向きレーザーになる。
-        return transposed ? 0.0 : DX_PI / 2.0;
-    }
-
-    // 0 から 1 まで、最初は加速し、中央で最大速度になり、最後は減速する進行率。
-    static double EaseAccelerateDecelerate(int elapsed, int T)
-    {
-        if (elapsed <= 0) return 0.0;
-        if (elapsed >= 2 * T) return 1.0;
-
-        if (elapsed <= T) {
-            const double u = static_cast<double>(elapsed) / T;
-            return 0.5 * u * u;
-        }
-
-        const double u = static_cast<double>(elapsed - T) / T;
-        return 0.5 + u - 0.5 * u * u;
-    }
-
-    // 1 回分の基本パターン設定。第 3 フェーズでは通常形と転置形で共有する。
-    struct GridConfig {
-        int N = 0;
-        int T = 0;
-        int rowCount = 0;
-        int colCount = 0;
-        double H = 0.0;
-        int P[8]{};
-        int R[8]{};
-        int D[8]{};
-    };
-
-    static GridConfig MakeGridConfig()
-    {
-        GridConfig cfg;
-        cfg.N = 3 + GetRand(5);             // 3～8
-        // 600 の約数から選び、-60 から 540 までを間隔 H でちょうど埋める。
-        // いずれも W=60 より狭い間隔。
-        const int hCandidates[] = { 10, 12, 15, 20, 24, 25, 30 };
-        cfg.H = static_cast<double>(hCandidates[GetRand(6)]);
-        cfg.T = 30 + GetRand(25);            // 30～55 フレーム
-        cfg.colCount = static_cast<int>(FIELD_SPAN / GRID_W) + 1;
-        cfg.rowCount = static_cast<int>(FIELD_SPAN / cfg.H) + 1;
-
-        for (int k = 0; k < cfg.N; ++k) cfg.P[k] = k;
-        // Fisher–Yates で 0..N-1 のランダム順列を作る。
-        for (int k = cfg.N - 1; k > 0; --k) {
-            const int swapIndex = GetRand(k);
-            std::swap(cfg.P[k], cfg.P[swapIndex]);
-        }
-        for (int k = 0; k < cfg.N; ++k) {
-            cfg.R[k] = GetRand(1);
-            cfg.D[k] = GetRand(1);
-        }
-        return cfg;
-    }
-
-    // 基本パターン（転置時は位置とレーザーの向きを x/y 交換する）。
-    // param_i[4] は転置フラグ、param_i[5..12] は P、param_i[13..14] は R/D のビットマスク。
-    static void PatternHeianGrid(sEnemyShotSet* set)
-    {
-        const int t = set->count;
-        const bool transposed = (set->param_i[4] != 0);
-
-        if (t == 0) {
-            const int N = set->param_i[0];
-            const double H = set->param_d[0];
-            const double W = set->param_d[1];
-            const int rowCount = set->param_i[2];
-            const int colCount = set->param_i[3];
-            const int rMask = set->param_i[13];
-            const int dMask = set->param_i[14];
-
-            int P[8]{};
-            int R[8]{};
-            int D[8]{};
-            for (int k = 0; k < N; ++k) {
-                P[k] = set->param_i[5 + k];
-                R[k] = (rMask >> k) & 1;
-                D[k] = (dMask >> k) & 1;
-            }
-
-            for (int i = 0; i < colCount; ++i) {
-                for (int j = 0; j < rowCount; ++j) {
-                    const int r = j % N;
-                    const int Q = (P[r] - r + N) % N;
-                    const int i2 = i + (R[r] ? 1 : -1);
-                    const int j2 = D[r] ? (j + Q) : (j + Q - N);
-
-                    const double sourceX = transposed
-                        ? FIELD_MIN + j * H
-                        : FIELD_MIN + i * W;
-                    const double sourceY = transposed
-                        ? FIELD_MIN + i * W
-                        : FIELD_MIN + j * H;
-                    const double targetX = transposed
-                        ? FIELD_MIN + j2 * H
-                        : FIELD_MIN + i2 * W;
-                    const double targetY = transposed
-                        ? FIELD_MIN + i2 * W
-                        : FIELD_MIN + j2 * H;
-
-                    sEnemyShot* shot = new sEnemyShot;
-                    shot->x = sourceX;
-                    shot->y = sourceY;
-                    shot->muki = LaserAngle(transposed);
-                    shot->speed = 0.0;
-                    shot->kind = img_enemyShotLaser[0]; // 赤レーザー
-                    shot->param_i[0] = i;
-                    shot->param_i[1] = j;
-                    shot->param_d[0] = sourceX;
-                    shot->param_d[1] = sourceY;
-                    shot->param_d[2] = targetX;
-                    shot->param_d[3] = targetY;
-                    AppendShot(set, shot);
-                }
-            }
-            return; // 出現フレームでは初期位置に静止させる。
-        }
-
-        const int T = set->param_i[1];
-        const int moveStart = WAIT_FRAMES;
-        const int moveEnd = moveStart + 2 * T;
-        const int eraseTime = moveEnd + WAIT_FRAMES;
-
-        if (t >= eraseTime) {
-            // 到着して 1 秒待った後、格子レーザーを一斉に消す。
-            ClearShots(set);
-            // 次のパターン開始までは空のまま待機する。
-            return;
-        }
-
-        sEnemyShot* shot = set->pEnemyShotHead->next;
-        while (shot != set->pEnemyShotHead) {
-            if (t < moveStart) {
-                shot->x = shot->param_d[0];
-                shot->y = shot->param_d[1];
-                shot->kind = img_enemyShotLaser[0];
-                shot->muki = LaserAngle(transposed);
-                shot->speed = 0.0;
-            }
-            else if (t < moveEnd) {
-                const double progress = EaseAccelerateDecelerate(t - moveStart, T);
-                const double dx = shot->param_d[2] - shot->param_d[0];
-                const double dy = shot->param_d[3] - shot->param_d[1];
-                shot->x = shot->param_d[0] + dx * progress;
-                shot->y = shot->param_d[1] + dy * progress;
-                shot->kind = img_enemyShotMediumBall[0]; // 移動中は赤い中玉
-                shot->muki = atan2(dy, dx);
-                shot->speed = 0.0;
-            }
-            else {
-                shot->x = shot->param_d[2];
-                shot->y = shot->param_d[3];
-                shot->kind = img_enemyShotLaser[0];
-                shot->muki = LaserAngle(transposed);
-                shot->speed = 0.0;
-            }
-            shot = shot->next;
-        }
-    }
-
-    static sEnemyShotSet* CreateGridPattern(bool transposed, const GridConfig& cfg)
-    {
-        sEnemyShotSet* set = CreateShotSet(PatternHeianGrid);
-        set->param_i[0] = cfg.N;
-        set->param_i[1] = cfg.T;
-        set->param_i[2] = cfg.rowCount;
-        set->param_i[3] = cfg.colCount;
-        set->param_i[4] = transposed ? 1 : 0;
-        set->param_d[0] = cfg.H;
-        set->param_d[1] = GRID_W;
-
-        int rMask = 0;
-        int dMask = 0;
-        for (int k = 0; k < cfg.N; ++k) {
-            set->param_i[5 + k] = cfg.P[k];
-            rMask |= (cfg.R[k] << k);
-            dMask |= (cfg.D[k] << k);
-        }
-        set->param_i[13] = rMask;
-        set->param_i[14] = dMask;
-        return set;
-    }
-
-    // 大玉の列。axis=0 は上下方向、axis=1 は左右方向。
-    // param_i[0]=axis、param_i[1]=端の選択（0:上/左、1:下/右）。
-    static void PatternBigShotLine(sEnemyShotSet* set)
-    {
-        const int axis = set->param_i[0];
-        if (set->count == 0) {
-            set->param_i[1] = GetRand(1);
-            PlaySoundRestart(sound_enemyShot_heavy);
-        }
-
-        // 先に既存弾を動かし、今フレームに生成する弾は端から出現させる。
-        sEnemyShot* shot = set->pEnemyShotHead->next;
-        while (shot != set->pEnemyShotHead) {
-            shot->x += shot->speed * cos(shot->muki);
-            shot->y += shot->speed * sin(shot->muki);
-            shot = shot->next;
-        }
-
-        if (set->count <= 84 && set->count % 14 == 0) {
-            const int side = set->param_i[1];
-            sEnemyShot* bullet = new sEnemyShot;
-            bullet->kind = img_enemyShotLargeBall[0]; // 赤い大玉
-            bullet->speed = 3.0;
-
-            if (axis == 0) {
-                // 自機と同じ x 座標。上端から下向き、または下端から上向き。
-                bullet->x = player.x;
-                if (side == 0) {
-                    bullet->y = 0.0;
-                    bullet->muki = DX_PI / 2.0;
-                }
-                else {
-                    bullet->y = 480.0;
-                    bullet->muki = -DX_PI / 2.0;
-                }
-            }
-            else {
-                // 自機と同じ y 座標。左端から右向き、または右端から左向き。
-                bullet->y = player.y;
-                if (side == 0) {
-                    bullet->x = 0.0;
-                    bullet->muki = 0.0;
-                }
-                else {
-                    bullet->x = 480.0;
-                    bullet->muki = DX_PI;
-                }
-            }
-            AppendShot(set, bullet);
-        }
-    }
-
-    static void CreateBigShotLine(int axis)
-    {
-        sEnemyShotSet* set = CreateShotSet(PatternBigShotLine);
-        set->param_i[0] = axis;
-    }
-
-    static int GetHpPhase()
-    {
-        if (enemy.maxHp <= 0) return 1;
-        // HP がちょうど 2/3 の場合は第 1 フェーズ、1/3 は第 3 フェーズ。
-        if (enemy.hp * 3 >= enemy.maxHp * 2) return 1;
-        if (enemy.hp * 3 > enemy.maxHp) return 2;
-        return 3;
-    }
-
-} // namespace
-
-// 敵本体の弾幕パターン
-void EnemyPat_Tmp()
+// ---- 弾セット生成ヘルパー ----
+static sEnemyShotSet* CreateShotSet(double x, double y, sEnemyShotSet::PatternFunc func, int kind)
 {
-    static int moveDirection = 1;
-    static int activePhase = 0;
-    static int nextPatternFrame = 1;
+    sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
+    pEnemyShotSet->count = 0;
+    pEnemyShotSet->patternFunc = func;
+    pEnemyShotSet->x = x;
+    pEnemyShotSet->y = y;
+    pEnemyShotSet->muki = 0.0;
+    pEnemyShotSet->kind = kind;
+    pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
+    pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
+    pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
+    pEnemyShotSet->prev = enemyShotSetHead.prev;
+    pEnemyShotSet->next = &enemyShotSetHead;
+    enemyShotSetHead.prev->next = pEnemyShotSet;
+    enemyShotSetHead.prev = pEnemyShotSet;
+    return pEnemyShotSet;
+}
 
-    if (count == 1) {
-        enemy.x = 240.0;
-        enemy.y = 40.0;
-        enemy.maxHp = enemy.hp = 200; // サンプル仕様に合わせ、maxHp は 200
-        moveDirection = 1;
-        activePhase = 0;
-        nextPatternFrame = 60;
-    }
-    else {
-        enemy.x += 0.98 * static_cast<double>(moveDirection);
-        if (count % 120 == 60) moveDirection *= -1;
-    }
+// ---- 弾生成ヘルパー ----
+static sEnemyShot* AddShot(sEnemyShotSet* pEnemyShotSet, double x, double y, double muki, double speed, int kind)
+{
+    sEnemyShot* pEnemyShot = new sEnemyShot;
+    pEnemyShot->x = x;
+    pEnemyShot->y = y;
+    pEnemyShot->muki = muki;
+    pEnemyShot->speed = speed;
+    pEnemyShot->kind = kind;
+    pEnemyShot->margin = 480;
+    pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+    pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+    pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+    pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+    return pEnemyShot;
+}
 
-    const int phase = GetHpPhase();
-    if (phase != activePhase) {
-        activePhase = phase;
-        nextPatternFrame = count + 60; // フェーズ移行後、すぐに新しいパターンを開始
-    }
+// ============================================================
+// セットA:コア崩壊 → 残骸化 → 再重力(サイクル全体を担当)
+// param_i[0]: 状態 (0:収縮中 / 1:残骸 / 2:再重力吸引)
+// param_d[0]: 中心からの半径  param_d[1]: 中心からの角度
+// ============================================================
+static void ShotCoreCollapse(sEnemyShotSet* pEnemyShotSet)
+{
+    if (pEnemyShotSet->count == 0) {
+        // 使える効果音一覧: sound_enemyShot_light, sound_enemyShot_medium, sound_enemyShot_heavy, sound_enemyShot_extreme, sound_enemyCharge(予告音)
+        if (CheckSoundMem(sound_enemyCharge)) StopSoundMem(sound_enemyCharge);
+        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
 
-    if (count >= nextPatternFrame) {
-        const GridConfig cfg = MakeGridConfig();
-        if (phase == 1) {
-            PlaySoundRestart(sound_enemyCharge);
-            CreateGridPattern(false, cfg);
-            CreateBigShotLine(0); // 上下方向の大玉列
+        // 崩壊するコアの破片(大玉・白)を全方位に配置
+        for (int i = 0; i < 20; i++) {
+            double ang = GetRand(359) / 180.0 * DX_PI; // GetRand(x)は0〜xのx+1種類を返すので注意
+            double r = 180.0 + GetRand(100);
+            sEnemyShot* pShot = AddShot(pEnemyShotSet,
+                pEnemyShotSet->x + r * cos(ang), pEnemyShotSet->y + r * sin(ang),
+                ang, 0.0, img_enemyShotLargeBall[6]); // 6:白
+            pShot->param_d[0] = r;
+            pShot->param_d[1] = ang;
+            pShot->param_i[0] = 0;
         }
-        else if (phase == 2) {
-            PlaySoundRestart(sound_enemyCharge);
-            CreateGridPattern(true, cfg); // x/y 転置
-            CreateBigShotLine(1);         // 左右方向の大玉列
+    }
+
+    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
+    while (pShot != pEnemyShotSet->pEnemyShotHead) {
+        if (pShot->param_i[0] == 0) {
+            // フェーズ0: 渦を巻きながら中心へ収束
+            pShot->param_d[0] *= 0.978;
+            pShot->param_d[1] += 0.045;
+            pShot->x = pEnemyShotSet->x + pShot->param_d[0] * cos(pShot->param_d[1]);
+            pShot->y = pEnemyShotSet->y + pShot->param_d[0] * sin(pShot->param_d[1]);
+            if (pShot->count >= COLLAPSE_FRAMES) {
+                // 爆発の瞬間: 残骸(大玉 赤/黄)となって散開
+                pShot->param_i[0] = 1;
+                pShot->param_d[1] += (GetRand(40) - 20) / 180.0 * DX_PI;
+                pShot->muki = pShot->param_d[1];
+                pShot->speed = 1.5 + GetRand(150) / 100.0;
+                pShot->kind = img_enemyShotLargeBall[GetRand(1)]; // 0:赤 or 1:黄
+            }
+        }
+        else if (pShot->param_i[0] == 1) {
+            // フェーズ1: 残骸の漂流(減速+不規則な振動)
+            pShot->speed *= 0.99;
+            double wob = sin(pShot->count * 0.35) * 0.8;
+            pShot->x += pShot->speed * cos(pShot->muki) - sin(pShot->muki) * wob;
+            pShot->y += pShot->speed * sin(pShot->muki) + cos(pShot->muki) * wob;
+            if (pEnemyShotSet->count >= NOVA_GRAVITY_START) {
+                // フェーズ2へ移行: 現在位置を極座標に変換
+                double dx = pShot->x - pEnemyShotSet->x;
+                double dy = pShot->y - pEnemyShotSet->y;
+                pShot->param_d[0] = sqrt(dx * dx + dy * dy);
+                pShot->param_d[1] = atan2(dy, dx);
+                pShot->param_i[0] = 2;
+            }
         }
         else {
-            PlaySoundRestart(sound_enemyCharge);
-            CreateGridPattern(false, cfg);
-            CreateGridPattern(true, cfg); // 同じ設定の基本形と転置形を同時に発生
+            // フェーズ2: 再重力(渦を巻いて中心へ吸引)
+            // 半径が負になると中心を通過して反対側へ渦状に飛び出し、画面外で自動消去される
+            pShot->param_d[0] -= 3.0;
+            pShot->param_d[1] += 0.07;
+            pShot->x = pEnemyShotSet->x + pShot->param_d[0] * cos(pShot->param_d[1]);
+            pShot->y = pEnemyShotSet->y + pShot->param_d[0] * sin(pShot->param_d[1]);
         }
-        nextPatternFrame = count + PATTERN_INTERVAL;
+        pShot = pShot->next;
+    }
+}
+
+// ============================================================
+// セットB:衝撃波(爆発の瞬間に生成)
+// param_i[0]: 0:通常(直進) / 1:残骸(大玉) / 2:再重力吸引中
+// ============================================================
+static void ShotSupernova(sEnemyShotSet* pEnemyShotSet)
+{
+    if (pEnemyShotSet->count == 0) {
+        if (CheckSoundMem(sound_enemyShot_extreme)) StopSoundMem(sound_enemyShot_extreme);
+        PlaySoundMem(sound_enemyShot_extreme, DX_PLAYTYPE_BACK);
+
+        // 高速の細弾 2リング(全36方向)……速度差で抜け道を作る
+        for (int i = 0; i < 36; i++) {
+            double ang = i * (2.0 * DX_PI / 36.0);
+            AddShot(pEnemyShotSet, pEnemyShotSet->x, pEnemyShotSet->y, ang, 5.5, img_enemyShotSmallBall[3]); // 3:シアン
+            AddShot(pEnemyShotSet, pEnemyShotSet->x, pEnemyShotSet->y, ang + DX_PI / 36.0, 4.2, img_enemyShotSmallBall[6]); // 6:白
+        }
+        // 低速の大玉リング(全12方向)……後の残骸になる
+        for (int i = 0; i < 12; i++) {
+            double ang = (i + 0.5) * (2.0 * DX_PI / 12.0);
+            sEnemyShot* pShot = AddShot(pEnemyShotSet, pEnemyShotSet->x, pEnemyShotSet->y, ang, 2.2,
+                img_enemyShotLargeBall[GetRand(1)]); // 0:赤 or 1:黄
+            pShot->param_i[0] = 1; // 残骸フラグ
+        }
+    }
+
+    // フェーズ3: 残骸から自機狙いの小弾を3連射(0.8秒間隔)
+    if (pEnemyShotSet->count > 0 && pEnemyShotSet->count % 48 == 0 && pEnemyShotSet->count < DEBRIS_END) {
+        sEnemyShot* debris[12];
+        int n = 0;
+        sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
+        while (pShot != pEnemyShotSet->pEnemyShotHead) {
+            if (pShot->param_i[0] == 1 && n < 12) debris[n++] = pShot;
+            pShot = pShot->next;
+        }
+        if (n > 0) {
+            sEnemyShot* src = debris[GetRand(n - 1)];
+            for (int j = 0; j < 3; j++) {
+                double am = atan2(player.y - src->y, player.x - src->x)
+                    + (GetRand(20) - 10) / 180.0 * DX_PI;
+                AddShot(pEnemyShotSet, src->x, src->y, am, 3.2, img_enemyShotSmallBall[0]); // 0:赤
+            }
+        }
+    }
+
+    // 移動処理
+    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
+    while (pShot != pEnemyShotSet->pEnemyShotHead) {
+        if (pShot->param_i[0] == 1) {
+            // 残骸: 減速しながら振動
+            if (pEnemyShotSet->count < DEBRIS_END) {
+                pShot->speed *= 0.985;
+                double wob = sin(pShot->count * 0.3) * 0.9;
+                pShot->x += pShot->speed * cos(pShot->muki) - sin(pShot->muki) * wob;
+                pShot->y += pShot->speed * sin(pShot->muki) + cos(pShot->muki) * wob;
+            }
+            else {
+                // フェーズ2へ移行
+                double dx = pShot->x - pEnemyShotSet->x;
+                double dy = pShot->y - pEnemyShotSet->y;
+                pShot->param_d[0] = sqrt(dx * dx + dy * dy);
+                pShot->param_d[1] = atan2(dy, dx);
+                pShot->param_i[0] = 2;
+            }
+        }
+        else if (pShot->param_i[0] == 2) {
+            // 再重力: 中心へ渦状に吸引(半径が負になると反対側へ飛び出し画面外で消える)
+            pShot->param_d[0] -= 3.0;
+            pShot->param_d[1] += 0.07;
+            pShot->x = pEnemyShotSet->x + pShot->param_d[0] * cos(pShot->param_d[1]);
+            pShot->y = pEnemyShotSet->y + pShot->param_d[0] * sin(pShot->param_d[1]);
+        }
+        else {
+            // 衝撃波・自機狙い弾: 直進
+            pShot->x += pShot->speed * cos(pShot->muki);
+            pShot->y += pShot->speed * sin(pShot->muki);
+        }
+        pShot = pShot->next;
+    }
+}
+
+// ============================================================
+// 敵本体のパターン: 超新星爆発「コア・コラプス」
+// ============================================================
+void EnemyPat_Tmp()
+{
+    static int phase;      // 0:コア崩壊 / 1:残骸 / 2:再重力
+    static int t;          // サイクル内フレーム
+    static double coreX, coreY; // 爆発中心(セットAの収束中心と統一)
+
+    if (count == 1) {
+        // ゲーム画面は 480x480
+        enemy.x = 240.0;
+        enemy.y = 170.0;
+        enemy.maxHp = enemy.hp = 200; // 200から変更しないこと
+        phase = 0;
+        t = 0;
+        coreX = enemy.x;
+        coreY = enemy.y;
+        CreateShotSet(coreX, coreY, ShotCoreCollapse, 0);
+    }
+    else {
+        t++;
+        // コアの脈動のようにゆっくり漂う
+        enemy.x = coreX + 24.0 * sin(t * 0.03);
+        enemy.y = coreY + 8.0 * sin(t * 0.07);
+
+        if (phase == 0 && t >= COLLAPSE_FRAMES) {
+            // フェーズ1へ: 爆発(衝撃波セットを生成)
+            phase = 1;
+            CreateShotSet(coreX, coreY, ShotSupernova, 1);
+        }
+        else if (phase == 1 && t >= NOVA_GRAVITY_START) {
+            // フェーズ2へ: 再重力(残骸側の状態遷移は各セットのパターン内で実施)
+            phase = 2;
+        }
+        else if (phase == 2 && t >= CYCLE_FRAMES) {
+            // サイクル restart: フェーズ0へ戻る
+            phase = 0;
+            t = 0;
+            CreateShotSet(coreX, coreY, ShotCoreCollapse, 0);
+        }
     }
 }
