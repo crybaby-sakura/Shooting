@@ -1,165 +1,67 @@
 ﻿// ============================================================
-//  弾幕パターン:二重スリット実験モチーフ「干渉の波紋」
-// ------------------------------------------------------------
-//  ・大玉の青弾を並べた「スリット壁」を画面上部に配置(2箇所の隙間=スリット)
-//  ・壁の上から白い小玉の「粒子」が降りてくる
-//  ・粒子がスリットに到達すると、そのスリットが波源となり
-//    干渉角ずつの扇状弾(縞=明線)をプレイヤー方向へ放つ
-//    - スリットA由来:シアンの小玉
-//    - スリットB由来:マゼンタの小玉
-//  ・プレイヤーがスリット間の中央線に近づくと「観測」となり、
-//    干渉が消えて各スリットから1発の白い中玉(粒子として振る舞う)が直進する
-//  ・壁は正弦波で揺れるため、波源位置と干渉縞も連動して動く
+//  銃符「ルナティックガン」
+//  (東方紺珠伝のスペルカード風の弾幕パターン)
+//  ------------------------------------------------------------
+//  【A】ボスを中心に、狭い間隔(18度)と広い間隔(54度)が交互に並んだ
+//      10way全方位弾を、10フレーム間隔で常時発射する。
+//      1発射ごとに基準角を時計回りへ8度ずつ進めるため、花弁状の
+//      配列が画面上を時計回りに回転し続ける。
+//
+//  【B】ボスの位置から自機へ向かって、逆三角形(▽)を成す密な弾列
+//      5本(中央8発/中間5発×2/外側2発×2、計22発)を僅かに時間差
+//      (3フレームずつ)を付けて発射する。中央→中間→外側の順に撃ち、
+//      遅れて撃つ弾列ほど発射位置を前方へ前倒しすることで、飛行中も
+//      三角形の隊列が崩れない(速度は全弾3.45に固定し剛体隊列に)。
+//      「荒さ」は1セットごとの照準誤差(±2.8度)で表現する。
+//      これを1セットとし、4フレームだけ空けて間髪入れずにもう1セットを
+//      撃ち、その後約64フレームの間を空けて繰り返す(周期80フレーム)。
+//
+//  【素材選定】
+//   ・A: 中玉(色5:マゼンタ) … 回転する花弁リングの形を視認させる丸弾
+//   ・B: 銃弾(色6:白)      … 「銃符」の名に合わせ、進行方向を向く
+//                             細長い銃弾で銃撃感を演出
+//   ・発射音: A=light(10フレーム間隔の連射音) / B=heavy(1セットに1発の重い銃声)
+//   ・sound_enemyCharge(予告音)は常時反復型の攻撃のため不使用
+//   ・大玉/鱗弾/菱形弾/中楕円弾/短レーザーは本弾幕では不使用
+//
+//  【実装上の前提】
+//   ・count / pEnemyShotSet->count / pEnemyShot->count のインクリメントと、
+//     画面外に出た弾の消去はメインルーチンで行われる(本ファイルでは行わない)
+//   ・GetRand(x) は 0〜x の x+1 種類の整数を返す
+//     例: GetRand(8)-4 → -4〜+4 の9通り
 // ============================================================
 #include "DxLib.h"
 #include "gv.h"
 #include "imgSoundLoad.h"
 #include <math.h>
 
-// ---- 定数 ----
-static const double GAME_CENTER_X = 240.0;  // ゲーム画面中央X(480x480)
-static const double WALL_Y_BASE = 140.0;  // スリット壁の基準Y
-static const double WALL_SWAY_AMP = 10.0;   // 壁の揺れ振幅
-static const double SLIT_A_X = 160.0;  // スリットAの中心X
-static const double SLIT_B_X = 320.0;  // スリットBの中心X
-static const double SLIT_HALF_WIDTH = 30.0;   // スリットの半幅
-static const double OBSERVE_RANGE = 60.0;   // 観測判定:中央線からこの距離以内で観測
-static const double INTERFERENCE_ANGLE = 0.13;   // 干渉角(明線同士の角度間隔)
-static const double WAVE_SPAWN_OFFSET = 6.0;    // 波を壁の少し下から出すオフセット
-
-// param_i[1] の意味
-//   1:粒子(スリットに到達すると波に変わる) / 0:波の弾(判定なし)
-static const int PARTICLE_FLAG = 1;
-
-// 位置xにおける壁の現在のY(グローバルcountに同期 → 全セットで共有できる)
-static double WallYAt(double x)
+// ------------------------------------------------------------
+// A: 回転する10way全方位弾(狭い間隔と広い間隔が交互)
+// ------------------------------------------------------------
+static void ShotLunaticGunRing(sEnemyShotSet * pEnemyShotSet)
 {
-    return WALL_Y_BASE + WALL_SWAY_AMP * sin(count * 0.02 + (x - GAME_CENTER_X) * 0.012);
-}
-
-// 弾をセットのリスト末尾に追加する
-static sEnemyShot* AddShot(sEnemyShotSet* pEnemyShotSet, double x, double y, double muki, double speed, int kind)
-{
-    sEnemyShot* pEnemyShot = new sEnemyShot;
-    pEnemyShot->x = x;
-    pEnemyShot->y = y;
-    pEnemyShot->muki = muki;
-    pEnemyShot->speed = speed;
-    pEnemyShot->kind = kind;
-    pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
-    pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
-    pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
-    pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
-    return pEnemyShot;
-}
-
-// ---- スリット壁:大玉(青)を横一列に並べ、2箇所の隙間をスリットとする ----
-// 弾自体は不動(speed=0)。毎フレーム、壁全体を正弦波で上下に揺らすだけ。
-static void ShotWall(sEnemyShotSet* pEnemyShotSet)
-{
-    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-    while (pShot != pEnemyShotSet->pEnemyShotHead) {
-        pShot->y = WallYAt(pShot->x);   // xごとに位相のずれた揺れ(生きている壁の表現)
-        pShot = pShot->next;
-    }
-}
-
-// ---- 粒子と干渉:本体パターン ----
-static void ShotParticle(sEnemyShotSet* pEnemyShotSet)
-{
-    // 30フレームごとに、上から白い小玉の「粒子」を1発降らせる
-    // スリットA/Bを交互に狙わせることで、2色の波が交互に放たれる
-    if (pEnemyShotSet->count % 10 == 0) {
-        pEnemyShotSet->param_i[0] ^= 1; // 0↔1をトグル(スリットA/B交互)
-        double slitX = (pEnemyShotSet->param_i[0] == 0) ? SLIT_A_X : SLIT_B_X;
-
-        sEnemyShot* pShot = AddShot(pEnemyShotSet,
-            slitX + GetRand(40) - 20,   // スリット内にランダムに着弾させる
-            -10.0,                      // 画面上端の外から降ってくる
-            DX_PI / 2.0,                // 真下へ
-            2.5,
-            img_enemyShotSmallBall[6]); // 白:どちらのスリットを通るか未知の粒子
-        pShot->param_i[0] = pEnemyShotSet->param_i[0]; // 狙ったスリットを記憶
-        pShot->param_i[1] = PARTICLE_FLAG;             // 粒子フラグ(★無限ループ修正点)
-        pShot->param_d[0] = slitX;                     // スリット中心Xを記憶
-
+    sEnemyShot* pEnemyShot;
+    if (pEnemyShotSet->count == 0) {
+        // 連射感のある軽い発射音
         if (CheckSoundMem(sound_enemyShot_light)) StopSoundMem(sound_enemyShot_light);
         PlaySoundMem(sound_enemyShot_light, DX_PLAYTYPE_BACK);
-    }
 
-    // 粒子の移動と、スリット到達時の波の放出
-    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
-    while (pShot != pEnemyShotSet->pEnemyShotHead) {
-        sEnemyShot* pNext = pShot->next; // 削除に備えて先に保存
-
-        pShot->x += pShot->speed * cos(pShot->muki);
-        pShot->y += pShot->speed * sin(pShot->muki);
-
-        // ★無限ループ修正点:粒子フラグが立っている弾のみ、
-        //   壁の位置(スリット)への到達判定を行う。
-        //   これがないと、スリットから出現した波の弾自身が
-        //   「スリットに到達した粒子」と誤認識され、波を無限に生成し続けていた。
-        if (pShot->param_i[1] == PARTICLE_FLAG && pShot->y >= WallYAt(pShot->param_d[0])) {
-            double sx = pShot->param_d[0];           // 波源X(スリット中心)
-            double sy = WallYAt(sx) + WAVE_SPAWN_OFFSET; // 波源Y(揺れてる壁の少し下)
-            int    slit = pShot->param_i[0];
-
-            // 「観測」:プレイヤーがスリット間の中央線に近いと干渉が消える
-            if (fabs(player.x - GAME_CENTER_X) < OBSERVE_RANGE) {
-                // 粒子として振る舞う:各スリットから1発の白い中玉がプレイヤーへ直進
-                AddShot(pEnemyShotSet,
-                    sx, sy,
-                    atan2(player.y - sy, player.x - sx),
-                    4.5,
-                    img_enemyShotMediumBall[6]); // 白:観測された粒子
-
-                if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
-                PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
-            }
-            else {
-                // 干渉:プレイヤー方向を中心に干渉角ずつ角度をずらした縞状の弾を放つ
-                // k = -3..3 の7本の「明線」に相当する放射線が描かれる
-                double baseAngle = atan2(player.y - sy, player.x - sx);
-                int color = (slit == 0) ? 3 : 5;     // シアン:A由来 / マゼンタ:B由来
-
-                for (int k = -3; k <= 3; k++) {
-                    double angle = baseAngle + k * INTERFERENCE_ANGLE;
-                    // 同角度に2速で発射 → 放射線が「縞」らしく見える
-                    for (int j = 0; j < 2; j++) {
-                        AddShot(pEnemyShotSet,
-                            sx, sy,
-                            angle,
-                            2.2 - j * 0.8,                       // 2.2 と 1.4
-                            img_enemyShotSmallBall[color]);
-                    }
-                }
-
-                if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
-                PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
-            }
-
-            // 粒子を削除(波に変わった)
-            pShot->prev->next = pShot->next;
-            pShot->next->prev = pShot->prev;
-            delete pShot;
-        }
-        pShot = pNext;
-    }
-}
-
-// ---- 補助攻撃:敵本体からの3方向鱗弾(定位置に居させないための攪乱) ----
-static void ShotAim(sEnemyShotSet* pEnemyShotSet)
-{
-    if (pEnemyShotSet->count == 0) {
-        if (CheckSoundMem(sound_enemyShot_medium)) StopSoundMem(sound_enemyShot_medium);
-        PlaySoundMem(sound_enemyShot_medium, DX_PLAYTYPE_BACK);
-
-        for (int i = -1; i <= 1; i++) {
-            AddShot(pEnemyShotSet,
-                pEnemyShotSet->x, pEnemyShotSet->y,
-                pEnemyShotSet->muki + i * 0.15,
-                3.0,
-                img_enemyShotScale[8]); // 橙の鱗弾
+        // 10way = 2発1組のペアが5組。ペア内の間隔は狭く(18度)、
+        // ペア同士の間は広く(54度)空ける。18×5 + 54×5 = 360度。
+        for (int i = 0; i < 10; i++) {
+            double ang = pEnemyShotSet->muki                  // 今回のリングの基準角
+                + (i / 2) * (72.0 * DX_PI / 180.0)     // ペアの位置(72度間隔)
+                + (i % 2) * (18.0 * DX_PI / 180.0);    // ペア内の狭い間隔
+            pEnemyShot = new sEnemyShot;
+            pEnemyShot->x = pEnemyShotSet->x;
+            pEnemyShot->y = pEnemyShotSet->y;
+            pEnemyShot->muki = ang;
+            pEnemyShot->speed = 2.0;
+            pEnemyShot->kind = img_enemyShotMediumBall[5];   // マゼンタ中玉
+            pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+            pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+            pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+            pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
         }
     }
     sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
@@ -170,78 +72,121 @@ static void ShotAim(sEnemyShotSet* pEnemyShotSet)
     }
 }
 
-// ============================================================
-//  敵本体のパターン
-// ============================================================
+// ------------------------------------------------------------
+// B: 自機へ向かって逆三角形を成す密な弾列5本を時間差で発射
+//    中央(8発)→中間左右(各5発)→外側左右(各2発)の順に3フレーム間隔で撃つ。
+//    遅れて撃つ弾列ほど発射位置を前方へ前倒しする(3フレーム×速度3.45)ので、
+//    すべての弾が同一速度で飛んでも逆三角形(▽)の隊列が保たれる。
+// ------------------------------------------------------------
+static void ShotLunaticGunWedge(sEnemyShotSet* pEnemyShotSet)
+{
+    sEnemyShot* pEnemyShot;
+    int c = pEnemyShotSet->count;
+
+    if (c == 0) {
+        // 重い銃声(1セット=1回の発射)
+        if (CheckSoundMem(sound_enemyShot_heavy)) StopSoundMem(sound_enemyShot_heavy);
+        PlaySoundMem(sound_enemyShot_heavy, DX_PLAYTYPE_BACK);
+
+        // 照準: 自機方向を基準に少し荒く(±2.8度のランダム誤差)
+        // GetRand(8)-4 は -4〜+4 の9通りを返す
+        pEnemyShotSet->param_d[0] = atan2(player.y - pEnemyShotSet->y,
+            player.x - pEnemyShotSet->x)
+            + (GetRand(8) - 4) * 0.7 * DX_PI / 180.0;
+    }
+
+    // 弾列の発射タイミング: c==0 で中央、c==3 で中間左右、c==6 で外側左右
+    if (c == 0 || c == 3 || c == 6) {
+        int step = c / 3;                       // 0:中央 1:中間 2:外側
+        const int colHeight[3] = { 8, 5, 2 };   // 各弾列の弾数(中央が8発=1辺8発分)
+        double aim = pEnemyShotSet->param_d[0];
+        double ax = cos(aim), ay = sin(aim);    // 自機への進行方向
+        double px = -ay, py = ax;               // 進行方向と垂直な方向(弾列の並び)
+
+        // 中央は1列のみ、中間と外側は左右の2列
+        for (int s = (step == 0 ? 0 : -1); s <= 1; s += 2) {
+            int col = s * step;                              // 弾列番号 -2〜+2
+            double lead = 3.45 * 3.0 * step;                 // 発射遅れ3フレーム分を前倒し(速度3.45に一致)
+            for (int j = 0; j < colHeight[step]; j++) {
+                pEnemyShot = new sEnemyShot;
+                pEnemyShot->x = pEnemyShotSet->x + ax * (8.0 + j * 10.0 + lead) + px * col * 12.0;
+                pEnemyShot->y = pEnemyShotSet->y + ay * (8.0 + j * 10.0 + lead) + py * col * 12.0;
+                // 全弾が同一方向・同一速度で飛ぶことで隊列は剛体に保たれる
+                // (荒さはセット毎の照準誤差で表現)
+                pEnemyShot->muki = aim;
+                pEnemyShot->speed = 3.45;
+                pEnemyShot->kind = img_enemyShotBullet[6];  // 白の銃弾
+                pEnemyShot->prev = pEnemyShotSet->pEnemyShotHead->prev;
+                pEnemyShot->next = pEnemyShotSet->pEnemyShotHead;
+                pEnemyShotSet->pEnemyShotHead->prev->next = pEnemyShot;
+                pEnemyShotSet->pEnemyShotHead->prev = pEnemyShot;
+            }
+        }
+    }
+
+    sEnemyShot* pShot = pEnemyShotSet->pEnemyShotHead->next;
+    while (pShot != pEnemyShotSet->pEnemyShotHead) {
+        pShot->x += pShot->speed * cos(pShot->muki);
+        pShot->y += pShot->speed * sin(pShot->muki);
+        pShot = pShot->next;
+    }
+}
+
+// ------------------------------------------------------------
+// 敵本体のパターン: 銃符「ルナティックガン」
+// ------------------------------------------------------------
 void EnemyPat_Tmp()
 {
+    static double ringAngle; // A用: 全方位弾の基準角(発射ごとに時計回りへ進む)
+    static int    mukiX;     // ボスの移動方向
+
     if (count == 1) {
         // ゲーム画面は 480x480
         enemy.x = 240.0;
         enemy.y = 40.0;
         enemy.maxHp = enemy.hp = 200; // 200から変更しないこと
-
-        // 開幕の予告音
-        if (CheckSoundMem(sound_enemyCharge)) StopSoundMem(sound_enemyCharge);
-        PlaySoundMem(sound_enemyCharge, DX_PLAYTYPE_BACK);
-
-        // --- スリット壁セットの生成(一度だけ) ---
-        sEnemyShotSet* pWallSet = new sEnemyShotSet;
-        pWallSet->count = 0;
-        pWallSet->patternFunc = ShotWall;
-        pWallSet->x = 0.0;
-        pWallSet->y = WALL_Y_BASE;
-        pWallSet->muki = 0.0;
-        pWallSet->kind = 0;
-        pWallSet->pEnemyShotHead = new sEnemyShot;
-        pWallSet->pEnemyShotHead->prev = pWallSet->pEnemyShotHead;
-        pWallSet->pEnemyShotHead->next = pWallSet->pEnemyShotHead;
-        pWallSet->prev = enemyShotSetHead.prev;
-        pWallSet->next = &enemyShotSetHead;
-        enemyShotSetHead.prev->next = pWallSet;
-        enemyShotSetHead.prev = pWallSet;
-
-        // 壁本体:大玉(青)を x=40〜440 に20px間隔で並べ、
-        // スリットA(x=160)/B(x=320)の周囲だけ隙間を空ける
-        for (int i = 0; i <= 20; i++) {
-            double x = 40.0 + i * 20.0;
-            if (fabs(x - SLIT_A_X) <= SLIT_HALF_WIDTH) continue; // スリットA
-            if (fabs(x - SLIT_B_X) <= SLIT_HALF_WIDTH) continue; // スリットB
-            AddShot(pWallSet, x, WALL_Y_BASE, 0.0, 0.0, img_enemyShotLargeBall[4]);
-        }
-
-        // --- 粒子セットの生成(一度だけ、以降は自分で粒子を降らせ続ける) ---
-        sEnemyShotSet* pParticleSet = new sEnemyShotSet;
-        pParticleSet->count = 0;
-        pParticleSet->patternFunc = ShotParticle;
-        pParticleSet->x = 0.0;
-        pParticleSet->y = 0.0;
-        pParticleSet->muki = 0.0;
-        pParticleSet->kind = 0;
-        pParticleSet->param_i[0] = 0; // 0:次はスリットA / 1:次はスリットB
-        pParticleSet->alive = 9999;
-        pParticleSet->pEnemyShotHead = new sEnemyShot;
-        pParticleSet->pEnemyShotHead->prev = pParticleSet->pEnemyShotHead;
-        pParticleSet->pEnemyShotHead->next = pParticleSet->pEnemyShotHead;
-        pParticleSet->prev = enemyShotSetHead.prev;
-        pParticleSet->next = &enemyShotSetHead;
-        enemyShotSetHead.prev->next = pParticleSet;
-        enemyShotSetHead.prev = pParticleSet;
+        ringAngle = 0.0;
+        mukiX = 1;
     }
     else {
-        // 敵本体はゆっくり左右に揺れる(演出用)
-        enemy.x = 240.0 + 50.0 * sin((count - 1) * 0.008);
+        // ゆっくり左右に揺れる(全ての弾はその瞬間のボス位置を基準に放たれる)
+        enemy.x += 0.45 * (double)mukiX;
+        if (count % 140 == 0) mukiX *= -1;
     }
 
-    // 補助攻撃:180フレームごとに3方向の鱗弾
-    if (count > 1 && count % 180 == 90) {
+    // ---- A: 常時撃ち続ける(10フレーム間隔で1リング、時計回りに回転) ----
+    if (count % 10 == 1) {
         sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
         pEnemyShotSet->count = 0;
-        pEnemyShotSet->patternFunc = ShotAim;
+        pEnemyShotSet->patternFunc = ShotLunaticGunRing;
+        pEnemyShotSet->x = enemy.x;
+        pEnemyShotSet->y = enemy.y;
+        pEnemyShotSet->muki = ringAngle;       // 今回のリングの基準角
+        pEnemyShotSet->kind = 0;
+        ringAngle += 8.0 * DX_PI / 180.0;      // 次のリングは時計回りに8度回転
+        // (画面座標は y 下向きなので +方向が時計回り)
+        pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
+        pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
+        pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
+        pEnemyShotSet->prev = enemyShotSetHead.prev;
+        pEnemyShotSet->next = &enemyShotSetHead;
+        enemyShotSetHead.prev->next = pEnemyShotSet;
+        enemyShotSetHead.prev = pEnemyShotSet;
+    }
+
+    // ---- B: 1セット撃ったら4フレームだけ空けてもう1セット撃ち、
+    //         その後約64フレームの間を空けて繰り返す(周期80フレーム) ----
+    // 1セット目: 位相0(弾列は位相0/3/6)  2セット目: 位相10(弾列は位相10/13/16)
+    // count>=80 から開始し、最初のサイクルから必ず2セット1組のリズムになるようにする
+    int phase = count % 80;
+    if (count >= 80 && (phase == 0 || phase == 10)) {
+        sEnemyShotSet* pEnemyShotSet = new sEnemyShotSet;
+        pEnemyShotSet->count = 0;
+        pEnemyShotSet->patternFunc = ShotLunaticGunWedge;
         pEnemyShotSet->x = enemy.x;
         pEnemyShotSet->y = enemy.y + 10.0;
-        pEnemyShotSet->muki = atan2(player.y - pEnemyShotSet->y, player.x - pEnemyShotSet->x);
-        pEnemyShotSet->kind = 0;
+        pEnemyShotSet->muki = 0.0;
+        pEnemyShotSet->kind = (phase == 0) ? 0 : 1;  // 0:1セット目 1:2セット目
         pEnemyShotSet->pEnemyShotHead = new sEnemyShot;
         pEnemyShotSet->pEnemyShotHead->prev = pEnemyShotSet->pEnemyShotHead;
         pEnemyShotSet->pEnemyShotHead->next = pEnemyShotSet->pEnemyShotHead;
